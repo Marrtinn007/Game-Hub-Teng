@@ -9,7 +9,7 @@ const CONFIG={
     messagingSenderId:"243195546115",
     appId:"1:243195546115:web:ae2bfec98846ad0b04dc36",
   },
-  workerURL:"https://YOUR_WORKER.YOUR_SUBDOMAIN.workers.dev",
+  workerURL:"https://gamehub-api.ou415201.workers.dev",
 };
 
 /* ══ FIREBASE ════════════════════════════ */
