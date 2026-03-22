@@ -1492,6 +1492,99 @@ function drawWheel(rot){
   ctx.fillStyle=cg;ctx.fill();
   ctx.strokeStyle='rgba(255,255,255,0.18)';ctx.lineWidth=2;ctx.stroke();
 }
+/* ══ SOUND ENGINE ══════════════════════════════════════════════ */
+const _AC=(()=>{try{return new(window.AudioContext||window.webkitAudioContext)()}catch(e){return null}})();
+function _resumeAC(){if(_AC&&_AC.state==='suspended')_AC.resume()}
+
+// ── วงล้อ: click ตอนลูกศรข้ามเส้นแบ่ง segment จริงๆ ──
+let _wheelPrevSeg=-1;
+function _wheelClick(vel){
+  if(!_AC)return;
+  const now=_AC.currentTime;
+  // เสียง tick แบบ ratchet — triangle burst สั้น pitch สูง
+  const vol=Math.min(0.25,0.08+vel*0.009);
+  const pitch=500+vel*18;
+  const g=_AC.createGain();
+  g.gain.setValueAtTime(vol,now);
+  g.gain.exponentialRampToValueAtTime(0.001,now+0.03);
+  const o=_AC.createOscillator();
+  o.type='triangle';
+  o.frequency.setValueAtTime(pitch,now);
+  o.frequency.exponentialRampToValueAtTime(pitch*0.6,now+0.03);
+  o.connect(g);g.connect(_AC.destination);
+  o.start(now);o.stop(now+0.03);
+  // click body — noise เบาๆ
+  const nb=_AC.createBuffer(1,Math.ceil(_AC.sampleRate*0.02),_AC.sampleRate);
+  const nd=nb.getChannelData(0);
+  for(let i=0;i<nd.length;i++)nd[i]=(Math.random()*2-1)*Math.pow(1-i/nd.length,3);
+  const ns=_AC.createBufferSource();ns.buffer=nb;
+  const ng=_AC.createGain();ng.gain.setValueAtTime(vol*0.4,now);ng.gain.exponentialRampToValueAtTime(0.001,now+0.02);
+  const bp=_AC.createBiquadFilter();bp.type='bandpass';bp.frequency.value=3000;bp.Q.value=1;
+  ns.connect(bp);bp.connect(ng);ng.connect(_AC.destination);
+  ns.start(now);
+}
+// เรียกจาก drawWheel ทุก frame — detect crossing
+function _wheelCheckCross(angle,vel){
+  if(!S.wheelItems||S.wheelItems.length<2)return;
+  const n=S.wheelItems.length;
+  const sliceAng=(Math.PI*2)/n;
+  const offset=((Math.PI*2)-((angle%(Math.PI*2))+(Math.PI*2))%(Math.PI*2))%(Math.PI*2);
+  const seg=Math.floor(offset/sliceAng)%n;
+  if(_wheelPrevSeg!==-1&&seg!==_wheelPrevSeg){_wheelClick(vel||_wheelHoldVel);}
+  _wheelPrevSeg=seg;
+}
+function _wheelResetCross(){_wheelPrevSeg=-1;}
+
+// ── ไพ่: เสียงตอนขยับแต่ละใบ (track pixel crossing) + land ──
+let _cardPrevItemIdx=-1;
+function _cardTick(vel){
+  if(!_AC)return;
+  const now=_AC.currentTime;
+  // เสียงกระดาษ — noise burst
+  const len=Math.ceil(_AC.sampleRate*0.028);
+  const buf=_AC.createBuffer(1,len,_AC.sampleRate);
+  const d=buf.getChannelData(0);
+  for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.5);
+  const src=_AC.createBufferSource();src.buffer=buf;
+  const vol=Math.min(0.28,0.1+vel*0.013);
+  const g=_AC.createGain();g.gain.setValueAtTime(vol,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.028);
+  const bp=_AC.createBiquadFilter();bp.type='bandpass';
+  bp.frequency.value=1800+vel*60+Math.random()*400;bp.Q.value=1.1;
+  src.connect(bp);bp.connect(g);g.connect(_AC.destination);
+  src.start(now);
+  // thud เบา ๆ
+  const o=_AC.createOscillator();o.type='sine';
+  o.frequency.setValueAtTime(80,now);o.frequency.exponentialRampToValueAtTime(38,now+0.04);
+  const og=_AC.createGain();og.gain.setValueAtTime(vol*0.45,now);og.gain.exponentialRampToValueAtTime(0.001,now+0.05);
+  o.connect(og);og.connect(_AC.destination);
+  o.start(now);o.stop(now+0.05);
+}
+// เรียกจาก scrollTick และ decelTick ทุก frame
+function _cardCheckCross(scrollOffset,vel){
+  const idx=Math.floor(scrollOffset/180);
+  if(_cardPrevItemIdx!==-1&&idx!==_cardPrevItemIdx){_cardTick(vel||_drawHoldVel);}
+  _cardPrevItemIdx=idx;
+}
+function _cardResetCross(){_cardPrevItemIdx=-1;}
+function _cardSoundLand(){
+  if(!_AC)return;
+  const now=_AC.currentTime;
+  const len=Math.ceil(_AC.sampleRate*0.07);
+  const buf=_AC.createBuffer(1,len,_AC.sampleRate);
+  const d=buf.getChannelData(0);
+  for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,1.8);
+  const src=_AC.createBufferSource();src.buffer=buf;
+  const g=_AC.createGain();g.gain.setValueAtTime(0.38,now);g.gain.exponentialRampToValueAtTime(0.001,now+0.07);
+  const bp=_AC.createBiquadFilter();bp.type='bandpass';bp.frequency.value=1600;bp.Q.value=0.8;
+  src.connect(bp);bp.connect(g);g.connect(_AC.destination);
+  src.start(now);
+  const o=_AC.createOscillator();o.type='sine';
+  o.frequency.setValueAtTime(110,now);o.frequency.exponentialRampToValueAtTime(42,now+0.1);
+  const og=_AC.createGain();og.gain.setValueAtTime(0.32,now);og.gain.exponentialRampToValueAtTime(0.001,now+0.12);
+  o.connect(og);og.connect(_AC.destination);
+  o.start(now);o.stop(now+0.12);
+}
+
 function spinWheel(){startHoldSpin();setTimeout(releaseHoldSpin,1500+Math.random()*1000)}
 let _wheelHoldRAF=null,_wheelHoldActive=false,_wheelHoldStart=0,_wheelHoldVel=2;
 function startHoldSpin(e){
@@ -1501,6 +1594,7 @@ function startHoldSpin(e){
   if(S.wheelItems.length<2){showToast('ต้องมีอย่างน้อย 2 ตัวเลือก');return}
   _wheelHoldActive=true;_wheelHoldStart=performance.now();_wheelHoldVel=2;
   btn.classList.add('holding');
+  _resumeAC();_wheelResetCross();
   const resultEl=$('wheelResult');if(resultEl)resultEl.innerHTML='';
   let lastT=performance.now();
   function spinTick(now){
@@ -1508,6 +1602,7 @@ function startHoldSpin(e){
     const dt=Math.min((now-lastT)/1000,0.05);lastT=now;
     _wheelHoldVel=Math.min(20,2+((now-_wheelHoldStart)/1000)*5);
     S.wheelAngle=(S.wheelAngle+_wheelHoldVel*dt)%(Math.PI*2);
+    _wheelCheckCross(S.wheelAngle,_wheelHoldVel);
     drawWheel(S.wheelAngle);
     _wheelHoldRAF=requestAnimationFrame(spinTick);
   }
@@ -1526,7 +1621,9 @@ function releaseHoldSpin(){
   function decelTick(now){
     const p=Math.min((now-t0)/decelDur,1);
     const ease=1-Math.pow(1-p,3);
-    drawWheel((a0+extraAngle*ease)%(Math.PI*2));
+    const ang=(a0+extraAngle*ease)%(Math.PI*2);
+    _wheelCheckCross(ang,vel*(1-p));
+    drawWheel(ang);
     if(p<1){requestAnimationFrame(decelTick);return;}
     const finalAngle=((a0+extraAngle)%(Math.PI*2)+Math.PI*2)%(Math.PI*2);
     S.wheelAngle=finalAngle;
@@ -1573,6 +1670,7 @@ function startHoldDraw(e){
   if(S.cardIdx>=S.cardDeck.length){showToast('หมดสำรับแล้ว! เริ่มใหม่');initCards();return;}
   _drawHoldActive=true;_drawHoldStart=performance.now();_drawHoldPhase='spinning';_drawHoldVel=1;
   const btn=$('btnDrawCard');if(btn)btn.classList.add('holding');
+  _resumeAC();_cardResetCross();
   const reel=$('cardSlotReel');if(!reel)return;
   reel.style.transform='translateY(0)';reel.innerHTML='';
   for(let i=0;i<20;i++)reel.appendChild(_makeRandomCardEl());
@@ -1584,6 +1682,7 @@ function startHoldDraw(e){
     _drawHoldVel=Math.min(15,1+((now-_drawHoldStart)/1000)*4);
     _drawScrollOffset+=_drawHoldVel*_DRAW_ITEM_H*dt;
     if(_drawScrollOffset>(reel.children.length-2)*_DRAW_ITEM_H)reel.appendChild(_makeRandomCardEl());
+    _cardCheckCross(_drawScrollOffset,_drawHoldVel);
     reel.style.transform=`translateY(-${_drawScrollOffset}px)`;
     _drawHoldRAF=requestAnimationFrame(scrollTick);
   }
@@ -1610,10 +1709,13 @@ function releaseHoldDraw(){
   const t0=performance.now(),dist=targetOffset-curOffset;
   function decelTick(now){
     const p=Math.min((now-t0)/decelDur,1),ease=1-Math.pow(1-p,4);
-    reel.style.transform=`translateY(-${curOffset+dist*ease}px)`;
+    const curPos=curOffset+dist*ease;
+    _cardCheckCross(curPos,vel*(1-p));
+    reel.style.transform=`translateY(-${curPos}px)`;
     if(p<1){requestAnimationFrame(decelTick);return;}
     reel.style.transform=`translateY(-${targetOffset}px)`;
     _drawScrollOffset=targetOffset;_drawHoldPhase='idle';
+    _cardSoundLand();
   }
   requestAnimationFrame(decelTick);
 }
