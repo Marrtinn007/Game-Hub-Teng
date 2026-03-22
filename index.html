@@ -131,6 +131,7 @@ body{
 
 /* ── Home ── */
 #screen-home{padding-bottom:3rem}
+
 .home-hero{padding:3.5rem var(--pad) 1.75rem;text-align:center}
 .home-badge{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-pill);padding:7px 18px;margin-bottom:1.5rem}
 .home-badge-dot{width:8px;height:8px;border-radius:50%;background:var(--ok);animation:pulse 2s infinite;flex-shrink:0}
@@ -150,7 +151,7 @@ body{
 .home-create{width:100%;margin-top:10px;height:48px;font-size:15px;font-weight:700}
 
 /* Games grid */
-.games-section{margin:2rem 0 0}
+.games-section{margin:1rem 0 0}
 .games-section-label{padding:0 var(--pad);font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--t2);text-transform:uppercase;margin-bottom:0.875rem}
 .games-grid{padding:0 var(--pad);display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .game-card{padding:1.25rem;cursor:pointer;background:linear-gradient(160deg,var(--card2) 0%,var(--card) 100%);border-radius:var(--r-l);box-shadow:var(--sh);border:1px solid var(--line);border-top:1px solid rgba(255,255,255,0.07);transition:transform 0.18s var(--spring),box-shadow 0.18s}
@@ -286,7 +287,7 @@ body{
 /* ── Wheel ── */
 .wheel-wrap{display:flex;align-items:center;justify-content:center;padding:0.5rem 0 0.75rem;position:relative}
 .wheel-pointer{position:absolute;top:0;left:50%;transform:translateX(-50%);width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:26px solid var(--t0);z-index:2;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5))}
-#wheelCanvas{border-radius:50%;display:block;max-width:min(250px,calc(100vw - 3rem));max-height:min(250px,38vh);width:auto;height:auto;box-shadow:0 8px 32px rgba(0,0,0,0.5)}
+#wheelCanvas{border-radius:50%;display:block;width:min(400px,calc(100vw - 1.5rem));height:min(400px,calc(100vw - 1.5rem));max-height:52vh;box-shadow:0 8px 32px rgba(0,0,0,0.5);cursor:grab;touch-action:none}
 .wheel-result{text-align:center;margin-bottom:1rem;min-height:48px;display:flex;align-items:center;justify-content:center}
 .wheel-result-text{font-size:24px;font-weight:900;color:var(--ac)}
 .wheel-items{padding:0.5rem 0.875rem;margin-bottom:10px;max-height:120px;overflow-y:auto;background:var(--card);border-radius:var(--r-s);border:1px solid var(--line)}
@@ -311,14 +312,14 @@ body{
 .special-rules-label{font-size:11px;letter-spacing:0.07em;color:var(--warn);text-transform:uppercase;margin-bottom:8px;font-weight:700}
 .special-rule-item{font-size:13px;color:var(--t2);margin-bottom:5px;display:flex;align-items:center;gap:8px}
 .card-main{padding:1.5rem;text-align:center;margin-bottom:1.25rem;background:var(--card);border-radius:var(--r);border:1px solid var(--line)}
-.card-draw-wrap{overflow:hidden;border-radius:var(--r);margin-bottom:0.5rem;height:180px;max-height:180px;position:relative;background:var(--card2)}
+.card-draw-wrap{overflow:hidden;border-radius:var(--r);margin-bottom:0.5rem;height:240px;max-height:240px;position:relative;background:var(--card2)}
 .card-slot-reel{display:flex;flex-direction:column;gap:0;transition:none}
-.card-slot-item{height:180px;min-height:180px;max-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.25rem;text-align:center;flex-shrink:0}
+.card-slot-item{height:240px;min-height:240px;max-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.25rem;text-align:center;flex-shrink:0}
 @keyframes slotSpin{0%{transform:translateY(0)}100%{transform:translateY(var(--slot-end))}}
 .card-slot-reel.spinning{animation:slotSpin var(--slot-dur) cubic-bezier(0.15,0,0.3,1) forwards}
-.playing-card-val{font-size:62px;font-weight:900;line-height:1;margin-bottom:0.5rem}
-.playing-card-rule{font-size:19px;font-weight:800;color:var(--t0);line-height:1.4;margin-bottom:0.5rem}
-.playing-card-desc{font-size:14px;color:var(--t1);line-height:1.65;white-space:pre-line;font-weight:400}
+.playing-card-val{font-size:80px;font-weight:900;line-height:1;margin-bottom:0.5rem}
+.playing-card-rule{font-size:22px;font-weight:800;color:var(--t0);line-height:1.4;margin-bottom:0.5rem}
+.playing-card-desc{font-size:16px;color:var(--t1);line-height:1.65;white-space:pre-line;font-weight:400}
 
 /* ── Settings ── */
 
@@ -354,8 +355,45 @@ body{
   .menu-popup{right:1.75rem}
   .ww-host-list,.ww-roles-list{padding:0}
 }
-@media(min-width:680px){.games-grid,.game-select-grid{grid-template-columns:repeat(3,1fr)}}
-@media(min-width:900px){.games-grid,.game-select-grid{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:680px){
+  .games-grid,.game-select-grid{grid-template-columns:repeat(3,1fr)}
+}
+
+/* ── Large iPad Pro / Monitor (1100px+) ── */
+@media(min-width:1100px){
+  #screen-home{align-items:center}
+  .home-hero{
+    max-width:640px;width:100%;
+    padding:3.5rem 2rem 1.5rem;
+    text-align:center;
+  }
+  .games-section{
+    width:100%;max-width:640px;
+    padding:0 2rem 3rem;
+    margin:0;
+  }
+  .games-section .games-grid{
+    margin:0;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+  }
+  .games-section .games-section-label{margin:0;padding:0}
+  .game-card{padding:1.5rem}
+
+  /* Wheel */
+  #screen-wheel .game-body{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;
+  }
+  #wheelCanvas{
+    width:min(640px,min(56vw,80vh)) !important;
+    height:min(640px,min(56vw,80vh)) !important;
+    max-height:none !important;
+  }
+  .wheel-items{max-width:520px;width:100%}
+  .wheel-add-row{max-width:520px;width:100%}
+  .btn-spin{max-width:520px}
+}
+
 </style>
 </head>
 <body>
@@ -417,9 +455,30 @@ body{
 </div>
 
 <!-- Modals -->
-<div class="modal-overlay" id="modal-info" onclick="closeModalOutside(event,'modal-info')">
-  <div class="modal-sheet"><div class="modal-handle"></div><div class="modal-title">วิธีเล่น</div><div class="modal-body" id="modalInfoBody"></div>
-  <button class="btn btn-ac btn-full" style="margin-top:1rem" onclick="closeModal('modal-info')">ปิด</button></div>
+<div class="modal-overlay" id="modal-join" onclick="closeModalOutside(event,'modal-join')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.25rem">
+      <div id="modalJoinIcon" style="font-size:36px;line-height:1"></div>
+      <div>
+        <div id="modalJoinTitle" style="font-size:20px;font-weight:800;color:var(--t0)"></div>
+        <div id="modalJoinDesc" style="font-size:13px;color:var(--t2);margin-top:2px"></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:1rem">
+      <input class="inp inp-center" id="joinCodeInput" placeholder="รหัสห้อง" maxlength="6" autocomplete="off" style="letter-spacing:0.12em;text-transform:uppercase;font-size:20px"/>
+      <button class="btn btn-ac btn-full" onclick="joinRoomFromModal()">เข้าร่วมห้อง</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem">
+      <div style="flex:1;height:1px;background:var(--line)"></div>
+      <span style="font-size:12px;color:var(--t3);font-weight:600">หรือ</span>
+      <div style="flex:1;height:1px;background:var(--line)"></div>
+    </div>
+    <button class="btn btn-sf btn-full" onclick="showCreateRoomFromModal()" style="height:48px;font-size:15px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      สร้างห้องใหม่
+    </button>
+  </div>
 </div>
 <div class="modal-overlay" id="modal-role-info" onclick="closeModalOutside(event,'modal-role-info')">
   <div class="modal-sheet"><div class="modal-handle"></div>
@@ -445,36 +504,28 @@ body{
     <div class="home-title">Game Hub <span class="home-title-accent">Teng</span></div>
     <div class="home-sub">สนุกกับเพื่อน · เริ่มได้ทันที</div>
   </div>
-  <div class="home-join-card">
-    <div class="home-join-label">เข้าร่วมห้อง</div>
-    <div class="home-join-row">
-      <input class="home-join-input" id="joinCodeInput" placeholder="รหัสห้อง" maxlength="6" autocomplete="off"/>
-      <button class="btn btn-ac btn-med" style="padding:0 18px;font-size:15px;white-space:nowrap;flex-shrink:0" onclick="joinRoom()">เข้าร่วม</button>
-    </div>
-    <button class="btn btn-sf home-create" onclick="showCreateRoom()">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>สร้างห้องใหม่
-    </button>
-  </div>
   <div class="games-section">
-    <div class="games-section-label">เกมทั้งหมด</div>
+    <div class="games-section-label">🎲 บอร์ดเกม — ต้องสร้างห้อง</div>
     <div class="games-grid">
-      <div class="game-card" onclick="previewGame('ww')">
-        <div class="game-icon" style="background:rgba(255,133,0,0.15);font-size:24px">🌙</div>
-        <div class="game-name">Werewolf</div><div class="game-desc">แจกไพ่บทบาท · ดำเนินเองได้</div>
+      <div class="game-card" onclick="openJoinModal('ww')">
+        <div class="game-icon" style="background:rgba(249,168,212,0.14);font-size:24px">🌙</div>
+        <div class="game-name">Werewolf</div><div class="game-desc">4–18 คน · แจกไพ่บทบาท</div>
       </div>
-      <div class="game-card" onclick="previewGame('wheel')">
-        <div class="game-icon" style="background:rgba(52,211,153,0.12);font-size:24px">🎰</div>
-        <div class="game-name">Spin the Wheel</div><div class="game-desc">กำหนดเองได้</div>
+      <div class="game-card" onclick="openJoinModal('spyfall')">
+        <div class="game-icon" style="background:rgba(192,132,252,0.14);font-size:24px">🕵️</div>
+        <div class="game-name">Spyfall</div><div class="game-desc">3+ คน · หาสายลับ</div>
       </div>
-      <div class="game-card" onclick="previewGame('spyfall')">
-        <div class="game-icon" style="background:rgba(192,132,252,0.12);font-size:24px">🕵️</div>
-        <div class="game-name">Spyfall</div><div class="game-desc">หาสายลับ · 60 สถานที่</div>
+    </div>
+    <div class="games-section-label" style="margin-top:1.5rem">⚡ มินิเกม — เริ่มได้เลย</div>
+    <div class="games-grid">
+      <div class="game-card" onclick="launchSolo('wheel')">
+        <div class="game-icon" style="background:rgba(134,239,172,0.14);font-size:24px">🎰</div>
+        <div class="game-name">Spin the Wheel</div><div class="game-desc">ตัดสินใจแทนคุณได้เลย</div>
       </div>
-      <div class="game-card" onclick="previewGame('cards')">
-        <div class="game-icon" style="background:rgba(248,113,113,0.12);font-size:24px">🃏</div>
-        <div class="game-name">ไพ่ปาร์ตี้</div><div class="game-desc">Custom rules · สุ่มมินิเกม</div>
+      <div class="game-card" onclick="launchSolo('cards')">
+        <div class="game-icon" style="background:rgba(253,164,175,0.14);font-size:24px">🃏</div>
+        <div class="game-name">ไพ่ปาร์ตี้</div><div class="game-desc">ชาเลนจ์สนุกๆ ในวงเพื่อน</div>
       </div>
-
     </div>
   </div>
 </div>
@@ -509,16 +560,14 @@ body{
     <button class="btn-icon" onclick="leaveRoom()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
     <div class="lobby-title"><div class="lobby-room-code" id="lobbyCode">ห้อง · ------</div><div class="lobby-room-name" id="lobbyRoomName">Game Hub Teng</div></div>
   </div>
-  <div class="lobby-sec"><div class="label">ผู้เล่น <span id="playerCount" style="color:var(--ac)">0</span></div><div class="players-list" id="playersList"></div></div>
-  <div class="share-box  z1"><div class="share-lbl">รหัสห้อง</div><div class="share-code" id="shareCode">------</div>
+  <div class="share-box" style="margin-top:1rem"><div class="share-lbl">รหัสห้อง</div><div class="share-code" id="shareCode">------</div>
     <button class="btn btn-sf" style="width:100%;height:42px;font-size:14px;gap:7px" onclick="copyRoomLink()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>คัดลอกลิงก์</button>
   </div>
+  <div class="lobby-sec"><div class="label">ผู้เล่น <span id="playerCount" style="color:var(--ac)">0</span></div><div class="players-list" id="playersList"></div></div>
   <div class="gap-lbl">เลือกเกม</div>
   <div class="game-select-grid" id="gameSelectGrid">
     <div class="game-select-card" data-game="ww" onclick="selectGame('ww')"><div class="gs-icon">🌙</div><div class="gs-name">Werewolf</div></div>
-    <div class="game-select-card" data-game="wheel" onclick="selectGame('wheel')"><div class="gs-icon">🎰</div><div class="gs-name">Spin Wheel</div></div>
     <div class="game-select-card" data-game="spyfall" onclick="selectGame('spyfall')"><div class="gs-icon">🕵️</div><div class="gs-name">Spyfall</div></div>
-    <div class="game-select-card" data-game="cards" onclick="selectGame('cards')"><div class="gs-icon">🃏</div><div class="gs-name">ไพ่ปาร์ตี้</div></div>
   </div>
   <button class="btn btn-ac btn-start" id="btnStartGame" disabled onclick="startGame()">▶ เริ่มเกม</button>
   <div class="host-only-hint" id="hostHint" style="display:none">เฉพาะ Host เลือกและเริ่มเกมได้</div>
@@ -546,11 +595,11 @@ body{
 <!-- ══ WHEEL ══ -->
 <div class="screen game-screen" id="screen-wheel">
   <div class="game-top">
-    <div class="game-top-info"><div class="game-top-name">🎰 Spin the Wheel</div><div class="game-top-sub">ปั่นเพื่อตัดสิน</div></div>
-    <button class="btn-icon" onclick="toggleMenu()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+    <button class="btn-icon" onclick="exitSoloGame()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
+    <div class="game-top-info"><div class="game-top-name">🎰 Spin the Wheel</div><div class="game-top-sub">กดค้างหรือปัดวงล้อเพื่อหมุน</div></div>
   </div>
   <div class="game-body">
-    <div class="wheel-wrap"><div class="wheel-pointer"></div><canvas id="wheelCanvas" width="280" height="280"></canvas></div>
+    <div class="wheel-wrap"><div class="wheel-pointer"></div><canvas id="wheelCanvas" width="420" height="420"></canvas></div>
     <div class="wheel-result"><div id="wheelResult"></div></div>
     <div class="wheel-items" id="wheelItemsList"></div>
     <div class="wheel-add-row">
@@ -568,8 +617,8 @@ body{
 <!-- ══ CARDS ══ -->
 <div class="screen game-screen" id="screen-cards">
   <div class="game-top">
+    <button class="btn-icon" onclick="exitSoloGame()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
     <div class="game-top-info"><div class="game-top-name">🃏 ไพ่ปาร์ตี้</div><div class="game-top-sub">ไพ่ที่เหลือ: <span id="cardsLeft">52</span> ใบ</div></div>
-    <button class="btn-icon" onclick="toggleMenu()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
   </div>
   <div class="game-body">
     <div class="special-rules-box"><div class="special-rules-label">⚠ กฎพิเศษตลอดเกม</div>
@@ -833,6 +882,46 @@ function stopSpeakSequence(){_ttsAbort=true;stopSpeech()}
 
 /* ══ ROOM ════════════════════════════════ */
 function showCreateRoom(){S.pendingRoomCode=genCode();S.isHost=true;const i=$('roomNameInput');if(i)i.value='';showScreen('screen-room')}
+
+const _JOIN_MODAL_META={
+  ww:{icon:'🌙',title:'Werewolf',desc:'เล่นกับเพื่อน 4–18 คน'},
+  spyfall:{icon:'🕵️',title:'Spyfall',desc:'หาสายลับในกลุ่ม · 2+ คน'},
+};
+let _joinModalGame=null;
+function openJoinModal(type){
+  _joinModalGame=type;
+  const meta=_JOIN_MODAL_META[type]||{icon:'🎮',title:type,desc:''};
+  const icon=$('modalJoinIcon'),title=$('modalJoinTitle'),desc=$('modalJoinDesc');
+  if(icon)icon.textContent=meta.icon;
+  if(title)title.textContent=meta.title;
+  if(desc)desc.textContent=meta.desc;
+  const inp=$('joinCodeInput');if(inp)inp.value='';
+  openModal('modal-join');
+  setTimeout(()=>$('joinCodeInput')?.focus(),300);
+}
+function joinRoomFromModal(){
+  S.pendingRoomCode=null;S.isHost=false;
+  joinRoom();
+}
+function showCreateRoomFromModal(){
+  closeModal('modal-join');
+  S.pendingRoomCode=genCode();S.isHost=true;
+  const i=$('roomNameInput');if(i)i.value='';
+  showScreen('screen-room');
+}
+function exitSoloGame(){
+  // reset state แล้วกลับ home
+  S.roomCode=null;S.myPlayerId=null;S.selectedGame=null;S.players=[];
+  showScreen('screen-home');
+}
+function launchSolo(type){
+  S.roomCode=null;S.myPlayerId='solo_'+Date.now();S.nickname=S.nickname||'ผู้เล่น';
+  S.isHost=true;S.players=[{id:S.myPlayerId,name:S.nickname,isHost:true}];
+  S.selectedGame=type;
+  initGame(type);
+  const map={wheel:'screen-wheel',cards:'screen-cards'};
+  if(map[type])showScreen(map[type]);
+}
 function confirmRoomName(){
   const i=$('roomNameInput'),name=i?i.value.trim():'';
   if(!name){showToast('ตั้งชื่อห้องด้วยนะ');return}
@@ -854,8 +943,9 @@ function joinRoom(){
       return;
     }
     S.pendingRoomCode=code;S.isHost=false;
+    closeModal('modal-join');
     const lb=$('nickRoomLabel');if(lb)lb.textContent='ห้อง: '+code;
-    const bb=$('nickBackBtn');if(bb)bb.setAttribute('onclick','showScreen("screen-home")');
+    const bb=$('nickBackBtn');if(bb)bb.setAttribute('onclick','openJoinModal(_joinModalGame||"ww")');
     const ni=$('nickInput');if(ni)ni.value='';
     showScreen('screen-nick');
   }).catch(()=>showToast('เชื่อมต่อไม่ได้ ลองใหม่'));
@@ -1000,8 +1090,14 @@ function startGame(){
 function launchGame(type){
   const map={ww:'screen-ww',wheel:'screen-wheel',cards:'screen-cards',spyfall:'screen-spyfall'};
   if(!map[type])return;initGame(type);showScreen(map[type]);
-  document.querySelectorAll('.game-top .btn-icon:first-child').forEach(b=>b.style.display='none');
-  document.querySelectorAll('.game-top .btn-icon:last-child').forEach(b=>{b.style.display=S.isHost?'':'none';});
+  // solo games: ให้แน่ใจว่าปุ่ม ← แสดงอยู่เสมอ
+  if(type==='wheel'||type==='cards'){
+    document.querySelectorAll('#screen-'+type+' .btn-icon').forEach(b=>b.style.display='');
+    return;
+  }
+  // board games: ซ่อน back, แสดง menu ให้ host
+  document.querySelectorAll('#screen-'+type+' .game-top .btn-icon:first-child').forEach(b=>b.style.display='none');
+  document.querySelectorAll('#screen-'+type+' .game-top .btn-icon:last-child').forEach(b=>{b.style.display=S.isHost?'':'none';});
 }
 function backToLobby(){$('gameoverOverlay')?.classList.remove('show');showScreen('screen-lobby')}
 function initGame(type){({ww:initWW,wheel:initWheel,cards:initCards,spyfall:initSpyfall})[type]?.()}
@@ -1442,6 +1538,92 @@ function initWheel(){
   if(!S.wheelItems.length)S.wheelItems=['ตัวเลือก 1','ตัวเลือก 2','ตัวเลือก 3'];
   S.wheelSpinning=false;S.wheelAngle=0;
   renderWheelItems();drawWheel(0);
+  setTimeout(_wheelSwipeInit,100);
+}
+
+// ── Swipe-to-spin ──
+let _swipeActive=false,_swipePrevX=0,_swipePrevY=0,_swipePrevT=0,_swipeVelX=0,_swipeVelY=0;
+function _wheelSwipeInit(){
+  const cv=$('wheelCanvas');if(!cv)return;
+  cv.onpointerdown=null;cv.onpointermove=null;cv.onpointerup=null;cv.onpointercancel=null;
+
+  let _prevAngle=0,_angVel=0,_prevT=0,_rafId=null;
+
+  function fingerAngle(e){
+    const rect=cv.getBoundingClientRect();
+    return Math.atan2(e.clientY-(rect.top+rect.height/2), e.clientX-(rect.left+rect.width/2));
+  }
+  function angleDiff(a,b){
+    let d=a-b;
+    while(d>Math.PI)d-=Math.PI*2;
+    while(d<-Math.PI)d+=Math.PI*2;
+    return d;
+  }
+
+  cv.addEventListener('pointerdown',function(e){
+    if(_wheelHoldActive)return;
+    e.preventDefault();
+    _resumeAC();_wheelResetCross();
+    // ไม่หยุด inertia — แค่จด angle เริ่มต้น
+    if(_rafId){cancelAnimationFrame(_rafId);_rafId=null;}
+    _swipeActive=true;
+    _prevAngle=fingerAngle(e);
+    _prevT=performance.now();
+    // รับ velocity เดิมที่วงล้อกำลังหมุนอยู่ต่อ (ถ้ามี)
+    cv.setPointerCapture(e.pointerId);
+    cv.style.cursor='grabbing';
+  },{passive:false});
+
+  cv.addEventListener('pointermove',function(e){
+    if(!_swipeActive)return;
+    e.preventDefault();
+    const now=performance.now();
+    const dt=Math.max(4,now-_prevT);
+    const cur=fingerAngle(e);
+    const delta=angleDiff(cur,_prevAngle);
+    S.wheelAngle=((S.wheelAngle+delta)%(Math.PI*2)+Math.PI*2)%(Math.PI*2);
+    _wheelCheckCross(S.wheelAngle,Math.abs(delta/dt)*200);
+    drawWheel(S.wheelAngle);
+    // EMA velocity — นิ้วเร็ว = velocity สูง
+    _angVel=_angVel*0.5+(delta/dt)*0.5;
+    _prevAngle=cur;
+    _prevT=now;
+  },{passive:false});
+
+  function onUp(e){
+    if(!_swipeActive)return;
+    _swipeActive=false;
+    cv.style.cursor='grab';
+    const velRadPerSec=_angVel*1000;
+    const speed=Math.abs(velRadPerSec);
+    if(speed<0.2)return;
+    // เพิ่ม velocity เข้าไปในการหมุน (สะสมกับ inertia เดิมถ้ามี)
+    const dir=velRadPerSec>=0?1:-1;
+    const decelDur=Math.max(800,speed*240);
+    const a0=S.wheelAngle;
+    const extraAngle=dir*speed*(decelDur/1000)*0.5;
+    const t0=performance.now();
+    if(_rafId){cancelAnimationFrame(_rafId);_rafId=null;}
+    function inertia(now){
+      const p=Math.min((now-t0)/decelDur,1);
+      const ease=1-Math.pow(1-p,3);
+      const ang=((a0+extraAngle*ease)%(Math.PI*2)+Math.PI*2)%(Math.PI*2);
+      _wheelCheckCross(ang,speed*(1-p));
+      drawWheel(ang);
+      if(p<1){_rafId=requestAnimationFrame(inertia);return;}
+      _rafId=null;
+      S.wheelAngle=ang;
+      const n=S.wheelItems.length,sliceAng=(Math.PI*2)/n;
+      const offset=((Math.PI*2)-ang)%(Math.PI*2);
+      const winner=S.wheelItems[Math.floor(offset/sliceAng)%n];
+      const resultEl=$('wheelResult');
+      if(resultEl)resultEl.innerHTML=`<div class="wheel-result-text anim-pop">🎯 ${esc(winner)}</div>`;
+      showToast(`${winner} โดนแล้ว! 🎯`,3000);
+    }
+    _rafId=requestAnimationFrame(inertia);
+  }
+  cv.addEventListener('pointerup',onUp);
+  cv.addEventListener('pointercancel',onUp);
 }
 function renderWheelItems(){
   const list=$('wheelItemsList');if(!list)return;
@@ -1482,7 +1664,7 @@ function drawWheel(rot){
     const mid=s+slice/2,tx=cx+(r-32)*Math.cos(mid),ty=cy+(r-32)*Math.sin(mid);
     ctx.save();ctx.translate(tx,ty);ctx.rotate(mid+Math.PI/2);
     ctx.textAlign='center';ctx.fillStyle='rgba(255,255,255,0.95)';
-    ctx.font=`700 ${Math.max(11,Math.min(15,200/items.length))}px Kanit,sans-serif`;
+    ctx.font=`700 ${Math.max(13,Math.min(19,260/items.length))}px Kanit,sans-serif`;
     ctx.fillText(item.length>9?item.slice(0,9)+'…':item,0,0);
     ctx.restore();
   });
@@ -1652,7 +1834,7 @@ function initCards(){
 }
 // ── HOLD-TO-DRAW ──
 let _drawHoldRAF=null,_drawHoldActive=false,_drawHoldStart=0,_drawHoldPhase='idle',_drawScrollOffset=0,_drawHoldVel=1;
-const _DRAW_ITEM_H=180;
+const _DRAW_ITEM_H=240;
 const _DRAW_ALL_VALS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const _DRAW_ALL_SUITS=['♠','♥','♦','♣'];
 function _makeRandomCardEl(){
@@ -1672,9 +1854,22 @@ function startHoldDraw(e){
   const btn=$('btnDrawCard');if(btn)btn.classList.add('holding');
   _resumeAC();_cardResetCross();
   const reel=$('cardSlotReel');if(!reel)return;
-  reel.style.transform='translateY(0)';reel.innerHTML='';
-  for(let i=0;i<20;i++)reel.appendChild(_makeRandomCardEl());
-  _drawScrollOffset=0;
+  // ต่อเนื่องจาก reel เดิม — ถ้าเป็นครั้งแรกค่อย reset
+  if(_drawScrollOffset===0&&reel.children.length<=1){
+    reel.innerHTML='';
+    for(let i=0;i<20;i++)reel.appendChild(_makeRandomCardEl());
+  } else {
+    // trim items ที่เลื่อนผ่านไปแล้วออก (ไม่ให้ DOM พอง) เก็บไว้ 4 ใบหลังตำแหน่งปัจจุบัน
+    const visIdx=Math.floor(_drawScrollOffset/_DRAW_ITEM_H);
+    const trimTo=Math.max(0,visIdx-2);
+    for(let i=0;i<trimTo;i++){
+      if(reel.firstChild)reel.removeChild(reel.firstChild);
+    }
+    _drawScrollOffset-=trimTo*_DRAW_ITEM_H;
+    reel.style.transform=`translateY(-${_drawScrollOffset}px)`;
+    // append ไว้ข้างหน้าอีก 10 ใบ
+    for(let i=0;i<10;i++)reel.appendChild(_makeRandomCardEl());
+  }
   let lastT=performance.now();
   function scrollTick(now){
     if(!_drawHoldActive)return;
@@ -1701,7 +1896,7 @@ function releaseHoldDraw(){
   const sc=isRed?'#f06e7a':'var(--t0)';
   const reel=$('cardSlotReel');if(!reel){_drawHoldPhase='idle';return;}
   const curOffset=_drawScrollOffset,vel=_drawHoldVel;
-  const decelDur=Math.max(600,vel*100);
+  const decelDur=Math.max(1800,vel*420);
   let targetOffset=Math.ceil((curOffset+vel*_DRAW_ITEM_H*(decelDur/1000)*0.5)/_DRAW_ITEM_H)*_DRAW_ITEM_H;
   while(reel.children.length<=Math.ceil(targetOffset/_DRAW_ITEM_H)+2)reel.appendChild(_makeRandomCardEl());
   const targetIdx=Math.round(targetOffset/_DRAW_ITEM_H);
@@ -1982,7 +2177,7 @@ function fmtTime(s){
 
 document.addEventListener('DOMContentLoaded',()=>{
   checkDeepLink();
-  $('joinCodeInput')?.addEventListener('keydown',e=>{if(e.key==='Enter')joinRoom()});
+  $('joinCodeInput')?.addEventListener('keydown',e=>{if(e.key==='Enter')joinRoomFromModal()});
   $('roomNameInput')?.addEventListener('keydown',e=>{if(e.key==='Enter')confirmRoomName()});
   $('nickInput')?.addEventListener('keydown',e=>{if(e.key==='Enter')confirmNick()});
   $('wheelAddInput')?.addEventListener('keydown',e=>{if(e.key==='Enter')addWheelItem()});
