@@ -347,10 +347,8 @@ body{
 
 @media(min-width:420px){
   .home-join-card,.share-box,.lobby-sec,.game-body{padding-left:1.75rem;padding-right:1.75rem}
-  .games-grid,.game-select-grid{margin-left:1.75rem;margin-right:1.75rem;padding-left:0;padding-right:0}
   .home-join-card,.share-box{margin-left:1.75rem;margin-right:1.75rem}
   .btn-start{margin-left:1.75rem;margin-right:1.75rem;width:calc(100% - 3.5rem)}
-  .lobby-sec,.gap-lbl,.games-section-label{margin-left:1.75rem;margin-right:1.75rem}
   .lobby-header,.game-top{padding-left:1.75rem;padding-right:1.75rem}
   .menu-popup{right:1.75rem}
   .ww-host-list,.ww-roles-list{padding:0}
@@ -359,39 +357,40 @@ body{
   .games-grid,.game-select-grid{grid-template-columns:repeat(3,1fr)}
 }
 
-/* ── Large iPad Pro / Monitor (1100px+) ── */
+/* ── Large screens (1100px+) ── */
 @media(min-width:1100px){
-  #screen-home{align-items:center}
+  #screen-home{
+    align-items:center;
+    justify-content:center;
+    min-height:100dvh;
+    padding:0;
+  }
   .home-hero{
-    max-width:640px;width:100%;
-    padding:3.5rem 2rem 1.5rem;
+    width:100%;max-width:680px;
+    padding:3rem 2rem 1.5rem;
     text-align:center;
   }
   .games-section{
-    width:100%;max-width:640px;
-    padding:0 2rem 3rem;
+    width:100%;max-width:680px;
     margin:0;
+    padding:0 2rem 3rem;
   }
   .games-section .games-grid{
-    margin:0;
-    grid-template-columns:1fr 1fr;
-    gap:18px;
+    padding:0;gap:18px;
   }
-  .games-section .games-section-label{margin:0;padding:0}
-  .game-card{padding:1.5rem}
+  .games-section .games-section-label{padding:0}
+  .game-card{padding:1.75rem}
+  .game-card .game-icon{width:56px;height:56px;font-size:28px}
+  .game-name{font-size:18px}
 
-  /* Wheel */
-  #screen-wheel .game-body{
-    display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;
-  }
   #wheelCanvas{
     width:min(640px,min(56vw,80vh)) !important;
     height:min(640px,min(56vw,80vh)) !important;
     max-height:none !important;
   }
-  .wheel-items{max-width:520px;width:100%}
-  .wheel-add-row{max-width:520px;width:100%}
-  .btn-spin{max-width:520px}
+  .wheel-items{max-width:540px;width:100%}
+  .wheel-add-row{max-width:540px;width:100%}
+  .btn-spin{max-width:540px}
 }
 
 </style>
