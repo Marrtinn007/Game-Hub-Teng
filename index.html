@@ -313,7 +313,7 @@ body{
 .special-rule-item{font-size:13px;color:var(--t2);margin-bottom:5px;display:flex;align-items:center;gap:8px}
 .card-main{padding:1.5rem;text-align:center;margin-bottom:1.25rem;background:var(--card);border-radius:var(--r);border:1px solid var(--line)}
 .card-draw-wrap{overflow:hidden;border-radius:var(--r);margin-bottom:0.5rem;height:240px;max-height:240px;position:relative;background:var(--card2)}
-.card-slot-reel{display:flex;flex-direction:column;gap:0;transition:none}
+.card-slot-reel{display:flex;flex-direction:column;gap:0;transition:none;will-change:transform;transform:translateZ(0)}
 .card-slot-item{height:240px;min-height:240px;max-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.25rem;text-align:center;flex-shrink:0}
 @keyframes slotSpin{0%{transform:translateY(0)}100%{transform:translateY(var(--slot-end))}}
 .card-slot-reel.spinning{animation:slotSpin var(--slot-dur) cubic-bezier(0.15,0,0.3,1) forwards}
@@ -357,8 +357,8 @@ body{
   .games-grid,.game-select-grid{grid-template-columns:repeat(3,1fr)}
 }
 
-/* ── Large screens (1100px+) ── */
-@media(min-width:1100px){
+/* ── iPad 11"+ / Desktop (834px+) ── */
+@media(min-width:768px){
   #screen-home{
     align-items:center;
     justify-content:center;
@@ -366,19 +366,30 @@ body{
     padding:0;
   }
   .home-hero{
-    width:100%;max-width:680px;
+    width:100%;max-width:720px;
     padding:3rem 2rem 1.5rem;
     text-align:center;
   }
   .games-section{
-    width:100%;max-width:680px;
+    width:100%;max-width:720px;
     margin:0;
     padding:0 2rem 3rem;
   }
+  /* 3-col grid — พอครบ 3 ขึ้นบรรทัดใหม่อัตโนมัติ */
   .games-section .games-grid{
-    padding:0;gap:18px;
+    padding:0;
+    grid-template-columns:repeat(3,1fr);
+    gap:16px;
   }
   .games-section .games-section-label{padding:0}
+  .game-card{padding:1.5rem}
+}
+
+/* ── Large monitor (1200px+) ── */
+@media(min-width:1200px){
+  .home-hero{max-width:840px}
+  .games-section{max-width:840px}
+  .games-section .games-grid{gap:20px}
   .game-card{padding:1.75rem}
   .game-card .game-icon{width:56px;height:56px;font-size:28px}
   .game-name{font-size:18px}
@@ -1853,21 +1864,14 @@ function startHoldDraw(e){
   const btn=$('btnDrawCard');if(btn)btn.classList.add('holding');
   _resumeAC();_cardResetCross();
   const reel=$('cardSlotReel');if(!reel)return;
-  // ต่อเนื่องจาก reel เดิม — ถ้าเป็นครั้งแรกค่อย reset
+  // ครั้งแรก หรือ reset — สร้าง reel ใหม่
   if(_drawScrollOffset===0&&reel.children.length<=1){
     reel.innerHTML='';
-    for(let i=0;i<20;i++)reel.appendChild(_makeRandomCardEl());
+    reel.style.transform='translateY(0)';
+    for(let i=0;i<30;i++)reel.appendChild(_makeRandomCardEl());
   } else {
-    // trim items ที่เลื่อนผ่านไปแล้วออก (ไม่ให้ DOM พอง) เก็บไว้ 4 ใบหลังตำแหน่งปัจจุบัน
-    const visIdx=Math.floor(_drawScrollOffset/_DRAW_ITEM_H);
-    const trimTo=Math.max(0,visIdx-2);
-    for(let i=0;i<trimTo;i++){
-      if(reel.firstChild)reel.removeChild(reel.firstChild);
-    }
-    _drawScrollOffset-=trimTo*_DRAW_ITEM_H;
-    reel.style.transform=`translateY(-${_drawScrollOffset}px)`;
-    // append ไว้ข้างหน้าอีก 10 ใบ
-    for(let i=0;i<10;i++)reel.appendChild(_makeRandomCardEl());
+    // append ต่อ ไม่ลบ ไม่ trim ระหว่าง spin
+    for(let i=0;i<15;i++)reel.appendChild(_makeRandomCardEl());
   }
   let lastT=performance.now();
   function scrollTick(now){
@@ -1875,7 +1879,8 @@ function startHoldDraw(e){
     const dt=Math.min((now-lastT)/1000,0.05);lastT=now;
     _drawHoldVel=Math.min(15,1+((now-_drawHoldStart)/1000)*4);
     _drawScrollOffset+=_drawHoldVel*_DRAW_ITEM_H*dt;
-    if(_drawScrollOffset>(reel.children.length-2)*_DRAW_ITEM_H)reel.appendChild(_makeRandomCardEl());
+    // append ถ้าใกล้หมด
+    if(_drawScrollOffset>(reel.children.length-4)*_DRAW_ITEM_H)reel.appendChild(_makeRandomCardEl());
     _cardCheckCross(_drawScrollOffset,_drawHoldVel);
     reel.style.transform=`translateY(-${_drawScrollOffset}px)`;
     _drawHoldRAF=requestAnimationFrame(scrollTick);
