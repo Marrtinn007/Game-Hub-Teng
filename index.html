@@ -12,6 +12,7 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overscroll-behavior:none}
+*,*::before,*::after{transition:background-color 0.3s ease,border-color 0.3s ease,color 0.15s ease,box-shadow 0.3s ease}
 body{
   font-family:'Kanit',-apple-system,sans-serif;
   background:var(--bg);
@@ -46,6 +47,127 @@ body{
   --sh-btn-press: 0 1px 0 rgba(0,0,0,0.3), 0 2px 6px rgba(0,0,0,0.25);
 }
 
+
+/* ══ THEMES ══════════════════════════════════════════════════ */
+[data-theme="dark"]{
+  --bg:#111318;--card:#1c1f26;--card2:#242830;
+  --bg-raw:17,19,24;
+  --t0:#e8eaf0;--t1:rgba(232,234,240,0.72);--t2:rgba(232,234,240,0.42);--t3:rgba(232,234,240,0.16);
+  --ac:#7c9cff;--ac-dim:rgba(124,156,255,0.14);
+  --line:rgba(255,255,255,0.07);
+  --btn-ac-from:#8faeff;--btn-ac-to:#6278e8;--btn-ac-shadow:rgba(60,72,180,0.55);--btn-ac-glow:rgba(124,156,255,0.20);
+}
+[data-theme="cream"]{
+  --bg:#f5f0e8;--card:#fffdf8;--card2:#ede8df;
+  --bg-raw:245,240,232;
+  --t0:#1e1a14;--t1:rgba(30,26,20,0.72);--t2:rgba(30,26,20,0.45);--t3:rgba(30,26,20,0.18);
+  --ac:#b5651d;--ac-dim:rgba(181,101,29,0.12);
+  --line:rgba(0,0,0,0.09);
+  --btn-ac-from:#d4843a;--btn-ac-to:#b5651d;--btn-ac-shadow:rgba(120,60,10,0.40);--btn-ac-glow:rgba(181,101,29,0.15);
+  --sh: 0 1px 0 rgba(255,255,255,0.85) inset, 0 4px 12px rgba(0,0,0,0.10), 0 1px 3px rgba(0,0,0,0.08);
+  --sh2: 0 1px 0 rgba(255,255,255,0.85) inset, 0 8px 24px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.08);
+  --sh-btn: 0 4px 0 rgba(0,0,0,0.15), 0 6px 16px rgba(0,0,0,0.08);
+}
+[data-theme="ocean"]{
+  --bg:#060e1a;--card:#0d1d30;--card2:#122540;
+  --bg-raw:6,14,26;
+  --t0:#d8eeff;--t1:rgba(216,238,255,0.72);--t2:rgba(216,238,255,0.42);--t3:rgba(216,238,255,0.16);
+  --ac:#38bdf8;--ac-dim:rgba(56,189,248,0.14);
+  --line:rgba(56,189,248,0.10);
+  --btn-ac-from:#5dd0fa;--btn-ac-to:#0ea5e9;--btn-ac-shadow:rgba(8,100,160,0.55);--btn-ac-glow:rgba(56,189,248,0.20);
+}
+
+/* ── ปุ่ม accent ตามธีม ── */
+.btn-ac{
+  background:linear-gradient(180deg,var(--btn-ac-from,#8faeff) 0%,var(--btn-ac-to,#6278e8) 100%);
+  color:#fff;font-weight:700;
+  box-shadow:var(--sh-btn),0 0 16px var(--btn-ac-glow,rgba(124,156,255,0.20));
+  border-top:1px solid rgba(255,255,255,0.18);
+}
+.btn-ac:hover{filter:brightness(1.08)}
+.btn-start{
+  margin:1.25rem var(--pad) 0;width:calc(100% - 2*var(--pad));
+  font-size:17px;font-weight:700;height:58px;border-radius:var(--r-l);
+  background:linear-gradient(180deg,var(--btn-ac-from,#8faeff) 0%,var(--btn-ac-to,#6278e8) 100%);
+  color:#fff;
+  box-shadow:0 5px 0 var(--btn-ac-shadow,rgba(60,72,180,0.55)),0 8px 20px var(--btn-ac-glow,rgba(80,100,220,0.25));
+  border-top:1px solid rgba(255,255,255,0.2);
+}
+.btn-spin{
+  width:100%;height:56px;font-size:17px;font-weight:700;cursor:pointer;
+  border-radius:var(--r-l);
+  background:linear-gradient(180deg,var(--btn-ac-from,#8faeff) 0%,var(--btn-ac-to,#6278e8) 100%);
+  color:#fff;
+  box-shadow:0 5px 0 var(--btn-ac-shadow,rgba(60,72,180,0.55)),0 8px 20px var(--btn-ac-glow,rgba(80,100,220,0.22));
+  border:none;border-top:1px solid rgba(255,255,255,0.18);
+  font-family:'Kanit',sans-serif;
+  transition:transform 0.1s var(--spring),box-shadow 0.1s;
+  user-select:none;-webkit-user-select:none;touch-action:none;
+}
+.btn-spin:disabled{opacity:0.3;cursor:not-allowed;box-shadow:none}
+.btn-spin.holding{transform:translateY(4px);box-shadow:0 1px 0 var(--btn-ac-shadow,rgba(60,72,180,0.4))}
+
+/* Cream theme overrides text */
+[data-theme="cream"] .home-title-accent{color:var(--ac)}
+[data-theme="cream"] .lobby-room-name,[data-theme="cream"] .game-top-name{color:var(--t0)}
+[data-theme="cream"] .share-code{color:var(--ac)}
+[data-theme="cream"] .p-badge{background:rgba(181,101,29,0.12);color:var(--ac)}
+[data-theme="cream"] .ww-role-chip.has{border-color:var(--ac);background:rgba(181,101,29,0.08)}
+[data-theme="cream"] .btn-next{background:linear-gradient(180deg,#ede8df 0%,#e0d9ce 100%)}
+
+/* Theme switcher button */
+.theme-btn{
+  position:fixed;top:10px;right:12px;z-index:500;
+  width:36px;height:36px;border-radius:50%;
+  border:1.5px solid var(--line);
+  background:var(--card2);
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 8px rgba(0,0,0,0.3);
+  transition:transform 0.2s var(--spring);
+  color:var(--t2);
+}
+.theme-btn:active{transform:scale(0.88)!important}
+.theme-btn:hover{color:var(--t0)}
+
+/* Theme picker sheet */
+.theme-sheet{
+  position:fixed;top:52px;right:12px;z-index:499;
+  background:var(--card);border:1px solid var(--line);
+  border-radius:var(--r-l);padding:10px;
+  display:none;flex-direction:column;gap:6px;
+  box-shadow:var(--sh2);min-width:150px;
+  animation:menuPop 0.18s var(--spring) both;
+}
+.theme-sheet.open{display:flex}
+.theme-option{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 12px;border-radius:var(--r-s);
+  cursor:pointer;border:none;background:transparent;
+  font-family:'Kanit',sans-serif;font-size:14px;font-weight:600;
+  color:var(--t1);width:100%;text-align:left;
+  transition:background 0.1s;
+}
+.theme-option:hover{background:var(--card2)}
+.theme-option.active{color:var(--ac);background:var(--ac-dim)}
+.theme-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0;border:1.5px solid rgba(128,128,128,0.3)}
+
+
+/* Cream: override hard-coded dark */
+[data-theme="cream"] .lobby-room-code{color:var(--t2)}
+[data-theme="cream"] .home-sub{color:var(--t2)}
+[data-theme="cream"] .game-top-sub{color:var(--t2)}
+[data-theme="cream"] .card{background:var(--card);border-top:1px solid rgba(0,0,0,0.06)}
+[data-theme="cream"] .btn-sf{color:var(--t1)}
+[data-theme="cream"] .btn-icon{background:var(--card2);color:var(--t2);border-top:1px solid rgba(255,255,255,0.6)}
+[data-theme="cream"] .modal-handle{background:rgba(0,0,0,0.15)}
+[data-theme="cream"] .home-badge{background:var(--card2)}
+[data-theme="cream"] .game-card{border-top:1px solid rgba(255,255,255,0.7)}
+[data-theme="cream"] .ww-host-row{border-top:1px solid rgba(255,255,255,0.5)}
+[data-theme="cream"] #wheelCanvas{box-shadow:0 8px 32px rgba(0,0,0,0.15)}
+[data-theme="cream"] .wheel-result-text{-webkit-text-fill-color:var(--ac);background:none;color:var(--ac)}
+[data-theme="cream"] .rpc-front,[data-theme="cream"] .rpc-back{border-color:rgba(0,0,0,0.1)}
+
 /* ── Screens ── */
 .screen{display:none;min-height:100dvh;flex-direction:column;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;background:var(--bg)}
 .screen.active{display:flex;animation:pgIn 0.28s var(--smooth) both}
@@ -56,12 +178,10 @@ body{
 .card2{background:var(--card2);border-radius:var(--r-s)}
 
 /* ── Buttons ── */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;cursor:pointer;font-family:'Kanit',sans-serif;font-weight:700;border-radius:var(--r-s);transition:transform 0.12s var(--spring),filter 0.12s,opacity 0.12s;-webkit-tap-highlight-color:transparent}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;cursor:pointer;font-family:'Kanit',sans-serif;font-weight:700;border-radius:var(--r-s);transition:transform 0.12s var(--spring),filter 0.12s,opacity 0.12s,background-color 0.3s,color 0.15s;-webkit-tap-highlight-color:transparent}
 .btn:active{transform:translateY(2px) scale(0.97)!important;filter:brightness(0.9)!important;box-shadow:var(--sh-btn-press)!important}
 .btn:disabled{opacity:0.32;cursor:not-allowed;transform:none!important;filter:none!important}
 
-.btn-ac{background:linear-gradient(180deg,#8faeff 0%,#6a88f0 100%);color:#fff;font-weight:700;box-shadow:var(--sh-btn),0 0 16px rgba(124,156,255,0.20);border-top:1px solid rgba(255,255,255,0.18)}
-.btn-ac:hover{filter:brightness(1.08)}
 
 .btn-sf{background:linear-gradient(180deg,var(--card2) 0%,var(--card) 100%);color:var(--t1);border:1px solid var(--line);box-shadow:var(--sh-btn);border-top:1px solid rgba(255,255,255,0.07)}
 .btn-sf:hover{color:var(--t0);border-color:rgba(255,255,255,0.14)}
@@ -130,36 +250,47 @@ body{
 .gap-lbl{margin:1.75rem var(--pad) 0.75rem;font-size:11px;font-weight:700;letter-spacing:0.10em;color:var(--t2);text-transform:uppercase}
 
 /* ── Home ── */
+/* ══ HOME ══ */
 #screen-home{padding-bottom:3rem}
-
-.home-hero{padding:3.5rem var(--pad) 1.75rem;text-align:center}
-.home-badge{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-pill);padding:7px 18px;margin-bottom:1.5rem}
-.home-badge-dot{width:8px;height:8px;border-radius:50%;background:var(--ok);animation:pulse 2s infinite;flex-shrink:0}
+.home-hero{padding:3rem var(--pad) 1.5rem;text-align:center}
+.home-badge{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-pill);padding:6px 16px;margin-bottom:1.25rem;box-shadow:0 2px 0 rgba(0,0,0,0.2)}
+.home-badge-dot{width:7px;height:7px;border-radius:50%;background:var(--ok);animation:pulse 2s infinite;flex-shrink:0}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(78,202,139,0.5)}50%{box-shadow:0 0 0 5px rgba(78,202,139,0)}}
-.home-badge-text{font-size:12px;font-weight:700;letter-spacing:0.08em;color:var(--t2);text-transform:uppercase}
-.home-title{font-size:clamp(30px,8vw,46px);font-weight:900;letter-spacing:-0.02em;line-height:1.15;margin-bottom:0.5rem;color:var(--t0);white-space:nowrap}
+.home-badge-text{font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--t2);text-transform:uppercase}
+.home-title{font-size:clamp(32px,8vw,48px);font-weight:900;letter-spacing:-0.02em;line-height:1.1;margin-bottom:0.4rem;color:var(--t0)}
 .home-title-accent{color:var(--ac)}
-.home-sub{font-size:15px;color:var(--t2);line-height:1.6;font-weight:400}
-
-/* Join card */
-.home-join-card{margin:1.25rem var(--pad) 0;padding:1.5rem;background:linear-gradient(160deg,var(--card2) 0%,var(--card) 100%);border-radius:var(--r);box-shadow:var(--sh2);border:1px solid var(--line);border-top:1px solid rgba(255,255,255,0.07)}
-.home-join-label{font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--t2);text-transform:uppercase;margin-bottom:0.875rem}
-.home-join-row{display:flex;gap:10px;align-items:stretch;min-width:0}
-.home-join-input{flex:1;min-width:0;background:var(--card2);border:1.5px solid var(--line);border-radius:var(--r-s);padding:0 16px;height:54px;color:var(--t0);font-size:18px;font-family:'Kanit',sans-serif;letter-spacing:0.10em;text-transform:uppercase;outline:none;transition:border-color 0.18s,box-shadow 0.18s}
-.home-join-input:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(124,156,255,0.16)}
-.home-join-input::placeholder{color:var(--t3);font-size:14px;letter-spacing:0.04em;text-transform:none}
-.home-create{width:100%;margin-top:10px;height:48px;font-size:15px;font-weight:700}
-
+.home-sub{font-size:14px;color:var(--t2);line-height:1.6;font-weight:400}
 /* Games grid */
-.games-section{margin:1rem 0 0}
-.games-section-label{padding:0 var(--pad);font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--t2);text-transform:uppercase;margin-bottom:0.875rem}
-.games-grid{padding:0 var(--pad);display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.game-card{padding:1.25rem;cursor:pointer;background:linear-gradient(160deg,var(--card2) 0%,var(--card) 100%);border-radius:var(--r-l);box-shadow:var(--sh);border:1px solid var(--line);border-top:1px solid rgba(255,255,255,0.07);transition:transform 0.18s var(--spring),box-shadow 0.18s}
-.game-card:hover{transform:translateY(-3px);box-shadow:var(--sh2);}
-.game-card:active{transform:translateY(1px) scale(0.98)!important;box-shadow:0 2px 6px rgba(0,0,0,0.3)!important}
-.game-icon{width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;font-size:24px}
-.game-name{font-size:16px;font-weight:700;color:var(--t0);line-height:1.3;margin-bottom:3px}
-.game-desc{font-size:12px;color:var(--t2);font-weight:400}
+.games-section{padding:0 var(--pad) 0.5rem;margin-top:0.5rem}
+.games-section-label{
+  font-size:10px;font-weight:700;letter-spacing:0.10em;color:var(--t3);
+  text-transform:uppercase;padding:1rem 0 0.6rem;
+}
+.games-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.game-card{
+  padding:1.1rem 1rem 1rem;
+  cursor:pointer;
+  background:linear-gradient(145deg,var(--card2) 0%,var(--card) 100%);
+  border-radius:var(--r-l);
+  box-shadow:var(--sh);
+  border:1px solid var(--line);
+  border-top:1px solid rgba(255,255,255,0.07);
+  transition:transform 0.18s var(--spring),box-shadow 0.18s;
+}
+.game-card:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+.game-card:active{transform:translateY(1px) scale(0.97)!important;box-shadow:none!important}
+.game-icon{
+  width:46px;height:46px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;margin-bottom:0.75rem;
+  box-shadow:0 3px 0 rgba(0,0,0,0.2);
+}
+.game-name{font-size:15px;font-weight:800;color:var(--t0);line-height:1.25;margin-bottom:3px}
+.game-desc{font-size:11px;color:var(--t2);font-weight:400;line-height:1.4}
+
 
 /* ── Enter screens ── */
 #screen-room,#screen-nick{align-items:center;justify-content:center;padding:2rem var(--pad)}
@@ -172,7 +303,7 @@ body{
 
 /* ── Lobby ── */
 #screen-lobby{padding-bottom:2.5rem}
-.lobby-header{padding:1.25rem var(--pad) 0.875rem;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10;background:rgba(17,19,24,0.94);border-bottom:1px solid var(--line)}
+.lobby-header{padding:1.25rem var(--pad) 0.875rem;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10;background:rgba(var(--bg-raw,17,19,24),0.94);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .lobby-title{flex:1}
 .lobby-room-code{font-size:11px;font-weight:700;letter-spacing:0.10em;color:var(--t2);text-transform:uppercase}
 .lobby-room-name{font-size:20px;font-weight:900;color:var(--t0);line-height:1.2}
@@ -192,14 +323,11 @@ body{
 .game-select-card.selected .gs-name{color:var(--ac)}
 .gs-icon{font-size:28px;margin-bottom:6px}
 .gs-name{font-size:14px;font-weight:700;color:var(--t0)}
-.btn-start{margin:1.25rem var(--pad) 0;width:calc(100% - 2*var(--pad));font-size:17px;font-weight:700;height:58px;border-radius:var(--r-l);background:linear-gradient(180deg,#8faeff 0%,#6278e8 100%);color:#fff;box-shadow:0 5px 0 rgba(60,72,180,0.55),0 8px 20px rgba(80,100,220,0.25);border-top:1px solid rgba(255,255,255,0.2)}
-.btn-start:not(:disabled):hover{filter:brightness(1.06)}
-.btn-start:not(:disabled):active{transform:translateY(3px)!important;box-shadow:0 2px 0 rgba(60,72,180,0.45)!important}
 .host-only-hint{text-align:center;font-size:13px;color:var(--t2);margin:0.875rem var(--pad) 0;padding-bottom:0.5rem}
 
 /* ── Game top bar ── */
 .game-screen{padding-bottom:calc(2rem + env(safe-area-inset-bottom,0px));overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
-.game-top{padding:1rem var(--pad) 0.875rem;display:flex;align-items:center;gap:12px;flex-shrink:0;position:sticky;top:0;z-index:10;background:rgba(17,19,24,0.94);border-bottom:1px solid var(--line)}
+.game-top{padding:1rem var(--pad) 0.875rem;display:flex;align-items:center;gap:12px;flex-shrink:0;position:sticky;top:0;z-index:10;background:rgba(var(--bg-raw,17,19,24),0.94);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .game-top-info{flex:1}
 .game-top-name{font-size:17px;font-weight:800;color:var(--t0)}
 .game-top-sub{font-size:12px;color:var(--t2);margin-top:1px}
@@ -357,51 +485,46 @@ body{
   .games-grid,.game-select-grid{grid-template-columns:repeat(3,1fr)}
 }
 
-/* ── iPad 11"+ / Desktop (834px+) ── */
+/* ── iPad / Desktop (768px+) ── */
 @media(min-width:768px){
   #screen-home{
     align-items:center;
-    justify-content:center;
-    min-height:100dvh;
-    padding:0;
+    justify-content:flex-start;
+    padding-top:3rem;
   }
   .home-hero{
-    width:100%;max-width:720px;
-    padding:3rem 2rem 1.5rem;
+    width:100%;max-width:520px;
+    padding:1rem 2rem;
     text-align:center;
   }
   .games-section{
-    width:100%;max-width:720px;
+    width:100%;max-width:520px;
     margin:0;
-    padding:0 2rem 3rem;
+    padding:0 2rem 1.5rem;
   }
-  /* 3-col grid — พอครบ 3 ขึ้นบรรทัดใหม่อัตโนมัติ */
   .games-section .games-grid{
     padding:0;
-    grid-template-columns:repeat(3,1fr);
-    gap:16px;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
   }
   .games-section .games-section-label{padding:0}
-  .game-card{padding:1.5rem}
+  .game-card{padding:1.25rem}
 }
 
-/* ── Large monitor (1200px+) ── */
-@media(min-width:1200px){
-  .home-hero{max-width:840px}
-  .games-section{max-width:840px}
-  .games-section .games-grid{gap:20px}
-  .game-card{padding:1.75rem}
-  .game-card .game-icon{width:56px;height:56px;font-size:28px}
-  .game-name{font-size:18px}
+/* ── Desktop (1100px+) ── */
+@media(min-width:1100px){
+  .home-hero,.games-section{max-width:600px}
+  .games-grid{gap:14px}
+  .game-card{padding:1.4rem}
+  .game-icon{width:52px;height:52px;font-size:27px}
+  .game-name{font-size:16px}
 
   #wheelCanvas{
     width:min(640px,min(56vw,80vh)) !important;
     height:min(640px,min(56vw,80vh)) !important;
     max-height:none !important;
   }
-  .wheel-items{max-width:540px;width:100%}
-  .wheel-add-row{max-width:540px;width:100%}
-  .btn-spin{max-width:540px}
+  .wheel-items,.wheel-add-row,.btn-spin{max-width:540px;width:100%}
 }
 
 </style>
@@ -515,7 +638,7 @@ body{
     <div class="home-sub">สนุกกับเพื่อน · เริ่มได้ทันที</div>
   </div>
   <div class="games-section">
-    <div class="games-section-label">🎲 บอร์ดเกม — ต้องสร้างห้อง</div>
+    <div class="games-section-label">🎲 ต้องสร้างห้อง</div>
     <div class="games-grid">
       <div class="game-card" onclick="openJoinModal('ww')">
         <div class="game-icon" style="background:rgba(249,168,212,0.14);font-size:24px">🌙</div>
@@ -525,8 +648,12 @@ body{
         <div class="game-icon" style="background:rgba(192,132,252,0.14);font-size:24px">🕵️</div>
         <div class="game-name">Spyfall</div><div class="game-desc">3+ คน · หาสายลับ</div>
       </div>
+      <div class="game-card" onclick="openJoinModal('king')">
+        <div class="game-icon" style="background:rgba(255,209,102,0.16);font-size:24px">👑</div>
+        <div class="game-name">King's Game</div><div class="game-desc">3+ คน · ราชาสั่ง</div>
+      </div>
     </div>
-    <div class="games-section-label" style="margin-top:1.5rem">⚡ มินิเกม — เริ่มได้เลย</div>
+    <div class="games-section-label" style="margin-top:1.5rem">⚡ เริ่มได้เลย</div>
     <div class="games-grid">
       <div class="game-card" onclick="launchSolo('wheel')">
         <div class="game-icon" style="background:rgba(134,239,172,0.14);font-size:24px">🎰</div>
@@ -578,6 +705,7 @@ body{
   <div class="game-select-grid" id="gameSelectGrid">
     <div class="game-select-card" data-game="ww" onclick="selectGame('ww')"><div class="gs-icon">🌙</div><div class="gs-name">Werewolf</div></div>
     <div class="game-select-card" data-game="spyfall" onclick="selectGame('spyfall')"><div class="gs-icon">🕵️</div><div class="gs-name">Spyfall</div></div>
+    <div class="game-select-card" data-game="king" onclick="selectGame('king')"><div class="gs-icon">👑</div><div class="gs-name">King's Game</div></div>
   </div>
   <button class="btn btn-ac btn-start" id="btnStartGame" disabled onclick="startGame()">▶ เริ่มเกม</button>
   <div class="host-only-hint" id="hostHint" style="display:none">เฉพาะ Host เลือกและเริ่มเกมได้</div>
@@ -628,7 +756,7 @@ body{
 <div class="screen game-screen" id="screen-cards">
   <div class="game-top">
     <button class="btn-icon" onclick="exitSoloGame()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
-    <div class="game-top-info"><div class="game-top-name">🃏 ไพ่ปาร์ตี้</div><div class="game-top-sub">ไพ่ที่เหลือ: <span id="cardsLeft">52</span> ใบ</div></div>
+    <div class="game-top-info"><div class="game-top-name">🃏 ไพ่ปาร์ตี้</div><div class="game-top-sub">รอบที่ <span id="cardRound">0</span> · เหลือ <span id="cardsLeft">52</span> ใบ</div></div>
   </div>
   <div class="game-body">
     <div class="special-rules-box"><div class="special-rules-label">⚠ กฎพิเศษตลอดเกม</div>
@@ -648,6 +776,16 @@ body{
       🃏 กดค้างเพื่อสุ่มไพ่!
     </button>
   </div>
+</div>
+
+<!-- ══ KING'S GAME ══ -->
+<div class="screen game-screen" id="screen-king">
+  <div class="game-top">
+    <button class="btn-icon" onclick="backToLobby()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
+    <div class="game-top-info"><div class="game-top-name">👑 King's Game</div><div class="game-top-sub" id="kingPhaseLabel">รอแจกไพ่</div></div>
+    <button class="btn-icon" onclick="toggleMenu()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+  </div>
+  <div class="game-body" id="kingBody"></div>
 </div>
 
 <!-- Firebase -->
@@ -817,7 +955,7 @@ const S={
   roomCode:null,roomName:null,nickname:null,isHost:false,myPlayerId:null,
   players:[],selectedGame:null,pendingRoomCode:null,paused:false,
   wheelItems:[],wheelSpinning:false,wheelAngle:0,
-  cardDeck:[],cardIdx:0,_cardSpinning:false,
+  cardDeck:[],cardIdx:0,cardRound:0,_cardSpinning:false,
   wwPlayerCount:5,
   wwRoleCounts:{werewolf:1,wolfcub:0,lonewolf:0,minion:0,sorcerer:0,alphawolf:0,cursed:0,villager:2,seer:1,bodyguard:0,hunter:0,witch:0,prince:0,cupid:0,mason:0,spellcaster:0,auraseer:0,apprenticeseer:0,priest:0,troublemaker:0,pi:0,oldhag:0,toughguy:0,lycan:0,diseased:0,mystic:0,mentalist:0,huntress:0,tanner:0,vampire:0,cultleader:0,hoodlum:0,revealer:0,madbomber:0},
   wwAssigned:{},wwAlive:{},wwMyRole:null,wwFlipped:{},_lastDealId:null,
@@ -896,6 +1034,7 @@ function showCreateRoom(){S.pendingRoomCode=genCode();S.isHost=true;const i=$('r
 const _JOIN_MODAL_META={
   ww:{icon:'🌙',title:'Werewolf',desc:'เล่นกับเพื่อน 4–18 คน'},
   spyfall:{icon:'🕵️',title:'Spyfall',desc:'หาสายลับในกลุ่ม · 2+ คน'},
+  king:{icon:'👑',title:"King's Game",desc:'3+ คน · ราชาสั่ง ใครจะโดน?'},
 };
 let _joinModalGame=null;
 function openJoinModal(type){
@@ -1048,6 +1187,15 @@ function enterLobby(){
       }
     }
   });
+  db.ref(`rooms/${S.roomCode}/king`).on('value',snap=>{
+    const d=snap.val();
+    if(d&&d.dealt)syncKingState(d);
+    else if(!d){
+      S.kingDealt=false;S.kingFlipped=false;S._kingAssigned=null;
+      const onKing=document.querySelector('.screen.active')?.id==='screen-king';
+      if(onKing)renderKingSetup();
+    }
+  });
   
   showScreen('screen-lobby');
 }
@@ -1098,7 +1246,7 @@ function startGame(){
   else launchGame(S.selectedGame);
 }
 function launchGame(type){
-  const map={ww:'screen-ww',wheel:'screen-wheel',cards:'screen-cards',spyfall:'screen-spyfall'};
+  const map={ww:'screen-ww',wheel:'screen-wheel',cards:'screen-cards',spyfall:'screen-spyfall',king:'screen-king'};
   if(!map[type])return;initGame(type);showScreen(map[type]);
   // solo games: ให้แน่ใจว่าปุ่ม ← แสดงอยู่เสมอ
   if(type==='wheel'||type==='cards'){
@@ -1110,7 +1258,7 @@ function launchGame(type){
   document.querySelectorAll('#screen-'+type+' .game-top .btn-icon:last-child').forEach(b=>{b.style.display=S.isHost?'':'none';});
 }
 function backToLobby(){$('gameoverOverlay')?.classList.remove('show');showScreen('screen-lobby')}
-function initGame(type){({ww:initWW,wheel:initWheel,cards:initCards,spyfall:initSpyfall})[type]?.()}
+function initGame(type){({ww:initWW,wheel:initWheel,cards:initCards,spyfall:initSpyfall,king:initKing})[type]?.()}
 function previewGame(type){
   const info={ww:'<p><b>Werewolf</b></p><p>Host แจกไพ่บทบาท แต่ละคนกดดูบทบาทตัวเองในมือถือ</p>',wheel:'<p><b>Spin the Wheel</b></p><p>ใส่ชื่อหรือตัวเลือกได้เอง แล้วปั่น</p>',cards:'<p><b>ไพ่ปาร์ตี้</b></p><p>จั่วไพ่ทีละใบ แต่ละหน้ามีกฎ</p>',spyfall:'<p><b>Spyfall</b></p><p>ทุกคนรู้สถานที่ ยกเว้น Spy — ถามตอบเพื่อหาสายลับ</p>'};
   const b=$('modalInfoBody');if(b)b.innerHTML=info[type]||'';openModal('modal-info');
@@ -1123,7 +1271,7 @@ function confirmEndGame(){closeMenu();$('confirmOverlay')?.classList.add('show')
 function cancelEnd(){$('confirmOverlay')?.classList.remove('show')}
 function doEndGame(){
   $('confirmOverlay')?.classList.remove('show');$('pauseOverlay')?.classList.remove('show');
-  if(firebaseReady&&S.roomCode){db.ref(`rooms/${S.roomCode}/game`).set(null);db.ref(`rooms/${S.roomCode}/ww`).set(null);db.ref(`rooms/${S.roomCode}/spy`).set(null);}
+  if(firebaseReady&&S.roomCode){db.ref(`rooms/${S.roomCode}/game`).set(null);db.ref(`rooms/${S.roomCode}/ww`).set(null);db.ref(`rooms/${S.roomCode}/spy`).set(null);db.ref(`rooms/${S.roomCode}/king`).set(null);}
   document.querySelectorAll('.game-select-card').forEach(c=>c.classList.remove('selected'));
   const b=$('btnStartGame');if(b)b.disabled=true;S.selectedGame=null;renderLobbyUI();showScreen('screen-lobby');
 }
@@ -1536,7 +1684,10 @@ function syncWWState(data){
   const onWW=document.querySelector('.screen.active')?.id==='screen-ww';if(!onWW)return;
   if(S.isHost)renderWWHost();
   else{
-    if(data.dealId&&data.dealId!==S._lastDealId){S.wwFlipped={};S._lastDealId=data.dealId;}
+    if(data.dealId&&data.dealId!==S._lastDealId){
+      S.wwFlipped={};S._lastDealId=data.dealId;
+      _haptic([30,20,30,20,50]); // สั่นแจ้งเตือนว่าได้ไพ่แล้ว
+    }
     renderWWPlayer();
   }
 }
@@ -1667,13 +1818,18 @@ function drawWheel(rot){
     const s=rot+i*slice-Math.PI/2,e=s+slice;
     ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,r,s,e);ctx.closePath();
     const grad=ctx.createRadialGradient(cx,cy,0,cx,cy,r);
-    grad.addColorStop(0,COLORS[i%COLORS.length]+'50');
-    grad.addColorStop(1,COLORS[i%COLORS.length]+'20');
+    const _th=document.documentElement.getAttribute('data-theme')||'dark';
+    const _isCream=_th==='cream';
+    grad.addColorStop(0,COLORS[i%COLORS.length]+(_isCream?'80':'50'));
+    grad.addColorStop(1,COLORS[i%COLORS.length]+(_isCream?'50':'20'));
     ctx.fillStyle=grad;ctx.fill();
-    ctx.strokeStyle=COLORS[i%COLORS.length]+'90';ctx.lineWidth=1.5;ctx.stroke();
+    ctx.strokeStyle=COLORS[i%COLORS.length]+(_isCream?'cc':'90');ctx.lineWidth=1.5;ctx.stroke();
     const mid=s+slice/2,tx=cx+(r-32)*Math.cos(mid),ty=cy+(r-32)*Math.sin(mid);
     ctx.save();ctx.translate(tx,ty);ctx.rotate(mid+Math.PI/2);
-    ctx.textAlign='center';ctx.fillStyle='rgba(255,255,255,0.95)';
+    ctx.textAlign='center';
+    // ใช้สีตามธีม
+    const isDark=!['cream'].includes(document.documentElement.getAttribute('data-theme')||'dark');
+    ctx.fillStyle=isDark?'rgba(255,255,255,0.92)':'rgba(30,20,10,0.88)';
     ctx.font=`700 ${Math.max(13,Math.min(19,260/items.length))}px Kanit,sans-serif`;
     ctx.fillText(item.length>9?item.slice(0,9)+'…':item,0,0);
     ctx.restore();
@@ -1682,9 +1838,13 @@ function drawWheel(rot){
   const cg=ctx.createRadialGradient(cx,cy,0,cx,cy,22);
   cg.addColorStop(0,'#1a1a30');cg.addColorStop(1,'#0c0c18');
   ctx.fillStyle=cg;ctx.fill();
-  ctx.strokeStyle='rgba(255,255,255,0.18)';ctx.lineWidth=2;ctx.stroke();
+  const _isDark2=!['cream'].includes(document.documentElement.getAttribute('data-theme')||'dark');
+  ctx.strokeStyle=_isDark2?'rgba(255,255,255,0.18)':'rgba(0,0,0,0.15)';ctx.lineWidth=2;ctx.stroke();
 }
 /* ══ SOUND ENGINE ══════════════════════════════════════════════ */
+// Haptic
+function _haptic(pattern){try{navigator.vibrate&&navigator.vibrate(pattern)}catch(e){}}
+
 const _AC=(()=>{try{return new(window.AudioContext||window.webkitAudioContext)()}catch(e){return null}})();
 function _resumeAC(){if(_AC&&_AC.state==='suspended')_AC.resume()}
 
@@ -1827,6 +1987,7 @@ function releaseHoldSpin(){
     const resultEl=$('wheelResult');
     if(resultEl)resultEl.innerHTML=`<div class="wheel-result-text anim-pop">🎯 ${esc(winner)}</div>`;
     showToast(`${winner} โดนแล้ว! 🎯`,3000);
+    _haptic([60,30,60]);
     if(btn)btn.disabled=false;
   }
   requestAnimationFrame(decelTick);
@@ -1837,8 +1998,10 @@ function initCards(){
   const vals=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
   const suits=['♠','♥','♦','♣'];
   S.cardDeck=shuffle(vals.flatMap(v=>suits.map(s=>({v,s}))));
-  S.cardIdx=0;S._cardSpinning=false;
+  S.cardIdx=0;S._cardSpinning=false;S.cardRound=0;
   const cl=$('cardsLeft');if(cl)cl.textContent=S.cardDeck.length;
+  const cr=$('cardRound');if(cr)cr.textContent='0';
+  _reel=null;_reelBase=0;_drawScrollOffset=0;
   const reel=$('cardSlotReel');
   if(reel)reel.innerHTML='<div class="card-slot-item"><span style="font-size:14px;color:var(--t2)">กดปุ่มด้านล่างเพื่อจั่วไพ่</span></div>';
 }
@@ -1850,75 +2013,261 @@ const _DRAW_ALL_SUITS=['♠','♥','♦','♣'];
 function _makeRandomCardEl(){
   const fv=_DRAW_ALL_VALS[Math.floor(Math.random()*_DRAW_ALL_VALS.length)];
   const fs=_DRAW_ALL_SUITS[Math.floor(Math.random()*_DRAW_ALL_SUITS.length)];
-  const fr=fs==='♥'||fs==='♦';
+  const fr=fs==='\u2665'||fs==='\u2666';
   const fRule=CARDS[fv]||{r:fv,d:''};
   const div=document.createElement('div');div.className='card-slot-item';
   div.innerHTML=`<div class="playing-card-val" style="color:${fr?'#f06e7a':'var(--t0)'}">${fv}${fs}</div><div class="playing-card-rule" style="font-size:16px;color:var(--t1)">${fRule.r}</div>`;
   return div;
 }
+
+// ── state ──
+let _reel=null, _reelBase=0; // _reelBase = offset pixel ของ node[0]
+const _POOL=20; // จำนวน node คงที่
+
+function _reelInit(){
+  const reel=$('cardSlotReel');if(!reel)return;
+  reel.innerHTML='';
+  for(let i=0;i<_POOL;i++)reel.appendChild(_makeRandomCardEl());
+  _drawScrollOffset=0;
+  _reelBase=0;
+  reel.style.transform='translateY(0)';
+  _reel=reel;
+}
+
+// เปลี่ยน content ของ node ที่ offset pixel target
+function _reelSetCard(offsetPx, html){
+  if(!_reel)return;
+  const idx=Math.round((offsetPx-_reelBase)/_DRAW_ITEM_H);
+  if(idx>=0&&idx<_POOL) _reel.children[idx].innerHTML=html;
+}
+
+// recycle node ที่ผ่านไปแล้วไปต่อท้าย — เรียกหลัง scroll
+function _reelRecycle(scrollOffset){
+  if(!_reel)return;
+  // node ที่มองเห็น = scrollOffset - _reelBase >= 0
+  // node ที่ผ่านไปแล้ว 2 ใบ = ปลอดภัยจะ recycle
+  while(_reelBase+_DRAW_ITEM_H*2 < scrollOffset){
+    const el=_reel.firstChild;if(!el)break;
+    // refill content
+    const fv=_DRAW_ALL_VALS[Math.floor(Math.random()*_DRAW_ALL_VALS.length)];
+    const fs=_DRAW_ALL_SUITS[Math.floor(Math.random()*_DRAW_ALL_SUITS.length)];
+    const fr=fs==='\u2665'||fs==='\u2666';
+    const fRule=CARDS[fv]||{r:fv,d:''};
+    el.innerHTML=`<div class="playing-card-val" style="color:${fr?'#f06e7a':'var(--t0)'}">${fv}${fs}</div><div class="playing-card-rule" style="font-size:16px;color:var(--t1)">${fRule.r}</div>`;
+    _reel.removeChild(el);
+    _reel.appendChild(el);
+    _reelBase+=_DRAW_ITEM_H;
+  }
+  // เติม node ข้างหน้าถ้าใกล้สุด
+  const topVisible=_reelBase+(_POOL-3)*_DRAW_ITEM_H;
+  while(scrollOffset+_DRAW_ITEM_H*3>topVisible){
+    const el=_makeRandomCardEl();
+    _reel.appendChild(el);
+    // ไม่เพิ่ม POOL — ต้องลบ node หัวออก
+    if(_reel.children.length>_POOL){
+      _reel.removeChild(_reel.firstChild);
+      _reelBase+=_DRAW_ITEM_H;
+    }
+  }
+}
+
 function startHoldDraw(e){
   e&&e.preventDefault&&e.preventDefault();
   if(_drawHoldPhase!=='idle')return;
-  if(S.cardIdx>=S.cardDeck.length){showToast('หมดสำรับแล้ว! เริ่มใหม่');initCards();return;}
+  if(S.cardIdx>=S.cardDeck.length){showToast('\u0e2b\u0e21\u0e14\u0e2a\u0e33\u0e23\u0e31\u0e1a\u0e41\u0e25\u0e49\u0e27! \u0e40\u0e23\u0e34\u0e48\u0e21\u0e43\u0e2b\u0e21\u0e48');initCards();return;}
   _drawHoldActive=true;_drawHoldStart=performance.now();_drawHoldPhase='spinning';_drawHoldVel=1;
   const btn=$('btnDrawCard');if(btn)btn.classList.add('holding');
   _resumeAC();_cardResetCross();
-  const reel=$('cardSlotReel');if(!reel)return;
-  // ครั้งแรก หรือ reset — สร้าง reel ใหม่
-  if(_drawScrollOffset===0&&reel.children.length<=1){
-    reel.innerHTML='';
-    reel.style.transform='translateY(0)';
-    for(let i=0;i<30;i++)reel.appendChild(_makeRandomCardEl());
-  } else {
-    // append ต่อ ไม่ลบ ไม่ trim ระหว่าง spin
-    for(let i=0;i<15;i++)reel.appendChild(_makeRandomCardEl());
-  }
+  // ถ้ายังไม่มี reel หรือ reset ครั้งแรก
+  if(!_reel||_reel.children.length===0) _reelInit();
   let lastT=performance.now();
   function scrollTick(now){
     if(!_drawHoldActive)return;
     const dt=Math.min((now-lastT)/1000,0.05);lastT=now;
-    _drawHoldVel=Math.min(15,1+((now-_drawHoldStart)/1000)*4);
+    _drawHoldVel=Math.min(12,1+((now-_drawHoldStart)/1000)*3.5);
     _drawScrollOffset+=_drawHoldVel*_DRAW_ITEM_H*dt;
-    // append ถ้าใกล้หมด
-    if(_drawScrollOffset>(reel.children.length-4)*_DRAW_ITEM_H)reel.appendChild(_makeRandomCardEl());
+    _reelRecycle(_drawScrollOffset);
     _cardCheckCross(_drawScrollOffset,_drawHoldVel);
-    reel.style.transform=`translateY(-${_drawScrollOffset}px)`;
+    _reel.style.transform=`translateY(-${_drawScrollOffset-_reelBase}px)`;
     _drawHoldRAF=requestAnimationFrame(scrollTick);
   }
   _drawHoldRAF=requestAnimationFrame(scrollTick);
 }
+
 function releaseHoldDraw(){
   if(!_drawHoldActive||_drawHoldPhase!=='spinning')return;
   _drawHoldActive=false;_drawHoldPhase='settling';
   if(_drawHoldRAF){cancelAnimationFrame(_drawHoldRAF);_drawHoldRAF=null;}
   const btn=$('btnDrawCard');if(btn)btn.classList.remove('holding');
-  if(S.cardIdx>=S.cardDeck.length){showToast('หมดสำรับแล้ว! เริ่มใหม่');initCards();_drawHoldPhase='idle';return;}
+  if(S.cardIdx>=S.cardDeck.length){showToast('\u0e2b\u0e21\u0e14\u0e2a\u0e33\u0e23\u0e31\u0e1a\u0e41\u0e25\u0e49\u0e27! \u0e40\u0e23\u0e34\u0e48\u0e21\u0e43\u0e2b\u0e21\u0e48');initCards();_drawHoldPhase='idle';return;}
   const card=S.cardDeck[S.cardIdx++];
+  S.cardRound=(S.cardRound||0)+1;
   const cl=$('cardsLeft');if(cl)cl.textContent=S.cardDeck.length-S.cardIdx;
+  const cr=$('cardRound');if(cr)cr.textContent=S.cardRound;
   const rule=CARDS[card.v]||{r:card.v,d:''};
-  const isRed=card.s==='♥'||card.s==='♦';
+  const isRed=card.s==='\u2665'||card.s==='\u2666';
   const sc=isRed?'#f06e7a':'var(--t0)';
-  const reel=$('cardSlotReel');if(!reel){_drawHoldPhase='idle';return;}
-  const curOffset=_drawScrollOffset,vel=_drawHoldVel;
-  const decelDur=Math.max(1800,vel*420);
-  let targetOffset=Math.ceil((curOffset+vel*_DRAW_ITEM_H*(decelDur/1000)*0.5)/_DRAW_ITEM_H)*_DRAW_ITEM_H;
-  while(reel.children.length<=Math.ceil(targetOffset/_DRAW_ITEM_H)+2)reel.appendChild(_makeRandomCardEl());
-  const targetIdx=Math.round(targetOffset/_DRAW_ITEM_H);
-  if(reel.children[targetIdx])reel.children[targetIdx].innerHTML=`<div class="playing-card-val" style="color:${sc}">${card.v}${card.s}</div><div class="playing-card-rule">${rule.r}</div><div class="playing-card-desc">${rule.d}</div>`;
-  const t0=performance.now(),dist=targetOffset-curOffset;
+  if(!_reel){_drawHoldPhase='idle';return;}
+  const vel=_drawHoldVel;
+  const decelDur=Math.max(1400,vel*350);
+  // snap ไปที่ขอบ item ถัดไป + extra 4 ใบ
+  const curOffset=_drawScrollOffset;
+  const snapTo=Math.ceil(curOffset/_DRAW_ITEM_H)*_DRAW_ITEM_H;
+  const extraItems=Math.max(3,Math.round(vel*decelDur/1000*0.4));
+  const targetOffset=snapTo+extraItems*_DRAW_ITEM_H;
+  // วางไพ่จริงที่ตำแหน่ง target
+  const cardHtml=`<div class="playing-card-val" style="color:${sc}">${card.v}${card.s}</div><div class="playing-card-rule">${rule.r}</div><div class="playing-card-desc">${rule.d}</div>`;
+  // เพิ่ม node ให้ถึง target ก่อน
+  while(_reelBase+_reel.children.length*_DRAW_ITEM_H<targetOffset+_DRAW_ITEM_H*2){
+    _reel.appendChild(_makeRandomCardEl());
+    if(_reel.children.length>_POOL+8){
+      _reel.removeChild(_reel.firstChild);
+      _reelBase+=_DRAW_ITEM_H;
+    }
+  }
+  _reelSetCard(targetOffset, cardHtml);
+  const dist=targetOffset-curOffset;
+  const t0=performance.now();
   function decelTick(now){
     const p=Math.min((now-t0)/decelDur,1),ease=1-Math.pow(1-p,4);
-    const curPos=curOffset+dist*ease;
-    _cardCheckCross(curPos,vel*(1-p));
-    reel.style.transform=`translateY(-${curPos}px)`;
+    const pos=curOffset+dist*ease;
+    _reelRecycle(pos);
+    _cardCheckCross(pos,vel*(1-p));
+    _reel.style.transform=`translateY(-${pos-_reelBase}px)`;
     if(p<1){requestAnimationFrame(decelTick);return;}
-    reel.style.transform=`translateY(-${targetOffset}px)`;
+    _reel.style.transform=`translateY(-${targetOffset-_reelBase}px)`;
     _drawScrollOffset=targetOffset;_drawHoldPhase='idle';
     _cardSoundLand();
+    _haptic([40,20,40]);
   }
   requestAnimationFrame(decelTick);
 }
 function drawCard(){startHoldDraw();setTimeout(releaseHoldDraw,1200+Math.random()*600)}
+
+/* ══ KING'S GAME ══════════════════════════════════════════════ */
+function initKing(){
+  S.kingDealt=false;S.kingMyCard=null;S.kingFlipped=false;S._kingDealId=null;
+  const lbl=$('kingPhaseLabel');if(lbl)lbl.textContent='รอแจกไพ่';
+  renderKingSetup();
+}
+
+function renderKingSetup(){
+  const body=$('kingBody');if(!body)return;
+  const players=getPlayers().filter(p=>!p.isHost);
+  const n=players.length;
+  if(!S.isHost){
+    body.innerHTML=`<div style="text-align:center;padding:4rem 1rem">
+      <div style="font-size:60px;margin-bottom:1rem">👑</div>
+      <div style="font-size:17px;font-weight:800;color:var(--t0);margin-bottom:0.5rem">รอ Host แจกไพ่</div>
+      <div style="font-size:14px;color:var(--t2);line-height:1.7">เมื่อ Host แจกแล้ว<br>กดดูไพ่ของคุณเลย</div>
+    </div>`;return;
+  }
+  body.innerHTML=`
+    <div style="text-align:center;padding:1.5rem 0 1rem">
+      <div style="font-size:56px;margin-bottom:0.5rem">👑</div>
+      <div style="font-size:17px;font-weight:800;color:var(--t0);margin-bottom:4px">King's Game</div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.7">ผู้เล่น <span style="color:var(--ac);font-weight:700">${n}</span> คน<br>ใครได้ 👑 คือราชา สั่งเลขได้เลย</div>
+    </div>
+    <div style="background:rgba(255,209,102,0.08);border:1px solid rgba(255,209,102,0.2);border-radius:var(--r-s);padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:13px;color:var(--warn);line-height:1.75">
+      <b>วิธีเล่น</b><br>
+      1. Host แจกไพ่ — ทุกคนได้คนละใบ<br>
+      2. ราชา (👑) สั่ง "เลข X ทำ..."<br>
+      3. ทุกคนเปิดไพ่พร้อมกัน — ใครได้เลขนั้นทำตาม<br>
+      4. เล่นซ้ำรอบใหม่ได้เรื่อยๆ
+    </div>
+    <button class="btn btn-ac btn-full" onclick="dealKingCards()" style="height:58px;font-size:17px;font-weight:800" ${n<2?'disabled':''}>
+      👑 แจกไพ่ (${n} คน)
+    </button>
+    ${n<2?'<p style="text-align:center;font-size:13px;color:var(--t2);margin-top:0.75rem">ต้องมีผู้เล่นอย่างน้อย 2 คน</p>':''}`;
+}
+
+function dealKingCards(){
+  const players=getPlayers().filter(p=>!p.isHost);
+  if(players.length<2){showToast('ต้องมีผู้เล่นอย่างน้อย 2 คน');return;}
+  const n=players.length;
+  // สร้างไพ่: 1 ราชา + เลข 1...(n-1)
+  const shuffled=shuffle([...players]);
+  const assigned={};
+  shuffled.forEach((p,i)=>{assigned[p.id]=i===0?'👑':String(i);});
+  const dealId=Date.now();
+  S.kingDealt=true;S.kingMyCard=null;S.kingFlipped=false;S._kingDealId=dealId;
+  if(firebaseReady&&S.roomCode){
+    db.ref(`rooms/${S.roomCode}/king`).set({assigned,dealId,dealt:true});
+  }
+  const lbl=$('kingPhaseLabel');if(lbl)lbl.textContent='ดูไพ่ของคุณ';
+  renderKingHost(assigned,dealId);
+}
+
+function renderKingHost(assigned,dealId){
+  const body=$('kingBody');if(!body)return;
+  const players=getPlayers().filter(p=>!p.isHost);
+  body.innerHTML=`
+    <div style="text-align:center;padding:1rem 0 1.5rem">
+      <div style="font-size:13px;color:var(--t2);margin-bottom:1rem">Host มองเห็นไพ่ทุกคน</div>
+      <div style="display:flex;flex-direction:column;gap:8px;text-align:left">
+        ${players.map((p,i)=>{
+          const card=assigned[p.id];
+          const isKing=card==='👑';
+          return`<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--card);border-radius:var(--r);border:1px solid ${isKing?'rgba(255,209,102,0.3)':'var(--line)'};${isKing?'background:rgba(255,209,102,0.08)':''}">
+            <div style="width:36px;height:36px;border-radius:50%;background:${COLORS[i%COLORS.length]}28;color:${COLORS[i%COLORS.length]};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0">${esc(p.name.charAt(0).toUpperCase())}</div>
+            <div style="flex:1;font-size:16px;font-weight:700;color:var(--t0)">${esc(p.name)}</div>
+            <div style="font-size:${isKing?'28':'22'}px;font-weight:900;color:${isKing?'var(--warn)':'var(--t0)'}">${card}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+    <button class="btn btn-sf btn-full" onclick="dealKingCards()" style="height:50px;font-size:15px;margin-top:0.5rem">🔄 แจกใหม่</button>`;
+}
+
+function renderKingPlayer(assigned,dealId){
+  const body=$('kingBody');if(!body)return;
+  const myId2=myId();
+  const card=assigned&&assigned[myId2];
+  if(!card){
+    body.innerHTML=`<div style="text-align:center;padding:4rem 1rem"><div style="font-size:56px;margin-bottom:1rem">⏳</div><div style="font-size:16px;color:var(--t2)">รอ Host แจกไพ่...</div></div>`;
+    return;
+  }
+  const isKing=card==='👑';
+  const flipped=S.kingFlipped;
+  body.innerHTML=`
+    <div style="display:flex;flex-direction:column;align-items:center;padding:1.5rem 0">
+      <p style="font-size:13px;color:var(--t2);text-align:center;margin-bottom:1.5rem;line-height:1.65">กดไพ่เพื่อดู ⚠️ ห้ามให้คนอื่นเห็น!</p>
+      <div class="role-playing-card${flipped?' flipped':''}" id="king-card-flip" onclick="toggleKingCard()">
+        <div class="rpc-inner">
+          <div class="rpc-front" style="background:var(--card2)">
+            <div style="font-size:64px;line-height:1;margin-bottom:0.5rem;opacity:0.15">👑</div>
+            <div style="font-size:15px;color:var(--t2);font-weight:500">กดเพื่อดูไพ่</div>
+          </div>
+          <div class="rpc-back" style="justify-content:center;align-items:center;padding:2rem;text-align:center;-webkit-transform:rotateY(180deg);transform:rotateY(180deg)">
+            <div style="font-size:${isKing?'88':'100'}px;line-height:1;margin-bottom:0.75rem">${card}</div>
+            <div style="font-size:${isKing?'24':'20'}px;font-weight:900;color:${isKing?'var(--warn)':'var(--t0)'}">${isKing?'ราชา':'เลข '+card}</div>
+            <div style="font-size:13px;color:${isKing?'rgba(255,209,102,0.65)':'var(--t2)'};margin-top:8px;line-height:1.6">
+              ${isKing?'สั่งเลขที่คุณต้องการได้เลย':'ทำตามถ้าราชาเรียกเลขนี้'}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function toggleKingCard(){
+  S.kingFlipped=!S.kingFlipped;
+  const el=$('king-card-flip');
+  if(el)S.kingFlipped?el.classList.add('flipped'):el.classList.remove('flipped');
+}
+
+function syncKingState(data){
+  if(!data||!data.dealt)return;
+  if(data.dealId&&data.dealId!==S._kingDealId){
+    S.kingFlipped=false;S._kingDealId=data.dealId;
+    if(!S.isHost)_haptic([30,20,30,20,50]);
+  }
+  S._kingAssigned=data.assigned;
+  const onKing=document.querySelector('.screen.active')?.id==='screen-king';if(!onKing)return;
+  const lbl=$('kingPhaseLabel');if(lbl)lbl.textContent='ดูไพ่ของคุณ';
+  if(S.isHost)renderKingHost(data.assigned,data.dealId);
+  else renderKingPlayer(data.assigned,data.dealId);
+}
 
 /* ══ SPYFALL DATA ════════════════════════ */
 const SPY_LOCATIONS=[
@@ -2179,7 +2528,57 @@ function fmtTime(s){
   return m+':'+(sec<10?'0':'')+sec;
 }
 
+
+/* ══ THEME SWITCHER ════════════════════════════════════════════ */
+const THEMES={
+  dark:{e:'🌙',label:'Dark'},
+  cream:{e:'🍵',label:'Cream'},
+  ocean:{e:'🌊',label:'Ocean'},
+};
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  localStorage.setItem('ghTeng_theme',t);
+  // อัป active state
+  document.querySelectorAll('.theme-option').forEach(el=>{
+    el.classList.toggle('active',el.textContent.includes(THEMES[t]?.label||t));
+  });
+  // อัปเดตไอคอนปุ่ม
+  const iconEl=$('themeBtnIcon');
+  if(iconEl){
+    const icons={
+      dark:'<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
+      cream:'<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>',
+      ocean:'<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+    };
+    iconEl.innerHTML=icons[t]||icons.dark;
+  }
+  closeThemeSheet();
+}
+function toggleThemeSheet(){
+  const s=$('themeSheet');s&&s.classList.toggle('open');
+}
+function closeThemeSheet(){$('themeSheet')?.classList.remove('open')}
+// ปิดเมื่อกดที่อื่น
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#themeSheet')&&!e.target.closest('#themeSwitcherBtn'))closeThemeSheet();
+},{passive:true});
+// โหลดธีมจาก localStorage
+(function(){
+  const saved=localStorage.getItem('ghTeng_theme')||'dark';
+  document.documentElement.setAttribute('data-theme',saved);
+})();
+
 document.addEventListener('DOMContentLoaded',()=>{
+  // โหลด active state ธีม
+  const _st=localStorage.getItem('ghTeng_theme')||'dark';
+  document.documentElement.setAttribute('data-theme',_st);
+  document.querySelectorAll('.theme-option').forEach(el=>el.classList.toggle('active',el.textContent.includes(THEMES[_st]?.label||_st)));
+  // Global button click sound + haptic
+  document.addEventListener('pointerdown',e=>{
+    const t=e.target.closest('button,.btn,.game-card,.game-select-card,.btn-icon,.ww-c-btn2,.btn-spin,.btn-draw');
+    if(t&&!t.disabled){_haptic(8);}
+  },{passive:true});
+
   checkDeepLink();
   $('joinCodeInput')?.addEventListener('keydown',e=>{if(e.key==='Enter')joinRoomFromModal()});
   $('roomNameInput')?.addEventListener('keydown',e=>{if(e.key==='Enter')confirmRoomName()});
@@ -2188,5 +2587,47 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('menuOverlay')?.addEventListener('click',e=>{if(e.target.id==='menuOverlay')closeMenu()});
 });
 </script>
+
+<!-- Theme switcher -->
+<button class="theme-btn" id="themeSwitcherBtn" onclick="toggleThemeSheet()" title="เปลี่ยนธีม"><svg id="themeBtnIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+<div class="theme-sheet" id="themeSheet">
+  <button class="theme-option" onclick="setTheme('dark')"><span class="theme-dot" style="background:#1c1f26;border-color:#7c9cff"></span>🌙 Dark</button>
+  <button class="theme-option" onclick="setTheme('cream')"><span class="theme-dot" style="background:#fffdf8;border-color:#b5651d"></span>🍵 Cream</button>
+  <button class="theme-option" onclick="setTheme('ocean')"><span class="theme-dot" style="background:#0d1d30;border-color:#38bdf8"></span>🌊 Ocean</button>
+</div>
+
 </body>
-</html>
+</html/* ── iPad / Large screens (768px+) ── */
+@media(min-width:768px){
+  #screen-home{
+    min-height:100dvh;
+    justify-content:center;
+    align-items:center;
+  }
+  .home-hero{
+    width:100%;max-width:480px;
+    padding:2rem 2rem 1.25rem;
+  }
+  .games-section{
+    width:100%;max-width:480px;
+    padding:0 2rem 2rem;
+  }
+  .games-grid{gap:12px}
+}
+
+/* ── Desktop (1100px+) ── */
+@media(min-width:1100px){
+  .home-hero,.games-section{max-width:560px}
+  .game-card{padding:1.4rem 1.25rem}
+  .game-icon{width:52px;height:52px;font-size:27px}
+  .game-name{font-size:16px}
+  .game-desc{font-size:12px}
+  .games-grid{gap:14px}
+
+  #wheelCanvas{
+    width:min(640px,min(56vw,80vh)) !important;
+    height:min(640px,min(56vw,80vh)) !important;
+    max-height:none !important;
+  }
+  .wheel-items,.wheel-add-row,.btn-spin{max-width:540px;width:100%}
+}>
