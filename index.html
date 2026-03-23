@@ -418,7 +418,7 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
 /* ── Wheel ── */
 .wheel-wrap{display:flex;align-items:center;justify-content:center;padding:0.5rem 0 0.75rem;position:relative}
 .wheel-pointer{position:absolute;top:0;left:50%;transform:translateX(-50%);width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:26px solid var(--t0);z-index:2;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5))}
-#wheelCanvas{border-radius:50%;display:block;width:min(400px,calc(100vw - 1.5rem));height:min(400px,calc(100vw - 1.5rem));max-height:52vh;box-shadow:0 8px 32px rgba(0,0,0,0.5);cursor:grab;touch-action:none;will-change:transform;-webkit-transform:translateZ(0);transform:translateZ(0);image-rendering:crisp-edges;image-rendering:-webkit-optimize-contrast}
+#wheelCanvas{border-radius:50%;display:block;width:min(400px,calc(100vw - 1.5rem));aspect-ratio:1/1;box-shadow:0 8px 32px rgba(0,0,0,0.5);cursor:grab;touch-action:none;image-rendering:pixelated}
 .wheel-result{text-align:center;margin-bottom:1rem;min-height:48px;display:flex;align-items:center;justify-content:center}
 .wheel-result-text{font-size:24px;font-weight:900;color:var(--ac)}
 .wheel-items{padding:0.5rem 0.875rem;margin-bottom:10px;max-height:120px;overflow-y:auto;background:var(--card);border-radius:var(--r-s);border:1px solid var(--line)}
@@ -524,9 +524,7 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
 
   #wheelCanvas{
     width:min(640px,min(56vw,80vh)) !important;
-    height:min(640px,min(56vw,80vh)) !important;
-    max-height:none !important;
-  }
+    max-}
   .wheel-items,.wheel-add-row,.btn-spin{max-width:540px;width:100%}
 }
 
@@ -1716,14 +1714,12 @@ function closeNightScreens(){}
 
 /* ══ WHEEL ═══════════════════════════════ */
 function initWheel(){
-  // Set canvas pixel size to match display size (no scaling needed — canvas attr = draw size)
+  // Sync canvas buffer size to actual rendered size (CSS may scale it)
   const cv=$('wheelCanvas');
   if(cv){
-    const size=Math.min(400,window.innerWidth-24);
-    cv.width=size;
-    cv.height=size;
-    cv.style.width=size+'px';
-    cv.style.height=size+'px';
+    const rect=cv.getBoundingClientRect();
+    const size=Math.round(Math.min(rect.width||420, rect.height||420));
+    if(size>0){cv.width=size;cv.height=size;}
   }
   S.wheelItems=getPlayers().filter(p=>!p.isHost).map(p=>p.name);
   if(!S.wheelItems.length)S.wheelItems=['ตัวเลือก 1','ตัวเลือก 2','ตัวเลือก 3'];
@@ -1837,6 +1833,10 @@ function addWheelItem(){
 function delWheelItem(i){S.wheelItems.splice(i,1);renderWheelItems()}
 function drawWheel(rot){
   const canvas=$('wheelCanvas');if(!canvas)return;
+  // Keep canvas buffer = rendered size to avoid blur
+  const rect=canvas.getBoundingClientRect();
+  const sz=Math.round(rect.width||canvas.width);
+  if(sz>0&&(canvas.width!==sz||canvas.height!==sz)){canvas.width=sz;canvas.height=sz;}
   const ctx=canvas.getContext('2d');
   const W=canvas.width,cx=W/2,cy=W/2;
   const items=S.wheelItems,r=W/2-6;
@@ -2682,8 +2682,6 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   #wheelCanvas{
     width:min(640px,min(56vw,80vh)) !important;
-    height:min(640px,min(56vw,80vh)) !important;
-    max-height:none !important;
-  }
+    max-}
   .wheel-items,.wheel-add-row,.btn-spin{max-width:540px;width:100%}
 }>
