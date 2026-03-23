@@ -418,7 +418,7 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
 /* ── Wheel ── */
 .wheel-wrap{display:flex;align-items:center;justify-content:center;padding:0.5rem 0 0.75rem;position:relative}
 .wheel-pointer{position:absolute;top:0;left:50%;transform:translateX(-50%);width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:26px solid var(--t0);z-index:2;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.5))}
-#wheelCanvas{border-radius:50%;display:block;width:min(400px,calc(100vw - 1.5rem));height:min(400px,calc(100vw - 1.5rem));max-height:52vh;box-shadow:0 8px 32px rgba(0,0,0,0.5);cursor:grab;touch-action:none}
+#wheelCanvas{border-radius:50%;display:block;width:min(400px,calc(100vw - 1.5rem));height:min(400px,calc(100vw - 1.5rem));max-height:52vh;box-shadow:0 8px 32px rgba(0,0,0,0.5);cursor:grab;touch-action:none;will-change:transform;-webkit-transform:translateZ(0);transform:translateZ(0);image-rendering:crisp-edges;image-rendering:-webkit-optimize-contrast}
 .wheel-result{text-align:center;margin-bottom:1rem;min-height:48px;display:flex;align-items:center;justify-content:center}
 .wheel-result-text{font-size:24px;font-weight:900;color:var(--ac)}
 .wheel-items{padding:0.5rem 0.875rem;margin-bottom:10px;max-height:120px;overflow-y:auto;background:var(--card);border-radius:var(--r-s);border:1px solid var(--line)}
@@ -789,9 +789,8 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
       </div>
     </div>
     <button class="btn btn-ac btn-next" id="btnDrawCard" style="background:linear-gradient(180deg,#8faeff 0%,#6278e8 100%);box-shadow:0 4px 0 rgba(60,72,180,0.5);border-top:1px solid rgba(255,255,255,0.18)"
-      onmousedown="startHoldDraw(event)" onmouseup="releaseHoldDraw()" onmouseleave="releaseHoldDraw()"
-      ontouchstart="startHoldDraw(event)" ontouchend="releaseHoldDraw()" ontouchcancel="releaseHoldDraw()">
-      🃏 กดค้างเพื่อสุ่มไพ่!
+      onclick="toggleDraw()">
+      🃏 สุ่มไพ่!
     </button>
   </div>
 </div>
@@ -1357,11 +1356,11 @@ function renderWWSetup(){
     <div class="ww-score-bar">
       <div>
         <div class="label" style="margin:0">แต้มรวม</div>
-        <div style="font-size:20px;margin-top:3px">${ptsDisplay()}</div>
+        <div id="wwPtsDisplay" style="font-size:20px;margin-top:3px">${ptsDisplay()}</div>
       </div>
       <div style="text-align:right">
         <div class="label" style="margin:0">บทบาท / ผู้เล่น</div>
-        <div style="font-size:20px;font-weight:900;color:${over?'var(--danger)':under?'var(--warn)':'var(--ok)'}">${total} / ${n}</div>
+        <div id="wwCountDisplay" style="font-size:20px;font-weight:900;color:${over?'var(--danger)':under?'var(--warn)':'var(--ok)'}">${total} / ${n}</div>
       </div>
     </div>
     ${sectionHtml('🔴 ฝ่ายหมาป่า',evilRoles)}
@@ -1414,15 +1413,13 @@ function changeRoleCount(r,d){
     if(chip)next>0?chip.classList.add('has'):chip.classList.remove('has');
   }
   // update score bar
-  const bar=$('wwBody')?.querySelector('.ww-score-bar');
-  if(bar){
-    const total=totalRoles();
-    const pts=totalPts();
-    const over=total>n,under=total<n&&total>0;
-    const countEl=bar.querySelectorAll('div[style*="font-size:20px"]');
-    if(countEl[0])countEl[0].innerHTML=ptsDisplay();
-    if(countEl[1]){countEl[1].textContent=`${total} / ${n}`;countEl[1].style.color=over?'var(--danger)':under?'var(--warn)':'var(--ok)';}
-  }
+  const total=totalRoles();
+  const pts=totalPts();
+  const over=total>n,under=total<n&&total>0;
+  const ptsEl=$('wwPtsDisplay');
+  const cntEl=$('wwCountDisplay');
+  if(ptsEl)ptsEl.innerHTML=ptsDisplay();
+  if(cntEl){cntEl.textContent=`${total} / ${n}`;cntEl.style.color=over?'var(--danger)':under?'var(--warn)':'var(--ok)';}
   // update deal button
   const btn=$('wwBody')?.querySelector('.btn-next');
   if(btn){const total=totalRoles();const ov=total>n;btn.disabled=ov;btn.textContent=ov?'⚠ เกินไป':'🎴 ดูสรุปก่อนแจก →';}
@@ -1831,8 +1828,17 @@ function addWheelItem(){
 function delWheelItem(i){S.wheelItems.splice(i,1);renderWheelItems()}
 function drawWheel(rot){
   const canvas=$('wheelCanvas');if(!canvas)return;
+  // Fix: devicePixelRatio scaling for crisp mobile rendering
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  const cssW=canvas.clientWidth||280;
+  const cssH=canvas.clientHeight||280;
+  if(canvas.width!==cssW*dpr||canvas.height!==cssH*dpr){
+    canvas.width=cssW*dpr;
+    canvas.height=cssH*dpr;
+  }
   const ctx=canvas.getContext('2d');
-  const items=S.wheelItems,W=canvas.width,cx=W/2,cy=W/2,r=W/2-6;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  const items=S.wheelItems,r=W/2-6;
   ctx.clearRect(0,0,W,W);
   if(!items.length){
     ctx.fillStyle='rgba(255,255,255,0.04)';ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fill();return;
@@ -2114,12 +2120,24 @@ function _reelRecycle(scrollOffset){
 }
 
 
+function toggleDraw(){
+  if(_drawHoldPhase==='spinning'){
+    // กำลังหมุนอยู่ → หยุด
+    releaseHoldDraw();
+  } else if(_drawHoldPhase==='idle'){
+    // ยังไม่ได้หมุน → เริ่มหมุน
+    startHoldDraw();
+  }
+  // ถ้า phase เป็น 'settling' ก็ไม่ทำอะไร รอให้หยุดก่อน
+}
+
 function startHoldDraw(e){
   e&&e.preventDefault&&e.preventDefault();
   if(_drawHoldPhase!=='idle')return;
   if(S.cardIdx>=S.cardDeck.length){showToast('\u0e2b\u0e21\u0e14\u0e2a\u0e33\u0e23\u0e31\u0e1a\u0e41\u0e25\u0e49\u0e27! \u0e40\u0e23\u0e34\u0e48\u0e21\u0e43\u0e2b\u0e21\u0e48');initCards();return;}
   _drawHoldActive=true;_drawHoldStart=performance.now();_drawHoldPhase='spinning';_drawHoldVel=1;
-  const btn=$('btnDrawCard');if(btn)btn.classList.add('holding');
+  const btn=$('btnDrawCard');
+  if(btn){btn.classList.add('holding');btn.textContent='⏹ หยุด!';}
   _resumeAC();_cardResetCross();
   // ถ้ายังไม่มี reel หรือ reset ครั้งแรก
   if(!_reel||_reel.children.length===0) _reelInit();
@@ -2141,7 +2159,8 @@ function releaseHoldDraw(){
   if(!_drawHoldActive||_drawHoldPhase!=='spinning')return;
   _drawHoldActive=false;_drawHoldPhase='settling';
   if(_drawHoldRAF){cancelAnimationFrame(_drawHoldRAF);_drawHoldRAF=null;}
-  const btn=$('btnDrawCard');if(btn)btn.classList.remove('holding');
+  const btn=$('btnDrawCard');
+  if(btn){btn.classList.remove('holding');btn.textContent='🃏 สุ่มไพ่!';}
   if(S.cardIdx>=S.cardDeck.length){showToast('\u0e2b\u0e21\u0e14\u0e2a\u0e33\u0e23\u0e31\u0e1a\u0e41\u0e25\u0e49\u0e27! \u0e40\u0e23\u0e34\u0e48\u0e21\u0e43\u0e2b\u0e21\u0e48');initCards();_drawHoldPhase='idle';return;}
   const card=S.cardDeck[S.cardIdx++];
   S.cardRound=(S.cardRound||0)+1;
