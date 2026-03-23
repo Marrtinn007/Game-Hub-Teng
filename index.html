@@ -117,22 +117,25 @@ body{
 
 /* Theme switcher button */
 .theme-btn{
-  position:fixed;top:10px;right:12px;z-index:500;
-  width:36px;height:36px;border-radius:50%;
+  width:34px;height:34px;border-radius:50%;
   border:1.5px solid var(--line);
   background:var(--card2);
   cursor:pointer;
   display:flex;align-items:center;justify-content:center;
-  box-shadow:0 2px 8px rgba(0,0,0,0.3);
-  transition:transform 0.2s var(--spring);
-  color:var(--t2);
+  box-shadow:0 2px 6px rgba(0,0,0,0.25);
+  transition:transform 0.2s var(--spring),color 0.15s;
+  color:var(--t2);flex-shrink:0;
 }
 .theme-btn:active{transform:scale(0.88)!important}
 .theme-btn:hover{color:var(--t0)}
+/* ซ่อนปุ่มธีมในหน้าเกม */
+.game-screen.active ~ * #themeSwitcherBtn,
+body:has(.game-screen.active) #themeSwitcherBtn,
+body:has(.game-screen.active) #themeSheet{display:none!important}
 
 /* Theme picker sheet */
 .theme-sheet{
-  position:fixed;top:52px;right:12px;z-index:499;
+  position:absolute;top:calc(100% + 8px);right:0;z-index:499;
   background:var(--card);border:1px solid var(--line);
   border-radius:var(--r-l);padding:10px;
   display:none;flex-direction:column;gap:6px;
@@ -251,7 +254,7 @@ body{
 
 /* ── Home ── */
 /* ══ HOME ══ */
-#screen-home{padding-bottom:3rem}
+#screen-home{padding-bottom:3rem;position:relative}
 .home-hero{padding:3rem var(--pad) 1.5rem;text-align:center}
 .home-badge{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-pill);padding:6px 16px;margin-bottom:1.25rem;box-shadow:0 2px 0 rgba(0,0,0,0.2)}
 .home-badge-dot{width:7px;height:7px;border-radius:50%;background:var(--ok);animation:pulse 2s infinite;flex-shrink:0}
@@ -581,8 +584,14 @@ body{
 <!-- Menu -->
 <div class="menu-overlay" id="menuOverlay" onclick="closeMenu()">
   <div class="menu-popup" onclick="event.stopPropagation()">
-    <div class="menu-item" onclick="resumeGame();closeMenu()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>เล่นต่อ</div>
-    <div class="menu-item" onclick="pauseGame()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>หยุดชั่วคราว</div>
+    <div class="menu-item" style="flex-direction:column;align-items:flex-start;gap:8px;cursor:default">
+      <span style="font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--t3);text-transform:uppercase">ธีม</span>
+      <div style="display:flex;gap:8px">
+        <button onclick="setTheme('dark')" title="Dark" style="width:28px;height:28px;border-radius:50%;background:#1c1f26;border:2px solid #7c9cff;cursor:pointer;transition:transform 0.15s" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></button>
+        <button onclick="setTheme('cream')" title="Cream" style="width:28px;height:28px;border-radius:50%;background:#fffdf8;border:2px solid #b5651d;cursor:pointer;transition:transform 0.15s" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></button>
+        <button onclick="setTheme('ocean')" title="Ocean" style="width:28px;height:28px;border-radius:50%;background:#0d1d30;border:2px solid #38bdf8;cursor:pointer;transition:transform 0.15s" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"></button>
+      </div>
+    </div>
     <div class="menu-item danger" onclick="confirmEndGame()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>ยุติเกม</div>
   </div>
 </div>
@@ -632,6 +641,15 @@ body{
 
 <!-- ══ HOME ══ -->
 <div class="screen active" id="screen-home">
+  <!-- theme btn มุมขวาบน -->
+  <div style="position:absolute;top:14px;right:14px;z-index:50">
+    <button class="theme-btn" id="themeSwitcherBtn" onclick="toggleThemeSheet()" title="เปลี่ยนธีม"><svg id="themeBtnIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+    <div class="theme-sheet" id="themeSheet" style="position:absolute;top:calc(100% + 8px);right:0">
+      <button class="theme-option" onclick="setTheme('dark')"><span class="theme-dot" style="background:#1c1f26;border-color:#7c9cff"></span>🌙 Dark</button>
+      <button class="theme-option" onclick="setTheme('cream')"><span class="theme-dot" style="background:#fffdf8;border-color:#b5651d"></span>🍵 Cream</button>
+      <button class="theme-option" onclick="setTheme('ocean')"><span class="theme-dot" style="background:#0d1d30;border-color:#38bdf8"></span>🌊 Ocean</button>
+    </div>
+  </div>
   <div class="home-hero">
     <div class="home-badge"><span class="home-badge-dot"></span><span class="home-badge-text">เล่นได้เลย · ฟรีตลอด</span></div>
     <div class="home-title">Game Hub <span class="home-title-accent">Teng</span></div>
@@ -641,7 +659,7 @@ body{
     <div class="games-section-label">🎲 ต้องสร้างห้อง</div>
     <div class="games-grid">
       <div class="game-card" onclick="openJoinModal('ww')">
-        <div class="game-icon" style="background:rgba(249,168,212,0.14);font-size:24px">🌙</div>
+        <div class="game-icon" style="background:rgba(249,168,212,0.14);font-size:24px">🐺</div>
         <div class="game-name">Werewolf</div><div class="game-desc">4–18 คน · แจกไพ่บทบาท</div>
       </div>
       <div class="game-card" onclick="openJoinModal('spyfall')">
@@ -703,7 +721,7 @@ body{
   <div class="lobby-sec"><div class="label">ผู้เล่น <span id="playerCount" style="color:var(--ac)">0</span></div><div class="players-list" id="playersList"></div></div>
   <div class="gap-lbl">เลือกเกม</div>
   <div class="game-select-grid" id="gameSelectGrid">
-    <div class="game-select-card" data-game="ww" onclick="selectGame('ww')"><div class="gs-icon">🌙</div><div class="gs-name">Werewolf</div></div>
+    <div class="game-select-card" data-game="ww" onclick="selectGame('ww')"><div class="gs-icon">🐺</div><div class="gs-name">Werewolf</div></div>
     <div class="game-select-card" data-game="spyfall" onclick="selectGame('spyfall')"><div class="gs-icon">🕵️</div><div class="gs-name">Spyfall</div></div>
     <div class="game-select-card" data-game="king" onclick="selectGame('king')"><div class="gs-icon">👑</div><div class="gs-name">King's Game</div></div>
   </div>
@@ -714,7 +732,7 @@ body{
 <!-- ══ WEREWOLF ══ -->
 <div class="screen game-screen" id="screen-ww">
   <div class="game-top">
-    <div class="game-top-info"><div class="game-top-name">🌙 Werewolf</div><div class="game-top-sub" id="wwPhaseLabel">ตั้งค่าเกม</div></div>
+    <div class="game-top-info"><div class="game-top-name">🐺 Werewolf</div><div class="game-top-sub" id="wwPhaseLabel">ตั้งค่าเกม</div></div>
     <button class="btn-icon" onclick="toggleMenu()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
   </div>
   <div class="game-body" id="wwBody"></div>
@@ -969,6 +987,12 @@ const S={
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function showScreen(id){
+  // แสดง/ซ่อนปุ่มธีมตาม screen
+  const gameScreens=['screen-ww','screen-wheel','screen-cards','screen-spyfall','screen-king'];
+  const btn=$('themeSwitcherBtn');const sheet=$('themeSheet');
+  if(btn){btn.style.display=gameScreens.includes(id)?'none':'';}
+  if(sheet&&gameScreens.includes(id))sheet.classList.remove('open');
+
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const el=$(id);if(el){el.classList.add('active');el.scrollTop=0;}
 
@@ -1032,7 +1056,7 @@ function stopSpeakSequence(){_ttsAbort=true;stopSpeech()}
 function showCreateRoom(){S.pendingRoomCode=genCode();S.isHost=true;const i=$('roomNameInput');if(i)i.value='';showScreen('screen-room')}
 
 const _JOIN_MODAL_META={
-  ww:{icon:'🌙',title:'Werewolf',desc:'เล่นกับเพื่อน 4–18 คน'},
+  ww:{icon:'🐺',title:'Werewolf',desc:'เล่นกับเพื่อน 4–18 คน'},
   spyfall:{icon:'🕵️',title:'Spyfall',desc:'หาสายลับในกลุ่ม · 2+ คน'},
   king:{icon:'👑',title:"King's Game",desc:'3+ คน · ราชาสั่ง ใครจะโดน?'},
 };
@@ -2010,66 +2034,85 @@ let _drawHoldRAF=null,_drawHoldActive=false,_drawHoldStart=0,_drawHoldPhase='idl
 const _DRAW_ITEM_H=240;
 const _DRAW_ALL_VALS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const _DRAW_ALL_SUITS=['♠','♥','♦','♣'];
-function _makeRandomCardEl(){
+// ── Card Reel Engine — zero innerHTML in animation loop ──
+// pre-build structure แค่ครั้งเดียว แล้วแก้ textContent/style เท่านั้น
+function _makeCardNode(){
+  const wrap=document.createElement('div');wrap.className='card-slot-item';
+  const val=document.createElement('div');val.className='playing-card-val';
+  const rule=document.createElement('div');rule.className='playing-card-rule';
+  rule.style.fontSize='22px';rule.style.color='var(--t1)';
+  const desc=document.createElement('div');desc.className='playing-card-desc';
+  desc.style.display='none';
+  wrap.appendChild(val);wrap.appendChild(rule);wrap.appendChild(desc);
+  return wrap;
+}
+function _fillNode(node, fv, fs, ruleText, descText, isResult){
+  const fr=fs==='♥'||fs==='♦';
+  const val=node.children[0];
+  const rule=node.children[1];
+  const desc=node.children[2];
+  val.textContent=fv+fs;
+  val.style.color=fr?'#f06e7a':'var(--t0)';
+  rule.textContent=ruleText||'';
+  if(isResult&&descText){
+    desc.textContent=descText;
+    desc.style.display='';
+  } else {
+    desc.textContent='';
+    desc.style.display='none';
+  }
+}
+function _fillNodeRandom(node){
   const fv=_DRAW_ALL_VALS[Math.floor(Math.random()*_DRAW_ALL_VALS.length)];
   const fs=_DRAW_ALL_SUITS[Math.floor(Math.random()*_DRAW_ALL_SUITS.length)];
-  const fr=fs==='\u2665'||fs==='\u2666';
   const fRule=CARDS[fv]||{r:fv,d:''};
-  const div=document.createElement('div');div.className='card-slot-item';
-  div.innerHTML=`<div class="playing-card-val" style="color:${fr?'#f06e7a':'var(--t0)'}">${fv}${fs}</div><div class="playing-card-rule" style="font-size:16px;color:var(--t1)">${fRule.r}</div>`;
-  return div;
+  _fillNode(node,fv,fs,fRule.r,'',false);
 }
 
-// ── state ──
-let _reel=null, _reelBase=0; // _reelBase = offset pixel ของ node[0]
-const _POOL=20; // จำนวน node คงที่
+const _POOL=20;
+let _reel=null,_reelBase=0;
 
 function _reelInit(){
   const reel=$('cardSlotReel');if(!reel)return;
   reel.innerHTML='';
-  for(let i=0;i<_POOL;i++)reel.appendChild(_makeRandomCardEl());
-  _drawScrollOffset=0;
-  _reelBase=0;
+  for(let i=0;i<_POOL;i++){
+    const n=_makeCardNode();
+    _fillNodeRandom(n);
+    reel.appendChild(n);
+  }
+  _drawScrollOffset=0;_reelBase=0;
   reel.style.transform='translateY(0)';
   _reel=reel;
 }
 
-// เปลี่ยน content ของ node ที่ offset pixel target
-function _reelSetCard(offsetPx, html){
+function _reelSetCard(offsetPx,card,rule){
   if(!_reel)return;
   const idx=Math.round((offsetPx-_reelBase)/_DRAW_ITEM_H);
-  if(idx>=0&&idx<_POOL) _reel.children[idx].innerHTML=html;
+  if(idx>=0&&idx<_reel.children.length){
+    _fillNode(_reel.children[idx],card.v,card.s,rule.r,rule.d,true);
+  }
 }
 
-// recycle node ที่ผ่านไปแล้วไปต่อท้าย — เรียกหลัง scroll
 function _reelRecycle(scrollOffset){
   if(!_reel)return;
-  // node ที่มองเห็น = scrollOffset - _reelBase >= 0
-  // node ที่ผ่านไปแล้ว 2 ใบ = ปลอดภัยจะ recycle
-  while(_reelBase+_DRAW_ITEM_H*2 < scrollOffset){
+  while(_reelBase+_DRAW_ITEM_H*2<scrollOffset){
     const el=_reel.firstChild;if(!el)break;
-    // refill content
-    const fv=_DRAW_ALL_VALS[Math.floor(Math.random()*_DRAW_ALL_VALS.length)];
-    const fs=_DRAW_ALL_SUITS[Math.floor(Math.random()*_DRAW_ALL_SUITS.length)];
-    const fr=fs==='\u2665'||fs==='\u2666';
-    const fRule=CARDS[fv]||{r:fv,d:''};
-    el.innerHTML=`<div class="playing-card-val" style="color:${fr?'#f06e7a':'var(--t0)'}">${fv}${fs}</div><div class="playing-card-rule" style="font-size:16px;color:var(--t1)">${fRule.r}</div>`;
+    _fillNodeRandom(el);
     _reel.removeChild(el);
     _reel.appendChild(el);
     _reelBase+=_DRAW_ITEM_H;
   }
-  // เติม node ข้างหน้าถ้าใกล้สุด
   const topVisible=_reelBase+(_POOL-3)*_DRAW_ITEM_H;
   while(scrollOffset+_DRAW_ITEM_H*3>topVisible){
-    const el=_makeRandomCardEl();
-    _reel.appendChild(el);
-    // ไม่เพิ่ม POOL — ต้องลบ node หัวออก
+    const n=_makeCardNode();_fillNodeRandom(n);
+    _reel.appendChild(n);
     if(_reel.children.length>_POOL){
       _reel.removeChild(_reel.firstChild);
       _reelBase+=_DRAW_ITEM_H;
     }
   }
 }
+
 
 function startHoldDraw(e){
   e&&e.preventDefault&&e.preventDefault();
@@ -2116,16 +2159,16 @@ function releaseHoldDraw(){
   const extraItems=Math.max(3,Math.round(vel*decelDur/1000*0.4));
   const targetOffset=snapTo+extraItems*_DRAW_ITEM_H;
   // วางไพ่จริงที่ตำแหน่ง target
-  const cardHtml=`<div class="playing-card-val" style="color:${sc}">${card.v}${card.s}</div><div class="playing-card-rule">${rule.r}</div><div class="playing-card-desc">${rule.d}</div>`;
   // เพิ่ม node ให้ถึง target ก่อน
   while(_reelBase+_reel.children.length*_DRAW_ITEM_H<targetOffset+_DRAW_ITEM_H*2){
-    _reel.appendChild(_makeRandomCardEl());
+    const n=_makeCardNode();_fillNodeRandom(n);
+    _reel.appendChild(n);
     if(_reel.children.length>_POOL+8){
       _reel.removeChild(_reel.firstChild);
       _reelBase+=_DRAW_ITEM_H;
     }
   }
-  _reelSetCard(targetOffset, cardHtml);
+  _reelSetCard(targetOffset, card, rule);
   const dist=targetOffset-curOffset;
   const t0=performance.now();
   function decelTick(now){
@@ -2588,13 +2631,6 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 </script>
 
-<!-- Theme switcher -->
-<button class="theme-btn" id="themeSwitcherBtn" onclick="toggleThemeSheet()" title="เปลี่ยนธีม"><svg id="themeBtnIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
-<div class="theme-sheet" id="themeSheet">
-  <button class="theme-option" onclick="setTheme('dark')"><span class="theme-dot" style="background:#1c1f26;border-color:#7c9cff"></span>🌙 Dark</button>
-  <button class="theme-option" onclick="setTheme('cream')"><span class="theme-dot" style="background:#fffdf8;border-color:#b5651d"></span>🍵 Cream</button>
-  <button class="theme-option" onclick="setTheme('ocean')"><span class="theme-dot" style="background:#0d1d30;border-color:#38bdf8"></span>🌊 Ocean</button>
-</div>
 
 </body>
 </html/* ── iPad / Large screens (768px+) ── */
