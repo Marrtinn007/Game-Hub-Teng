@@ -172,7 +172,7 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
 [data-theme="cream"] .rpc-front,[data-theme="cream"] .rpc-back{border-color:rgba(0,0,0,0.1)}
 
 /* ── Screens ── */
-.screen{display:none;min-height:100dvh;flex-direction:column;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;background:var(--bg)}
+.screen{display:none;min-height:100dvh;flex-direction:column;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;background:transparent}
 .screen.active{display:flex;animation:pgIn 0.28s var(--smooth) both}
 @keyframes pgIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
@@ -528,6 +528,32 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
   .wheel-items,.wheel-add-row,.btn-spin{max-width:540px;width:100%}
 }
 
+
+
+/* ═══ ORB BACKGROUND ══════════════════════════════════════════ */
+[data-theme="dark"]   { --ob1:rgba(100,80,240,.38); --ob2:rgba(40,120,255,.28); --ob3:rgba(0,200,180,.22); --ob4:rgba(140,40,220,.28); --ob5:rgba(60,100,220,.18) }
+[data-theme="cream"]  { --ob1:rgba(255,130,60,.40);  --ob2:rgba(255,210,60,.34); --ob3:rgba(220,80,140,.28);  --ob4:rgba(120,200,80,.28);  --ob5:rgba(60,180,230,.24) }
+[data-theme="ocean"]  { --ob1:rgba(0,160,240,.40);   --ob2:rgba(0,80,210,.32);   --ob3:rgba(0,220,200,.28);   --ob4:rgba(60,40,200,.30);   --ob5:rgba(0,200,160,.22) }
+
+body::before{
+  content:'';
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  filter:blur(72px);
+  background:
+    radial-gradient(circle 40vw at 14%  12%, var(--ob1,rgba(100,80,240,.35)), transparent 65%),
+    radial-gradient(circle 34vw at 86%  10%, var(--ob2,rgba(40,120,255,.25)), transparent 65%),
+    radial-gradient(circle 38vw at 80%  84%, var(--ob3,rgba(0,200,180,.20)), transparent 65%),
+    radial-gradient(circle 32vw at 6%   82%, var(--ob4,rgba(140,40,220,.25)), transparent 65%),
+    radial-gradient(circle 30vw at 50%  48%, var(--ob5,rgba(60,100,220,.16)), transparent 65%);
+  animation:orbDrift 22s ease-in-out infinite alternate;
+}
+@keyframes orbDrift{
+  0%  { transform:translate(0,0)     scale(1)    }
+  30% { transform:translate(3vw,4vh)  scale(1.05) }
+  60% { transform:translate(-3vw,2vh) scale(0.96) }
+  100%{ transform:translate(2vw,-4vh) scale(1.04) }
+}
+/* ═══════════════════════════════════════════════════════════════ */
 </style>
 </head>
 <body>
@@ -563,7 +589,17 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
 </div>
 
 <!-- Status menu sheet -->
-<div class="modal-overlay" id="statusMenuOverlay" onclick="closeModalOutside(event,'statusMenuOverlay')">
+<div class="modal-overlay" id="statusMenuOverlay" onclick="closeModalOutside(event,'status
+/* ── Orb background — ทุกธีม ── */
+33% {transform:translate(2vw,3vh)  scale(1.04)}
+  66% {transform:translate(-2vw,2vh) scale(0.97)}
+  100%{transform:translate(1vw,-3vh) scale(1.03)}
+}
+
+/* Dark */
+/* Cream */
+/* Ocean */
+MenuOverlay')">
   <div class="modal-sheet"><div class="modal-handle"></div>
     <div id="statusMenuContent" style="display:flex;flex-wrap:wrap;gap:10px;padding-bottom:0.5rem"></div>
     <button class="btn btn-sf" style="width:100%;height:48px;margin-top:14px;font-size:15px" onclick="closeStatusMenu()">ปิด</button>
