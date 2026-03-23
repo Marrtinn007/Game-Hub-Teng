@@ -1716,6 +1716,15 @@ function closeNightScreens(){}
 
 /* ══ WHEEL ═══════════════════════════════ */
 function initWheel(){
+  // Set canvas pixel size to match display size (no scaling needed — canvas attr = draw size)
+  const cv=$('wheelCanvas');
+  if(cv){
+    const size=Math.min(400,window.innerWidth-24);
+    cv.width=size;
+    cv.height=size;
+    cv.style.width=size+'px';
+    cv.style.height=size+'px';
+  }
   S.wheelItems=getPlayers().filter(p=>!p.isHost).map(p=>p.name);
   if(!S.wheelItems.length)S.wheelItems=['ตัวเลือก 1','ตัวเลือก 2','ตัวเลือก 3'];
   S.wheelSpinning=false;S.wheelAngle=0;
@@ -1828,16 +1837,8 @@ function addWheelItem(){
 function delWheelItem(i){S.wheelItems.splice(i,1);renderWheelItems()}
 function drawWheel(rot){
   const canvas=$('wheelCanvas');if(!canvas)return;
-  // Fix: devicePixelRatio scaling for crisp mobile rendering
-  const dpr=Math.min(window.devicePixelRatio||1,2);
-  const cssW=canvas.clientWidth||280;
-  const cssH=canvas.clientHeight||280;
-  if(canvas.width!==cssW*dpr||canvas.height!==cssH*dpr){
-    canvas.width=cssW*dpr;
-    canvas.height=cssH*dpr;
-  }
   const ctx=canvas.getContext('2d');
-  ctx.setTransform(dpr,0,0,dpr,0,0);
+  const W=canvas.width,cx=W/2,cy=W/2;
   const items=S.wheelItems,r=W/2-6;
   ctx.clearRect(0,0,W,W);
   if(!items.length){
