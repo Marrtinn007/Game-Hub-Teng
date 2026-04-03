@@ -353,12 +353,12 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
 .ww-score-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-radius:var(--r-s);margin-bottom:1.25rem;background:var(--card);border:1px solid var(--line)}
 
 /* ── WW Role Card ── */
-.role-playing-card{perspective:1200px;cursor:pointer;width:min(290px,calc(100vw - 2.5rem));height:min(406px,calc((100vw - 2.5rem)*1.4));flex-shrink:0;-webkit-transform:translateZ(0);transform:translateZ(0)}
-.rpc-inner{position:relative;width:100%;height:100%;transition:transform 0.6s cubic-bezier(0.4,0,0.2,1);transform-style:preserve-3d;will-change:transform}
+.role-playing-card{cursor:pointer;width:min(290px,calc(100vw - 2.5rem));height:min(406px,calc((100vw - 2.5rem)*1.4));flex-shrink:0;perspective:1000px;-webkit-perspective:1000px}
+.rpc-inner{position:relative;width:100%;height:100%;transition:transform 0.5s cubic-bezier(0.4,0,0.2,1);transform-style:preserve-3d;-webkit-transform-style:preserve-3d;will-change:transform}
 .role-playing-card.flipped .rpc-inner{-webkit-transform:rotateY(180deg);transform:rotateY(180deg)}
-.rpc-front,.rpc-back{position:absolute;inset:0;border-radius:var(--r-xl);-webkit-backface-visibility:hidden;backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;-webkit-transform:translateZ(0);transform:translateZ(0);-webkit-font-smoothing:subpixel-antialiased}
+.rpc-front,.rpc-back{position:absolute;inset:0;border-radius:var(--r-xl);-webkit-backface-visibility:hidden;backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;-webkit-font-smoothing:subpixel-antialiased;font-smooth:always;will-change:transform}
 .rpc-front{background:var(--card);border:1px solid rgba(255,255,255,0.1);box-shadow:0 16px 40px rgba(0,0,0,0.6)}
-.rpc-back{background:var(--card);border:1px solid rgba(255,255,255,0.1);box-shadow:0 16px 40px rgba(0,0,0,0.6);-webkit-transform:rotateY(180deg) translateZ(1px);transform:rotateY(180deg) translateZ(1px);justify-content:flex-start;padding:18px}
+.rpc-back{background:var(--card);border:1px solid rgba(255,255,255,0.1);box-shadow:0 16px 40px rgba(0,0,0,0.6);-webkit-transform:rotateY(180deg);transform:rotateY(180deg);justify-content:flex-start;padding:18px}
 .rpc-player-name{font-size:20px;font-weight:800;color:var(--t0);text-align:center;padding:8px 18px;background:var(--card2);border-radius:var(--r-pill);max-width:90%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border:1px solid var(--line)}
 .rpc-hint{font-size:13px;color:var(--t2);margin-top:12px;text-align:center;font-weight:400}
 .rpc-card-bg{position:absolute;font-size:120px;opacity:0.03;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
@@ -410,6 +410,14 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
 .spy-loc-row:last-child{border-bottom:none}
 .spy-loc-row.current{background:var(--ac-dim)}
 .spy-timer{font-size:32px;font-weight:900;color:var(--warn);font-variant-numeric:tabular-nums;letter-spacing:-0.02em}
+.ww-timer-card{background:var(--card);border-radius:var(--r-l);padding:14px 16px;margin-bottom:1rem;border:1px solid var(--line);box-shadow:var(--sh)}
+.ww-timer-label{font-size:11px;font-weight:700;letter-spacing:0.10em;text-transform:uppercase;color:var(--t2);margin-bottom:8px}
+.ww-timer-controls-row{display:flex;align-items:center;gap:6px}
+.ww-timer-display{font-size:38px;font-weight:900;color:var(--warn);font-variant-numeric:tabular-nums;letter-spacing:-0.02em;flex:1;text-align:center;min-width:0;transition:color 0.3s}
+.ww-timer-display.urgent{color:var(--danger);animation:urgentPulse 0.8s ease-in-out infinite}
+.ww-timer-display.done{color:var(--danger)}
+.ww-timer-adj-btn{width:42px;height:42px;background:var(--card2);border:1px solid var(--line);border-radius:var(--r-s);color:var(--t1);font-family:'Kanit',sans-serif;font-size:12px;font-weight:800;cursor:pointer;flex-shrink:0;transition:all 0.12s;box-shadow:0 2px 0 rgba(0,0,0,0.25)}
+.ww-timer-adj-btn:active{transform:translateY(1px);box-shadow:none}
 .spy-timer.urgent{color:var(--danger);animation:urgentPulse 0.8s ease-in-out infinite}
 @keyframes urgentPulse{0%,100%{opacity:1}50%{opacity:0.5}}
 .spy-host-row{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--line)}
@@ -1007,8 +1015,8 @@ const S={
   players:[],selectedGame:null,pendingRoomCode:null,paused:false,
   wheelItems:[],wheelSpinning:false,wheelAngle:0,
   cardDeck:[],cardIdx:0,cardRound:0,_cardSpinning:false,
-  wwPlayerCount:5,
-  wwRoleCounts:{werewolf:1,wolfcub:0,lonewolf:0,minion:0,sorcerer:0,alphawolf:0,cursed:0,villager:2,seer:1,bodyguard:0,hunter:0,witch:0,prince:0,cupid:0,mason:0,spellcaster:0,auraseer:0,apprenticeseer:0,priest:0,troublemaker:0,pi:0,oldhag:0,toughguy:0,lycan:0,diseased:0,mystic:0,mentalist:0,huntress:0,tanner:0,vampire:0,cultleader:0,hoodlum:0,revealer:0,madbomber:0},
+  wwPlayerCount:0,
+  wwRoleCounts:{werewolf:0,wolfcub:0,lonewolf:0,minion:0,sorcerer:0,alphawolf:0,cursed:0,villager:0,seer:0,bodyguard:0,hunter:0,witch:0,prince:0,cupid:0,mason:0,spellcaster:0,auraseer:0,apprenticeseer:0,priest:0,troublemaker:0,pi:0,oldhag:0,toughguy:0,lycan:0,diseased:0,mystic:0,mentalist:0,huntress:0,tanner:0,vampire:0,cultleader:0,hoodlum:0,revealer:0,madbomber:0},
   wwAssigned:{},wwAlive:{},wwMyRole:null,wwFlipped:{},_lastDealId:null,
   wwStatus:{},wwCupidPair:[],wwWolfIds:[],
   myWord:null,myWordVisible:false,
@@ -1230,6 +1238,10 @@ function enterLobby(){
   });
   wwRef=db.ref(`rooms/${S.roomCode}/ww`);
   wwRef.on('value',snap=>{const d=snap.val();if(d)syncWWState(d);});
+  db.ref(`rooms/${S.roomCode}/wwTimer`).on('value',snap=>{
+    const d=snap.val();
+    if(d){S._lastWWTimer=d;const onWW=document.querySelector('.screen.active')?.id==='screen-ww';if(onWW)syncWWTimerState(d);}
+  });
   db.ref(`rooms/${S.roomCode}/spy`).on('value',snap=>{
     const d=snap.val();
     if(d&&d.dealt){S._lastSpyData=d;syncSpyState(d);}
@@ -1364,8 +1376,11 @@ function showRoleInfo(r,event){
 
 /* ══ WW SETUP ════════════════════════════ */
 function initWW(){
-  S.wwAssigned={};S.wwAlive={};S.wwMyRole=null;S.wwFlipped={};
+  S.wwAssigned={};S.wwAlive={};S.wwMyRole=null;S.wwFlipped={};S.wwListHidden=false;
   S.wwStatus={};S.wwCupidPair=[];S.wwWolfIds=[];
+  // reset counts — player sets manually
+  S.wwPlayerCount=getPlayers().filter(p=>!p.isHost).length||0;
+  Object.keys(S.wwRoleCounts).forEach(k=>S.wwRoleCounts[k]=0);
   renderWWSetup();
 }
 function renderWWSetup(){
@@ -1375,9 +1390,12 @@ function renderWWSetup(){
     body.innerHTML=`<div style="text-align:center;padding:4rem 1rem"><div style="font-size:60px;margin-bottom:1rem;animation:floatIcon 3s ease-in-out infinite">⏳</div><div style="font-size:17px;font-weight:800;color:var(--t0);margin-bottom:0.5rem">รอ Host แจกไพ่</div><div style="font-size:14px;color:var(--t2);line-height:1.7">เมื่อ Host แจกไพ่แล้ว<br>คุณจะเห็นการ์ดบทบาทของคุณ</div></div>`;
     return;
   }
+  // always sync from actual players first
   const nonHostCount=getPlayers().filter(p=>!p.isHost).length;
-  if(nonHostCount>0)S.wwPlayerCount=nonHostCount;
-  const total=totalRoles(),n=S.wwPlayerCount,over=total>n,under=total<n&&total>0;
+  if(nonHostCount>0) S.wwPlayerCount=nonHostCount;
+  if(!S.wwPlayerCount) S.wwPlayerCount=0;
+  const n=S.wwPlayerCount;
+  const total=totalRoles(),over=total>n,under=total<n&&total>0;
   const evilRoles=ROLE_ORDER.filter(r=>WW[r]?.team==='evil');
   const goodRoles=ROLE_ORDER.filter(r=>WW[r]?.team==='good');
   const soloRoles=ROLE_ORDER.filter(r=>WW[r]?.team==='solo');
@@ -1386,6 +1404,7 @@ function renderWWSetup(){
     if(!roles.length)return'';
     return`<div class="label" style="margin-top:0.875rem">${label}</div><div class="ww-roles-list">${roles.map(r=>renderRoleChip(r)).join('')}</div>`;
   }
+  const canDeal = total>0 && total===n;
   body.innerHTML=`
     <div class="ww-score-bar">
       <div>
@@ -1394,7 +1413,11 @@ function renderWWSetup(){
       </div>
       <div style="text-align:right">
         <div class="label" style="margin:0">บทบาท / ผู้เล่น</div>
-        <div id="wwCountDisplay" style="font-size:20px;font-weight:900;color:${over?'var(--danger)':under?'var(--warn)':'var(--ok)'}">${total} / ${n}</div>
+        <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end;margin-top:3px">
+          <button class="ww-c-btn2" style="width:30px;height:30px;font-size:16px" onclick="adjustWWPlayerCount(-1)">−</button>
+          <div id="wwCountDisplay" style="font-size:20px;font-weight:900;min-width:60px;text-align:center;color:${over?'var(--danger)':under?'var(--warn)':total===n&&n>0?'var(--ok)':'var(--t2)'}">${total} / ${n}</div>
+          <button class="ww-c-btn2" style="width:30px;height:30px;font-size:16px" onclick="adjustWWPlayerCount(1)">+</button>
+        </div>
       </div>
     </div>
     ${sectionHtml('🔴 ฝ่ายหมาป่า',evilRoles)}
@@ -1402,10 +1425,11 @@ function renderWWSetup(){
     ${soloRoles.length?sectionHtml('⚡ โดดเดี่ยว',soloRoles):''}
     ${specialRoles.length?sectionHtml('🟡 พิเศษ',specialRoles):''}
     <div style="margin-top:1.25rem">
+      ${n===0?'<p style="font-size:14px;color:var(--t2);text-align:center;margin-bottom:10px">กดปุ่ม + ด้านบนเพื่อตั้งจำนวนผู้เล่น</p>':''}
       ${over?'<p style="font-size:14px;color:var(--danger);text-align:center;margin-bottom:10px">⚠ บทบาทเกินจำนวนผู้เล่น</p>':''}
       ${under?`<p style="font-size:14px;color:var(--warn);text-align:center;margin-bottom:10px">⚠ บทบาทยังไม่ครบ (ขาดอีก ${n-total} ใบ)</p>`:''}
     </div>
-    <button class="btn btn-ac btn-next" onclick="previewAndDeal()" ${over?'disabled':''}>${over?'⚠ เกินไป':'🎴 ดูสรุปก่อนแจก →'}</button>`;
+    <button class="btn btn-ac btn-next" onclick="previewAndDeal()" ${(!canDeal||over)?'disabled':''}>${over?'⚠ เกินไป':!canDeal&&n===0?'ตั้งจำนวนผู้เล่นก่อน':!canDeal?'🎴 เพิ่มบทบาทให้ครบ':'🎴 ดูสรุปก่อนแจก →'}</button>`;
 }
 function renderRoleChip(r){
   const role=WW[r];if(!role)return'';
@@ -1431,13 +1455,20 @@ function renderRoleChip(r){
     </div>
   </div>`;
 }
+function adjustWWPlayerCount(d){
+  const nonHostCount=getPlayers().filter(p=>!p.isHost).length;
+  // if real players present, don't go below that
+  const min=nonHostCount>0?nonHostCount:0;
+  S.wwPlayerCount=Math.max(min,Math.min(18,(S.wwPlayerCount||0)+d));
+  renderWWSetup();
+}
 function changeRoleCount(r,d){
   const role=WW[r];if(!role)return;
   const cur=S.wwRoleCounts[r]||0;
   const next=Math.max(0,Math.min(role.max||10,cur+d));
-  const n=getPlayers().filter(p=>!p.isHost).length||S.wwPlayerCount;
+  const n=S.wwPlayerCount||0;
   const newTotal=totalRoles()-cur+next;
-  if(d>0&&newTotal>n){showToast('บทบาทเกินจำนวนผู้เล่น!');return}
+  if(d>0&&n>0&&newTotal>n){showToast('บทบาทเกินจำนวนผู้เล่น!');return}
   S.wwRoleCounts[r]=next;
   // update chip
   const el=$(`rc-${r}`);
@@ -1448,15 +1479,15 @@ function changeRoleCount(r,d){
   }
   // update score bar
   const total=totalRoles();
-  const pts=totalPts();
   const over=total>n,under=total<n&&total>0;
   const ptsEl=$('wwPtsDisplay');
   const cntEl=$('wwCountDisplay');
   if(ptsEl)ptsEl.innerHTML=ptsDisplay();
-  if(cntEl){cntEl.textContent=`${total} / ${n}`;cntEl.style.color=over?'var(--danger)':under?'var(--warn)':'var(--ok)';}
+  if(cntEl){cntEl.textContent=`${total} / ${n}`;cntEl.style.color=over?'var(--danger)':under?'var(--warn)':total===n&&n>0?'var(--ok)':'var(--t2)';}
   // update deal button
+  const canDeal=total>0&&total===n&&!over;
   const btn=$('wwBody')?.querySelector('.btn-next');
-  if(btn){const total=totalRoles();const ov=total>n;btn.disabled=ov;btn.textContent=ov?'⚠ เกินไป':'🎴 ดูสรุปก่อนแจก →';}
+  if(btn){btn.disabled=!canDeal;btn.textContent=over?'⚠ เกินไป':!canDeal?'🎴 เพิ่มบทบาทให้ครบ':'🎴 ดูสรุปก่อนแจก →';}
 }
 
 /* ══ WW DEAL ═════════════════════════════ */
@@ -1526,6 +1557,155 @@ const STATUS_FOR_ROLE={
   werewolf:  ['cursed'],
 };
 
+/* ══ WW TIMER ════════════════════════════ */
+let _wwTimerInterval = null;
+
+function initWWTimerState(){
+  if(!S.wwTimerSecs) S.wwTimerSecs = 120; // default 2 min
+  if(!S.wwTimerRunning) S.wwTimerRunning = false;
+  if(!S.wwTimerStartedAt) S.wwTimerStartedAt = null;
+  if(!S.wwTimerSnapshot) S.wwTimerSnapshot = 120;
+}
+
+function wwTimerAdjust(delta){
+  if(!S.isHost) return;
+  // delta in seconds (±10)
+  S.wwTimerSecs = Math.max(10, Math.min(3600, (S.wwTimerSecs||120) + delta));
+  S.wwTimerSnapshot = S.wwTimerSecs;
+  S.wwTimerRunning = false;
+  S.wwTimerStartedAt = null;
+  if(_wwTimerInterval){clearInterval(_wwTimerInterval);_wwTimerInterval=null;}
+  _syncWWTimer();
+  renderWWTimerWidget();
+}
+
+function wwTimerToggle(){
+  if(!S.isHost) return;
+  if(S.wwTimerRunning){
+    // pause — save remaining
+    const elapsed = Math.floor((Date.now()-(S.wwTimerStartedAt||Date.now()))/1000);
+    S.wwTimerSecs = Math.max(0, (S.wwTimerSnapshot||0) - elapsed);
+    S.wwTimerSnapshot = S.wwTimerSecs;
+    S.wwTimerRunning = false;
+    S.wwTimerStartedAt = null;
+    if(_wwTimerInterval){clearInterval(_wwTimerInterval);_wwTimerInterval=null;}
+  } else {
+    // start
+    if((S.wwTimerSecs||0) <= 0){
+      showToast('ตั้งเวลาก่อนนะ');return;
+    }
+    S.wwTimerRunning = true;
+    S.wwTimerStartedAt = Date.now();
+    S.wwTimerSnapshot = S.wwTimerSecs;
+    _startWWTimerTick();
+  }
+  _syncWWTimer();
+  renderWWTimerWidget();
+}
+
+function wwTimerReset(){
+  if(!S.isHost) return;
+  S.wwTimerRunning = false;
+  S.wwTimerStartedAt = null;
+  if(_wwTimerInterval){clearInterval(_wwTimerInterval);_wwTimerInterval=null;}
+  // keep current snapshot secs
+  S.wwTimerSecs = S.wwTimerSnapshot || 120;
+  _syncWWTimer();
+  renderWWTimerWidget();
+}
+
+function _syncWWTimer(){
+  if(firebaseReady && S.roomCode){
+    db.ref(`rooms/${S.roomCode}/wwTimer`).set({
+      secs: S.wwTimerSecs,
+      snapshot: S.wwTimerSnapshot,
+      running: S.wwTimerRunning,
+      startedAt: S.wwTimerStartedAt||null,
+      updatedAt: Date.now()
+    });
+  }
+}
+
+function _startWWTimerTick(){
+  if(_wwTimerInterval){clearInterval(_wwTimerInterval);_wwTimerInterval=null;}
+  _wwTimerInterval = setInterval(()=>{
+    const elapsed = Math.floor((Date.now()-(S.wwTimerStartedAt||Date.now()))/1000);
+    const left = Math.max(0,(S.wwTimerSnapshot||0)-elapsed);
+    const el = $('wwTimerDisplay');
+    if(el){
+      el.textContent = fmtTime(left);
+      el.className = 'ww-timer-display' + (left<=10&&left>0?' urgent':'') + (left<=0?' done':'');
+    }
+    if(left<=0){
+      clearInterval(_wwTimerInterval);_wwTimerInterval=null;
+      S.wwTimerRunning=false;
+      showToast('⏰ หมดเวลา!',4000);
+      _haptic([100,50,100,50,200]);
+      // update play/pause button
+      const btn=$('wwTimerToggleBtn');
+      if(btn){btn.textContent='▶ เริ่ม';btn.style.background='linear-gradient(180deg,var(--btn-ac-from,#8faeff) 0%,var(--btn-ac-to,#6278e8) 100%)';}
+    }
+  },250);
+}
+
+function syncWWTimerState(data){
+  if(!data) return;
+  const wasRunning = S.wwTimerRunning;
+  S.wwTimerSecs = data.secs||120;
+  S.wwTimerSnapshot = data.snapshot||data.secs||120;
+  S.wwTimerRunning = !!data.running;
+  S.wwTimerStartedAt = data.startedAt||null;
+  // tick for all clients
+  if(S.wwTimerRunning){
+    if(!wasRunning || !_wwTimerInterval) _startWWTimerTick();
+  } else {
+    if(_wwTimerInterval){clearInterval(_wwTimerInterval);_wwTimerInterval=null;}
+  }
+  renderWWTimerWidget();
+}
+
+function renderWWTimerWidget(){
+  const wrap = $('wwTimerWrap');
+  if(!wrap) return;
+  initWWTimerState();
+  const running = S.wwTimerRunning;
+  const elapsed = running ? Math.floor((Date.now()-(S.wwTimerStartedAt||Date.now()))/1000) : 0;
+  const left = running ? Math.max(0,(S.wwTimerSnapshot||0)-elapsed) : (S.wwTimerSecs||0);
+
+  if(S.isHost){
+    wrap.innerHTML=`
+      <div class="ww-timer-card">
+        <div class="ww-timer-label">⏱ จับเวลา</div>
+        <div class="ww-timer-controls-row">
+          <button class="ww-timer-adj-btn" onclick="wwTimerAdjust(-60)">−1m</button>
+          <button class="ww-timer-adj-btn" onclick="wwTimerAdjust(-10)">−10</button>
+          <div class="ww-timer-display${left<=10&&left>0?' urgent':''}${left<=0&&running?' done':''}" id="wwTimerDisplay">${fmtTime(left)}</div>
+          <button class="ww-timer-adj-btn" onclick="wwTimerAdjust(10)">+10</button>
+          <button class="ww-timer-adj-btn" onclick="wwTimerAdjust(60)">+1m</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn btn-sf" style="flex:1;height:42px;font-size:15px;font-weight:700" id="wwTimerToggleBtn" onclick="wwTimerToggle()">
+            ${running?'⏸ หยุด':'▶ เริ่ม'}
+          </button>
+          <button class="btn btn-sf" style="width:42px;height:42px;font-size:16px" onclick="wwTimerReset()" title="รีเซต">↺</button>
+        </div>
+      </div>`;
+  } else {
+    // player view — small number only, no box
+    if(left<=0&&!running){
+      wrap.innerHTML='';
+      return;
+    }
+    wrap.innerHTML=`<div style="text-align:center;margin-top:10px;margin-bottom:4px">
+      <div class="ww-timer-display${left<=10&&left>0?' urgent':''}${left<=0?' done':''}" id="wwTimerDisplay" style="font-size:28px;display:inline-block">${fmtTime(left)}</div>
+      ${!running&&left>0?'<div style="font-size:11px;color:var(--t3);margin-top:2px;letter-spacing:0.05em">รอ Host เริ่ม</div>':''}
+      ${left<=0?'<div style="font-size:12px;color:var(--danger);margin-top:2px;font-weight:700">⏰ หมดเวลา!</div>':''}
+    </div>`;
+  }
+}
+
+function toggleWWList(){S.wwListHidden=!S.wwListHidden;renderWWHost();}
+
 /* ══ WW HOST VIEW ════════════════════════ */
 function renderWWHost(){
   const pl=$('wwPhaseLabel');if(pl)pl.textContent='ดำเนินเกม';
@@ -1535,10 +1715,24 @@ function renderWWHost(){
   const wolfTeamRoles=['werewolf','wolfcub','lonewolf','alphawolf','minion','sorcerer'];
   const wolfList=players.filter(p=>wolfTeamRoles.includes(S.wwAssigned[p.id])).map(p=>p.name);
   const cupPair=S.wwCupidPair||[];
+  initWWTimerState();
+  const wwHidden=!!S.wwListHidden;
   body.innerHTML=`
     ${wolfList.length?`<div style="background:rgba(255,59,48,0.1);border-left:3px solid var(--danger);border-radius:var(--r-s);padding:10px 14px;font-size:13px;color:var(--danger);margin-bottom:1rem;font-weight:700">🐺 ทีมหมาป่า · ${wolfList.map(n=>esc(n)).join(' · ')}</div>`:''}
     ${cupPair.length===2?`<div style="background:rgba(244,114,182,0.1);border-left:3px solid #f472b6;border-radius:var(--r-s);padding:10px 14px;font-size:13px;color:#f472b6;margin-bottom:1rem;font-weight:700">💘 คู่รัก · ${cupPair.map(id=>esc(playerName_(id))).join(' & ')}</div>`:''}
-    <div class="ww-host-list" id="wwHostList">${players.map((p,i)=>hostPlayerRow(p,i)).join('')}</div>`;
+    <div id="wwTimerWrap"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div class="label" style="margin:0">ผู้เล่น</div>
+      <button class="btn btn-sf" style="height:32px;padding:0 12px;font-size:12px;font-weight:700" onclick="toggleWWList()">${wwHidden?'👁 แสดงรายชื่อ':'🙈 ซ่อนรายชื่อ'}</button>
+    </div>
+    ${wwHidden
+      ? `<div style="background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1.25rem;text-align:center;margin-bottom:1rem">
+          <div style="font-size:28px;margin-bottom:4px">🙈</div>
+          <div style="font-size:14px;color:var(--t2)">รายชื่อถูกซ่อนอยู่</div>
+        </div>`
+      : `<div class="ww-host-list" id="wwHostList">${players.map((p,i)=>hostPlayerRow(p,i)).join('')}</div>`
+    }`;
+  renderWWTimerWidget();
 }
 function hostPlayerRow(p,i){
   const role=WW[S.wwAssigned[p.id]||'villager']||WW.villager;
@@ -1687,7 +1881,9 @@ function renderWWPlayer(){
   body.innerHTML=`
     ${dead?'<div class="spectator-bar">💀 คุณเสียชีวิตแล้ว — มองดูเกมต่อไปได้</div>':''}
     <p style="font-size:13px;color:var(--t2);text-align:center;margin-bottom:1.5rem;line-height:1.65">กดไพ่เพื่อดูบทบาทของคุณ<br>⚠️ ห้ามให้คนอื่นเห็น!</p>
-    <div class="ww-card-grid">${roleCardHTML(myPlayer)}</div>`;
+    <div class="ww-card-grid">${roleCardHTML(myPlayer)}</div>
+    <div id="wwTimerWrap"></div>`;
+  renderWWTimerWidget();
 }
 function roleCardHTML(p){
   const flipped=!!S.wwFlipped[p.id];
@@ -1745,6 +1941,8 @@ function syncWWState(data){
     }
     renderWWPlayer();
   }
+  // restore timer state
+  if(S._lastWWTimer)syncWWTimerState(S._lastWWTimer);
 }
 function closeNightScreens(){}
 
@@ -2289,7 +2487,7 @@ function dealKingCards(){
   const assigned={};
   shuffled.forEach((p,i)=>{assigned[p.id]=i===0?'👑':String(i);});
   const dealId=Date.now();
-  S.kingDealt=true;S.kingMyCard=null;S.kingFlipped=false;S._kingDealId=dealId;
+  S.kingDealt=true;S.kingMyCard=null;S.kingFlipped=false;S._kingDealId=dealId;S.kingListHidden=false;S._kingAssigned=assigned;
   if(firebaseReady&&S.roomCode){
     db.ref(`rooms/${S.roomCode}/king`).set({assigned,dealId,dealt:true});
   }
@@ -2297,25 +2495,52 @@ function dealKingCards(){
   renderKingHost(assigned,dealId);
 }
 
+function toggleKingListHidden(){
+  S.kingListHidden=!S.kingListHidden;
+  if(S._kingAssigned)renderKingHost(S._kingAssigned,S._kingDealId);
+}
+
+function _kingPlayerRow(p,i,assigned){
+  var card=assigned[p.id];
+  var isKing=card==='👑';
+  var bg=isKing?'rgba(255,209,102,0.08)':'var(--card)';
+  var border=isKing?'rgba(255,209,102,0.3)':'var(--line)';
+  var avatarBg=COLORS[i%COLORS.length]+'28';
+  var avatarColor=COLORS[i%COLORS.length];
+  var cardSize=isKing?'28':'22';
+  var cardColor=isKing?'var(--warn)':'var(--t0)';
+  return '<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:'+bg+';border-radius:var(--r);border:1px solid '+border+'">'
+    +'<div style="width:36px;height:36px;border-radius:50%;background:'+avatarBg+';color:'+avatarColor+';display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0">'+esc(p.name.charAt(0).toUpperCase())+'</div>'
+    +'<div style="flex:1;font-size:16px;font-weight:700;color:var(--t0)">'+esc(p.name)+'</div>'
+    +'<div style="font-size:'+cardSize+'px;font-weight:900;color:'+cardColor+'">'+card+'</div>'
+    +'</div>';
+}
+
 function renderKingHost(assigned,dealId){
-  const body=$('kingBody');if(!body)return;
-  const players=getPlayers().filter(p=>!p.isHost);
-  body.innerHTML=`
-    <div style="text-align:center;padding:1rem 0 1.5rem">
-      <div style="font-size:13px;color:var(--t2);margin-bottom:1rem">Host มองเห็นไพ่ทุกคน</div>
-      <div style="display:flex;flex-direction:column;gap:8px;text-align:left">
-        ${players.map((p,i)=>{
-          const card=assigned[p.id];
-          const isKing=card==='👑';
-          return`<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--card);border-radius:var(--r);border:1px solid ${isKing?'rgba(255,209,102,0.3)':'var(--line)'};${isKing?'background:rgba(255,209,102,0.08)':''}">
-            <div style="width:36px;height:36px;border-radius:50%;background:${COLORS[i%COLORS.length]}28;color:${COLORS[i%COLORS.length]};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0">${esc(p.name.charAt(0).toUpperCase())}</div>
-            <div style="flex:1;font-size:16px;font-weight:700;color:var(--t0)">${esc(p.name)}</div>
-            <div style="font-size:${isKing?'28':'22'}px;font-weight:900;color:${isKing?'var(--warn)':'var(--t0)'}">${card}</div>
-          </div>`;
-        }).join('')}
-      </div>
-    </div>
-    <button class="btn btn-sf btn-full" onclick="dealKingCards()" style="height:50px;font-size:15px;margin-top:0.5rem">🔄 แจกใหม่</button>`;
+  var body=$('kingBody');if(!body)return;
+  var players=getPlayers().filter(function(p){return !p.isHost;});
+  var hidden=!!S.kingListHidden;
+  var toggleLabel=hidden?'👁 แสดงรายชื่อ':'🙈 ซ่อนรายชื่อ';
+  var listHtml;
+  if(hidden){
+    listHtml='<div style="background:rgba(255,209,102,0.07);border:1px solid rgba(255,209,102,0.2);border-radius:var(--r);padding:1.5rem;text-align:center">'
+      +'<div style="font-size:36px;margin-bottom:0.5rem">🙈</div>'
+      +'<div style="font-size:15px;font-weight:700;color:var(--warn)">รายชื่อถูกซ่อนอยู่</div>'
+      +'<div style="font-size:13px;color:var(--t2);margin-top:4px;line-height:1.6">Host เห็นไพ่ แต่คนอื่นไม่เห็นหน้าจอนี้<br>กดปุ่มด้านบนเพื่อแสดง</div>'
+      +'</div>';
+  } else {
+    var rows=players.map(function(p,i){return _kingPlayerRow(p,i,assigned);}).join('');
+    listHtml='<div style="display:flex;flex-direction:column;gap:8px;text-align:left">'+rows+'</div>';
+  }
+  body.innerHTML=''
+    +'<div style="padding:1rem 0 1.5rem">'
+      +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">'
+        +'<div style="font-size:13px;color:var(--t2)">Host มองเห็นไพ่ทุกคน</div>'
+        +'<button class="btn btn-sf" style="height:36px;padding:0 14px;font-size:13px;font-weight:700;gap:5px;display:flex;align-items:center" onclick="toggleKingListHidden()">'+toggleLabel+'</button>'
+      +'</div>'
+      +listHtml
+    +'</div>'
+    +'<button class="btn btn-sf btn-full" onclick="dealKingCards()" style="height:50px;font-size:15px;margin-top:0.5rem">🔄 แจกใหม่</button>';
 }
 
 function renderKingPlayer(assigned,dealId){
@@ -2337,7 +2562,7 @@ function renderKingPlayer(assigned,dealId){
             <div style="font-size:64px;line-height:1;margin-bottom:0.5rem;opacity:0.15">👑</div>
             <div style="font-size:15px;color:var(--t2);font-weight:500">กดเพื่อดูไพ่</div>
           </div>
-          <div class="rpc-back" style="justify-content:center;align-items:center;padding:2rem;text-align:center;-webkit-transform:rotateY(180deg);transform:rotateY(180deg)">
+          <div class="rpc-back" style="justify-content:center;align-items:center;padding:2rem;text-align:center">
             <div style="font-size:${isKing?'88':'100'}px;line-height:1;margin-bottom:0.75rem">${card}</div>
             <div style="font-size:${isKing?'24':'20'}px;font-weight:900;color:${isKing?'var(--warn)':'var(--t0)'}">${isKing?'ราชา':'เลข '+card}</div>
             <div style="font-size:13px;color:${isKing?'rgba(255,209,102,0.65)':'var(--t2)'};margin-top:8px;line-height:1.6">
@@ -2515,6 +2740,8 @@ function syncSpyState(d){
   if(S.isHost)renderSpyHost(d);else renderSpyPlayer(d);
 }
 
+function toggleSpyList(){S.spyListHidden=!S.spyListHidden;if(S._lastSpyData)renderSpyHost(S._lastSpyData);}
+
 function renderSpyHost(d){
   const body=$('spyBody');if(!body)return;
   if(_spyInterval){clearInterval(_spyInterval);_spyInterval=null;}
@@ -2522,6 +2749,7 @@ function renderSpyHost(d){
   const players=getPlayers().filter(p=>d.assigned&&d.assigned[p.id]);
   const elapsed=Math.floor((Date.now()-d.startedAt)/1000);
   let left=Math.max(0,(d.timeSecs||480)-elapsed);
+  const spyHidden=!!S.spyListHidden;
   body.innerHTML=`
     <div class="" style="padding:14px 18px;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center">
       <div>
@@ -2537,19 +2765,28 @@ function renderSpyHost(d){
       <div class="label" style="color:var(--danger);margin-bottom:6px">🕵️ สายลับ</div>
       ${d.spyIds.map(id=>`<div style="font-size:17px;font-weight:800;color:var(--t0)">${esc(playerName_(id))}</div>`).join('')}
     </div>
-    <div class="label">ผู้เล่นทั้งหมด</div>
-    <div class="" style="margin-bottom:1rem">
-      ${players.map((p,i)=>{
-        const a=d.assigned[p.id];const isSpy=a&&a.isSpy;
-        return `<div class="spy-host-row" style="${isSpy?'background:rgba(255,92,92,0.06)':''}">
-          <div class="p-avatar" style="width:36px;height:36px;font-size:13px;font-weight:900;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:${COLORS[i%COLORS.length]}28;color:${COLORS[i%COLORS.length]}">${esc(p.name.charAt(0).toUpperCase())}</div>
-          <div style="flex:1">
-            <div style="font-size:16px;font-weight:700;color:var(--t0)">${esc(p.name)}</div>
-            <div style="font-size:13px;font-weight:600;color:${isSpy?'var(--danger)':'var(--ac)'}">${isSpy?'🕵️ สายลับ':'👤 '+esc(a?a.role:'')}</div>
-          </div>
-        </div>`;
-      }).join('')}
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div class="label" style="margin:0">ผู้เล่นทั้งหมด</div>
+      <button class="btn btn-sf" style="height:32px;padding:0 12px;font-size:12px;font-weight:700" onclick="toggleSpyList()">${spyHidden?'👁 แสดงรายชื่อ':'🙈 ซ่อนรายชื่อ'}</button>
     </div>
+    ${spyHidden
+      ? `<div style="background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:1.25rem;text-align:center;margin-bottom:1rem">
+          <div style="font-size:28px;margin-bottom:4px">🙈</div>
+          <div style="font-size:14px;color:var(--t2)">รายชื่อถูกซ่อนอยู่</div>
+        </div>`
+      : `<div class="" style="margin-bottom:1rem">
+          ${players.map((p,i)=>{
+            const a=d.assigned[p.id];const isSpy=a&&a.isSpy;
+            return `<div class="spy-host-row" style="${isSpy?'background:rgba(255,92,92,0.06)':''}">
+              <div class="p-avatar" style="width:36px;height:36px;font-size:13px;font-weight:900;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:${COLORS[i%COLORS.length]}28;color:${COLORS[i%COLORS.length]}">${esc(p.name.charAt(0).toUpperCase())}</div>
+              <div style="flex:1">
+                <div style="font-size:16px;font-weight:700;color:var(--t0)">${esc(p.name)}</div>
+                <div style="font-size:13px;font-weight:600;color:${isSpy?'var(--danger)':'var(--ac)'}">${isSpy?'🕵️ สายลับ':'👤 '+esc(a?a.role:'')}</div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>`
+    }
     <button class="btn btn-sf btn-next" style="margin-bottom:8px" onclick="resetSpyfall()">↺ เล่นรอบใหม่</button>`;
   _spyInterval=setInterval(()=>{
     left=Math.max(0,left-1);
@@ -2613,7 +2850,7 @@ function toggleSpyCard(){
 
 function resetSpyfall(){
   if(_spyInterval){clearInterval(_spyInterval);_spyInterval=null;}
-  S.spyDealt=false;S.spyFlipped=false;S._lastSpyData=null;
+  S.spyDealt=false;S.spyFlipped=false;S._lastSpyData=null;S.spyListHidden=false;
   // set null → Firebase listener fires on all clients → shows setup screen
   if(firebaseReady&&S.roomCode){
     db.ref(`rooms/${S.roomCode}/spy`).set(null);
