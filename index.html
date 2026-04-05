@@ -3252,13 +3252,38 @@ function syncSalemState(data){
       salemShowConspiracyPickEvent(ce,data);
     }
   }
+  // Host: ตรวจ auto-swap เมื่อทุกคน pick แล้ว
+  if(S.isHost&&data&&data.conspiracyEvent&&data.conspiracyPicks){
+    salemCheckConspiracyAutoSwap(data);
+  }
+  // Host: แสดง overlay รอ
+  if(S.isHost&&data&&data.conspiracyEvent){
+    const ce=data.conspiracyEvent;
+    if(!S._lastConspiracyAt||ce.at>S._lastConspiracyAt){
+      S._lastConspiracyAt=ce.at;
+      const nonHostIds=S.players.filter(p=>!p.isHost).map(p=>p.id);
+      const alivePlayers=((data.turnOrder)||nonHostIds).map(id=>data.players?.[id]).filter(p=>p&&p.isAlive!==false);
+      const picks=data.conspiracyPicks||{};
+      $('salemEvIcon').textContent='🕸️';
+      $('salemEvTitle').textContent='เจตนาร้าย!';
+      $('salemEvDesc').innerHTML=`รอผู้เล่นทุกคนเลือกไพ่ชีวิต...<br><b style="color:var(--ok)">${Object.keys(picks).length}/${alivePlayers.length} คน</b>เลือกแล้ว`;
+      $('salemEvActions').innerHTML=`<div style="color:var(--t2);font-size:13px;text-align:center">จะ swap อัตโนมัติเมื่อทุกคนเลือกเสร็จ</div>`;
+      $('salemEvOv').classList.add('open');
+    }
+  }
   // Conspiracy done
   if(data&&data.conspiracyDone&&!S.isHost){
     const cd=data.conspiracyDone;
     if(!S._lastConspiracyDoneAt||cd.at>S._lastConspiracyDoneAt){
       S._lastConspiracyDoneAt=cd.at;
       $('salemEvOv').classList.remove('open');
-      showToast('🔄 ส่งต่อไพ่ชีวิตเสร็จแล้ว!',3000);
+      // แสดง label ว่าไพ่ใบไหนที่ได้รับ
+      const myLabel=cd.swapLabels?.[S.myPlayerId];
+      if(myLabel){
+        showToast(`🔄 ได้รับไพ่จาก ${myLabel.fromNick} (ใบ ${myLabel.fromSlot}) → ตำแหน่งใบ ${myLabel.newSlot}`,5000);
+      } else {
+        showToast('🔄 ส่งต่อไพ่ชีวิตเสร็จแล้ว!',3000);
+      }
     }
   }
   // Night card event broadcast
@@ -3507,25 +3532,56 @@ function renderSalemGame(data){
 
 /* ── Night Phase: สารภาพบาป เรียงทีละคนตาม turnOrder ── */
 function renderSalemNightPhase(body,me,data,players,turnOrder){
-  // หาลำดับการสารภาพ: วนตาม turnOrder, คนที่ยังไม่ได้สารภาพเรียงก่อน
   const alivePlayers=turnOrder.map(id=>data.players?.[id]).filter(p=>p&&p.isAlive!==false);
-  // confessOrder: ใช้ turnOrder เดิม
   const confessOrder=alivePlayers;
-  // หาคนแรกที่ยังไม่ได้ตัดสินใจ (nightConfessed = true/false)
   const currentConfessIdx=confessOrder.findIndex(p=>p.nightConfessed===undefined||p.nightConfessed===null);
   const currentConfessor=currentConfessIdx>=0?confessOrder[currentConfessIdx]:null;
   const isMyTurnToConfess=currentConfessor&&currentConfessor.id===S.myPlayerId;
+  const allDone=currentConfessIdx<0;
   const myTryals=me.tryal||[];
+
+  // ถ้าทุกคน confess แล้ว → Host จบ Night phase อัตโนมัติ
+  if(allDone&&S.isHost){
+    setTimeout(()=>{
+      if(!_salemState||!_salemState.nightPhase)return;
+      const updates={nightPhase:false,blackCatHolder:null};
+      // reset nightConfessed + ล้างแมวดำ passive ทุกคน
+      Object.values(_salemState.players||{}).forEach(p=>{
+        updates[`players/${p.id}/nightConfessed`]=null;
+        const newPassives=(p.passives||[]).filter(x=>x!=='blackcat');
+        if((p.passives||[]).includes('blackcat'))updates[`players/${p.id}/passives`]=newPassives;
+      });
+      updates.currentTurn=null;// Host ต้องวางแมวดำใหม่ก่อนเริ่มเทิร์น
+      salemSave(updates,'☀️ จบกลางคืน — Host วางแมวดำใหม่เพื่อเริ่มรอบต่อไป',false);
+    },1500);
+  }
+
+  // Constable protect: Host ใส่ค้อนในรายชื่อ
+  const constableProtectSection=S.isHost?`
+    <div style="margin:0 var(--pad) var(--pad);background:rgba(41,128,185,0.1);border:1px solid rgba(41,128,185,0.3);border-radius:var(--r-s);padding:12px 14px">
+      <div class="label" style="color:#7fb3d3;margin-bottom:8px">🔍 สายตรวจ — เลือกปกป้อง 1 คน</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        ${alivePlayers.map(p=>{
+          const isProtected=data.constableProtect===p.id;
+          return `<button onclick="salemHostConstableProtect('${p.id}')" style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:${isProtected?'rgba(41,128,185,0.25)':'var(--card)'};border:1.5px solid ${isProtected?'rgba(41,128,185,0.6)':'var(--line)'};border-radius:var(--r-s);cursor:pointer;font-family:Kanit,sans-serif;text-align:left;width:100%">
+            <span style="font-size:16px">${isProtected?'🔍':'👤'}</span>
+            <span style="font-size:14px;font-weight:700;color:var(--t0)">${esc(p.nick)}</span>
+            ${isProtected?'<span style="font-size:11px;color:#7fb3d3;margin-left:auto">ปกป้องอยู่</span>':''}
+          </button>`;
+        }).join('')}
+        ${data.constableProtect?`<button onclick="salemHostConstableProtect(null)" style="padding:6px 12px;background:transparent;border:1px solid var(--line);border-radius:var(--r-s);cursor:pointer;font-size:12px;color:var(--t2);font-family:Kanit,sans-serif">✕ ยกเลิกการปกป้อง</button>`:''}
+      </div>
+    </div>`:'';
 
   body.innerHTML=`
     <div style="background:rgba(30,20,60,0.85);border-bottom:1px solid rgba(155,89,182,0.3);padding:12px var(--pad);text-align:center">
       <div style="font-size:22px;margin-bottom:4px">🌙</div>
       <div style="font-size:15px;font-weight:900;color:#c39bd3">ช่วงรัตติกาล — สารภาพบาป</div>
-      <div style="font-size:12px;color:rgba(195,155,211,0.7);margin-top:2px">เรียงทีละคนตามลำดับเทิร์น</div>
+      <div style="font-size:12px;color:rgba(195,155,211,0.7);margin-top:2px">${allDone?'✅ ทุกคนตัดสินใจแล้ว':'เรียงทีละคนตามลำดับเทิร์น'}</div>
     </div>
-
-    <div style="padding:var(--pad);display:flex;flex-direction:column;gap:10px;max-width:480px;margin:0 auto">
-      ${confessOrder.map((p,i)=>{
+    ${constableProtectSection}
+    <div style="padding:var(--pad);display:flex;flex-direction:column;gap:8px;max-width:480px;margin:0 auto">
+      ${confessOrder.map(p=>{
         const done=p.nightConfessed!==undefined&&p.nightConfessed!==null;
         const isCurrent=currentConfessor&&p.id===currentConfessor.id;
         const isMe=p.id===S.myPlayerId;
@@ -3536,44 +3592,56 @@ function renderSalemNightPhase(body,me,data,players,turnOrder){
         </div>`;
       }).join('')}
     </div>
-
-    ${isMyTurnToConfess?`
-    <div style="padding:0 var(--pad) var(--pad);max-width:480px;margin:0 auto">
-      <div style="font-size:15px;font-weight:900;color:var(--warn);text-align:center;margin-bottom:1rem">⚡ ถึงคิวคุณแล้ว — จะสารภาพบาปไหม?</div>
-      <div class="label">เลือกไพ่ชีวิตที่จะเปิด (ถ้าสารภาพ):</div>
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:1rem" id="nightConfessGrid">
-        ${myTryals.map((t,i)=>{
-          if(t.revealed)return`<div style="display:flex;flex-direction:column;align-items:center;gap:3px"><div style="font-size:9px;color:var(--t3)">ใบ ${i+1}</div><div style="width:100%;height:0;padding-bottom:155%;background:var(--card2);border-radius:8px;opacity:0.3;position:relative"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px">✓</div></div></div>`;
-          return`<div style="display:flex;flex-direction:column;align-items:center;gap:3px">
-            <div style="font-size:9px;color:var(--t3)">ใบ ${i+1}</div>
-            <div data-confessidx="${i}" onclick="salemNightSelectCard(${i})" style="width:100%;height:0;padding-bottom:155%;background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:8px;border:2px solid rgba(240,192,96,0.3);cursor:pointer;position:relative;transition:all 0.15s" id="nightCard${i}">
-              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:20px">🂠</div>
-            </div>
-          </div>`;
-        }).join('')}
-      </div>
-      <div id="nightSelectedInfo" style="font-size:13px;color:var(--t2);text-align:center;margin-bottom:1rem">กดการ์ดที่จะเปิด แล้วกดสารภาพ</div>
-      <div style="display:flex;gap:10px">
-        <button class="btn btn-sf" style="flex:1;height:48px;font-size:14px;border-color:rgba(240,96,96,0.3);color:var(--danger)" onclick="salemNightConfess(false)">🚫 ไม่สารภาพ</button>
-        <button class="btn btn-ac" style="flex:1;height:48px;font-size:14px" id="btnNightConfess" disabled onclick="salemNightConfess(true)">🙏 สารภาพ</button>
-      </div>
-    </div>`:`
-    <div style="padding:2rem var(--pad);text-align:center;color:var(--t2);font-size:14px">
-      ${currentConfessor?`⏳ รอ <b style="color:var(--t0)">${esc(currentConfessor.nick)}</b> ตัดสินใจ...`:'✅ ทุกคนตัดสินใจแล้ว'}
-    </div>`}
   `;
+
+  // แสดง popup confess สำหรับผู้เล่นที่ถึงคิว
+  if(isMyTurnToConfess&&!document.getElementById('nightConfessPopup')){
+    salemShowNightConfessPopup(myTryals);
+  }
 }
 
 let _nightSelectedCard=-1;
+
+function salemShowNightConfessPopup(myTryals){
+  // สร้าง popup overlay
+  let pop=document.getElementById('nightConfessPopup');
+  if(!pop){
+    pop=document.createElement('div');
+    pop.id='nightConfessPopup';
+    pop.style.cssText='position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:2rem;text-align:center;animation:fadeIn 0.2s both';
+    document.body.appendChild(pop);
+  }
+  _nightSelectedCard=-1;
+  pop.innerHTML=`
+    <div style="font-size:44px">🌙</div>
+    <div style="font-size:20px;font-weight:900;color:var(--warn)">ถึงคิวคุณแล้ว!</div>
+    <div style="font-size:14px;color:var(--t2);line-height:1.7">จะสารภาพบาปไหม?<br>ถ้าสารภาพ → เลือกไพ่ชีวิตที่จะเปิด</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;width:100%;max-width:340px;margin:0.5rem 0" id="nightPopGrid">
+      ${myTryals.map((t,i)=>{
+        if(t.revealed)return`<div style="display:flex;flex-direction:column;align-items:center;gap:3px"><div style="font-size:9px;color:var(--t3)">ใบ ${i+1}</div><div style="width:100%;aspect-ratio:0.65;background:var(--card2);border-radius:8px;opacity:0.3;display:flex;align-items:center;justify-content:center;font-size:14px">✓</div></div>`;
+        return`<div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+          <div style="font-size:9px;color:var(--t3)">ใบ ${i+1}</div>
+          <div id="npCard${i}" onclick="salemNightSelectCard(${i})" style="width:100%;aspect-ratio:0.65;background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:8px;border:2px solid rgba(240,192,96,0.3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;transition:all 0.15s">🂠</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div id="nightPopInfo" style="font-size:13px;color:var(--t2)">กดไพ่ที่จะเปิด (ถ้าจะสารภาพ)</div>
+    <div style="display:flex;gap:10px;width:100%;max-width:320px">
+      <button class="btn btn-sf" style="flex:1;height:50px;font-size:14px;border-color:rgba(240,96,96,0.3);color:var(--danger)" onclick="salemNightConfess(false)">🚫 ไม่สารภาพ</button>
+      <button class="btn btn-ac" style="flex:1;height:50px;font-size:14px" id="btnNightConfess" disabled onclick="salemNightConfess(true)">🙏 สารภาพ</button>
+    </div>
+  `;
+}
+
 function salemNightSelectCard(idx){
   _nightSelectedCard=idx;
-  document.querySelectorAll('[data-confessidx]').forEach(el=>{
+  document.querySelectorAll('[id^="npCard"]').forEach(el=>{
     el.style.border='2px solid rgba(240,192,96,0.3)';
   });
-  const card=document.getElementById('nightCard'+idx);
+  const card=document.getElementById('npCard'+idx);
   if(card){card.style.border='3px solid var(--ok)';card.style.boxShadow='0 0 12px rgba(78,202,139,0.4)';}
-  const info=document.getElementById('nightSelectedInfo');
-  if(info)info.textContent='ใบ '+(idx+1)+' ถูกเลือก — กดสารภาพ';
+  const info=document.getElementById('nightPopInfo');
+  if(info)info.textContent='ใบ '+(idx+1)+' ถูกเลือก';
   const btn=document.getElementById('btnNightConfess');
   if(btn)btn.disabled=false;
 }
@@ -3593,6 +3661,10 @@ function salemNightConfess(doConfess){
     updates.lastAction=me.nick+' ไม่สารภาพบาป';
   }
   _nightSelectedCard=-1;
+  // ปิด popup
+  const pop=document.getElementById('nightConfessPopup');
+  if(pop)pop.remove();
+
   if(firebaseReady&&S.roomCode){
     db.ref(`rooms/${S.roomCode}/salem`).update(updates).then(()=>{
       showToast(doConfess?'🙏 สารภาพแล้ว':'🚫 ไม่สารภาพ');
@@ -3605,7 +3677,12 @@ function salemNightConfess(doConfess){
   }
 }
 
-/* ── Activity logger ── */
+/* ── Constable protect ── */
+function salemHostConstableProtect(pid){
+  if(!S.isHost||!_salemState)return;
+  const updates={constableProtect:pid||null};
+  salemSave(updates,'',false);
+}
 function salemLogAction(msg){
   if(firebaseReady&&S.roomCode)db.ref(`rooms/${S.roomCode}/salem/lastAction`).set(msg);
   else if(_salemState)_salemState.lastAction=msg;
@@ -3620,13 +3697,21 @@ function renderSalemArrange(body,me,data){
   const totalPlayers=nonHostIds.length;
   const confirmedCount=Object.values(data.players||{}).filter(p=>p.arrangeConfirmed).length;
 
+  // ถ้า grid มีอยู่แล้ว (ผู้เล่นกำลังดูไพ่) → อัปเดตแค่ counter ไม่ re-render
+  const existingGrid=document.getElementById('salemArrangeGrid');
+  if(existingGrid){
+    const ctr=document.getElementById('arrangeCounter');
+    if(ctr)ctr.textContent=`${confirmedCount}/${totalPlayers} คนพร้อมแล้ว`;
+    return;
+  }
+
   body.innerHTML=`
     <div style="padding:var(--pad);display:flex;flex-direction:column;align-items:center;gap:1rem;max-width:480px;margin:0 auto">
       <div style="font-size:44px;margin-bottom:0.25rem">🎴</div>
       <div style="font-size:18px;font-weight:900;color:var(--t0);text-align:center">จัดเรียงไพ่ชีวิต</div>
       <div style="font-size:13px;color:var(--t2);text-align:center;line-height:1.75">กดเพื่อดูไพ่ · <b style="color:var(--warn)">กดค้างแล้วลากสลับ</b><br>เมื่อจัดเรียงแล้ว กด <b style="color:var(--ok)">เสร็จสิ้น</b></div>
       <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;width:100%;margin:0.5rem 0" id="salemArrangeGrid"></div>
-      <div style="font-size:13px;font-weight:700;color:var(--ac);text-align:center">${confirmedCount}/${totalPlayers} คนพร้อมแล้ว</div>
+      <div style="font-size:13px;font-weight:700;color:var(--ac);text-align:center" id="arrangeCounter">${confirmedCount}/${totalPlayers} คนพร้อมแล้ว</div>
       <button class="btn btn-ac btn-full" style="height:56px;font-size:17px;font-weight:800" onclick="salemConfirmArrange()">✅ เสร็จสิ้น — พร้อมแล้ว!</button>
     </div>`;
 
@@ -4328,6 +4413,7 @@ function salemBCReveal(idx){
   const tryals=JSON.parse(JSON.stringify(me.tryal||[]));
   if(tryals[idx]?.revealed){showToast('ใบนี้เปิดแล้ว');return;}
   tryals[idx]={...tryals[idx],revealed:true};
+  // clear blackCatEvent ด้วยเพื่อให้ overlay ของทุกคนปิด
   const updates={[`players/${S.myPlayerId}/tryal`]:tryals,blackCatEvent:null};
   if(firebaseReady&&S.roomCode){
     db.ref(`rooms/${S.roomCode}/salem`).update(updates).then(()=>{
@@ -4343,139 +4429,146 @@ function salemBCReveal(idx){
   }
 }
 
-/* ── Conspiracy: ผู้จั่วได้ → broadcast event → ทุกคนเห็น overlay เลือกไพ่จากคนซ้าย ── */
+/* ── Conspiracy: ผู้จั่วได้ → broadcast event → ทุกคนเลือกไพ่จากคนซ้าย → auto swap ── */
 function salemTriggerConspiracy(){
   if(!_salemState)return;
-  // 1) เปิดไพ่ชีวิตของผู้ครองแมวดำ 1 ใบ (ถ้ามี) → ทำผ่าน BCReveal flow
   const bcHolder=Object.values(_salemState.players||{}).find(p=>(p.passives||[]).includes('blackcat'));
   const at=Date.now();
+  const nonHostIds=S.players.filter(p=>!p.isHost).map(p=>p.id);
+  const alivePlayers=((_salemState.turnOrder)||nonHostIds).map(id=>_salemState.players?.[id]).filter(p=>p&&p.isAlive!==false);
+  // reset picks
   if(firebaseReady&&S.roomCode){
-    // broadcast conspiracy event ให้ทุกคนเห็น + signal ผู้ครอง BC ให้เปิดไพ่
-    db.ref(`rooms/${S.roomCode}/salem/conspiracyEvent`).set({by:S.myPlayerId,at,bcHolderId:bcHolder?.id||null});
+    db.ref(`rooms/${S.roomCode}/salem/conspiracyPicks`).set(null);
+    db.ref(`rooms/${S.roomCode}/salem/conspiracyEvent`).set({by:S.myPlayerId,at,bcHolderId:bcHolder?.id||null,totalPlayers:alivePlayers.length});
     if(bcHolder&&bcHolder.id!==S.myPlayerId){
       db.ref(`rooms/${S.roomCode}/salem/blackCatEvent`).set({holderId:bcHolder.id,at,fromConspiracy:true});
     }
   }
-  // แสดง overlay ให้ตัวเองด้วย
-  salemShowConspiracyPickEvent({by:S.myPlayerId,at,bcHolderId:bcHolder?.id||null},_salemState);
+  salemShowConspiracyPickEvent({by:S.myPlayerId,at,bcHolderId:bcHolder?.id||null,totalPlayers:alivePlayers.length},_salemState);
 }
 
 function salemShowConspiracyPickEvent(ce,data){
-  if(!data)return;
+  if(!data||S.isHost)return;
   const nonHostIds=S.players.filter(p=>!p.isHost).map(p=>p.id);
   const turnOrder=data.turnOrder||nonHostIds;
   const players=turnOrder.map(id=>data.players?.[id]).filter(p=>p&&p.isAlive!==false);
   const n=players.length;if(!n)return;
 
-  // คนซ้ายของเราคือคนก่อนหน้าใน turnOrder (วนลูป)
+  // คนซ้ายของเรา = คนก่อนหน้าใน turnOrder (วนลูป)
   const myIdx=players.findIndex(p=>p.id===S.myPlayerId);
   const leftIdx=myIdx>=0?(myIdx-1+n)%n:-1;
   const leftPlayer=leftIdx>=0?players[leftIdx]:null;
 
-  $('salemEvIcon').textContent='🕸️';
-  $('salemEvTitle').textContent='เจตนาร้าย!';
   const bcHolder=ce.bcHolderId?data.players?.[ce.bcHolderId]:null;
   const drawer=data.players?.[ce.by];
-  $('salemEvDesc').innerHTML=`<b>${esc(drawer?.nick||'?')}</b> จั่วได้การ์ดเจตนาร้าย!${bcHolder?`<br><br>⚠️ <b>${esc(bcHolder.nick)}</b> (ผู้ครอง 🐱) ต้องเปิดไพ่ชีวิต 1 ใบ`:''}${leftPlayer?`<br><br>🔄 ทุกคนเลือกไพ่ชีวิต 1 ใบ<br>จากคนฝั่งซ้าย (<b>${esc(leftPlayer.nick)}</b>)`:''}`;
 
+  $('salemEvIcon').textContent='🕸️';
+  $('salemEvTitle').textContent='เจตนาร้าย!';
+  $('salemEvDesc').innerHTML=`<b>${esc(drawer?.nick||'?')}</b> จั่วได้การ์ดเจตนาร้าย!${bcHolder?`<br><br>⚠️ <b>${esc(bcHolder.nick)}</b> (ผู้ครอง 🐱) ต้องเปิดไพ่ชีวิต 1 ใบ`:''}${leftPlayer?`<br><br>🔄 เลือกไพ่จาก <b>${esc(leftPlayer.nick)}</b> (คนซ้าย) 1 ใบ`:''}`;
+
+  // ตรวจว่าตัวเองเลือกไปแล้วหรือยัง
+  const myPick=data.conspiracyPicks?.[S.myPlayerId];
   let html='';
-  if(S.isHost){
-    // Host เห็นปุ่มส่งต่อไพ่ (ใช้เมื่อทุกคนเลือกเสร็จ)
-    html=`<div style="font-size:13px;color:var(--t2);text-align:center;margin-bottom:8px">รอผู้เล่นทุกคนเลือกไพ่ชีวิต...</div>
-      <button class="btn btn-ac btn-full" onclick="salemDoConspiracySwap()">🔄 ดำเนินการส่งต่อไพ่ (Host)</button>`;
-  } else if(S.myPlayerId&&leftPlayer){
-    // แต่ละคนเลือกไพ่ยังไม่เปิดจากคนซ้าย
+  if(myPick){
+    html=`<div style="text-align:center;padding:1rem;color:var(--ok);font-size:14px;font-weight:700">✅ เลือกแล้ว — รอผู้เล่นคนอื่น...</div>`;
+  } else if(leftPlayer){
     const leftTryal=leftPlayer.tryal||[];
-    const unopened=leftTryal.filter(t=>!t.revealed);
-    if(unopened.length===0){
-      html=`<div style="font-size:13px;color:var(--t2);text-align:center">คนซ้าย (${esc(leftPlayer.nick)}) ไม่มีไพ่ที่ยังไม่เปิด</div>
-        <button class="btn btn-sf btn-full" style="margin-top:8px" onclick="salemConspiracyPickDone()">✅ รับทราบ</button>`;
+    const hasUnopenedCard=leftTryal.some(t=>!t.revealed);
+    if(!hasUnopenedCard){
+      html=`<div style="font-size:13px;color:var(--t2);text-align:center;margin-bottom:8px">${esc(leftPlayer.nick)} ไม่มีไพ่ที่ยังไม่เปิด</div>
+        <button class="btn btn-sf btn-full" onclick="salemConspiracyPickNone()">✅ รับทราบ (ไม่มีให้หยิบ)</button>`;
     } else {
-      html=`<div style="font-size:13px;color:var(--warn);font-weight:700;margin-bottom:8px;text-align:center">เลือกไพ่จาก ${esc(leftPlayer.nick)} (คนซ้าย) 1 ใบ:</div>
+      html=`<div style="font-size:13px;color:var(--warn);font-weight:700;margin-bottom:8px;text-align:center">เลือกไพ่จาก ${esc(leftPlayer.nick)} 1 ใบ:</div>
         <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:6px">
           ${leftTryal.map((t,i)=>{
-            if(t.revealed)return`<div style="width:52px;height:72px;border-radius:8px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:16px;opacity:0.3">✓</div>`;
-            return`<button onclick="salemConspiracyPickCard('${leftPlayer.id}',${i})" style="width:52px;height:72px;border-radius:8px;background:linear-gradient(135deg,#1a1a2e,#16213e);border:2px solid rgba(124,156,255,0.5);color:var(--t0);cursor:pointer;font-size:11px;font-weight:700">ใบ<br>${i+1}</button>`;
+            if(t.revealed)return`<div style="width:52px;height:72px;border-radius:8px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:12px;opacity:0.3;flex-direction:column;gap:2px"><span>✓</span><span style="font-size:8px">ใบ${i+1}</span></div>`;
+            return`<button id="conspPick${i}" onclick="salemConspiracyPickCard('${leftPlayer.id}',${i})" style="width:52px;height:72px;border-radius:8px;background:linear-gradient(135deg,#1a1a2e,#16213e);border:2px solid rgba(124,156,255,0.5);color:var(--t0);cursor:pointer;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;transition:all 0.15s"><span style="font-size:18px">🂠</span><span>ใบ ${i+1}</span></button>`;
           }).join('')}
         </div>`;
     }
-  } else {
-    html=`<div style="font-size:13px;color:var(--t2);text-align:center">รอ...</div>`;
   }
   $('salemEvActions').innerHTML=html;
   $('salemEvOv').classList.add('open');
 }
 
-// เมื่อผู้เล่นเลือกไพ่จากคนซ้ายแล้ว → บันทึก pick ไว้ใน firebase
-let _conspiracyMyPick=null;
 function salemConspiracyPickCard(fromId,tryalIdx){
-  _conspiracyMyPick={fromId,tryalIdx};
-  // ไฮไลท์ปุ่มที่เลือก
-  $('salemEvActions').querySelectorAll('button[onclick^="salemConspiracyPickCard"]').forEach(b=>{
+  // ไฮไลท์
+  document.querySelectorAll('[id^="conspPick"]').forEach(b=>{
     b.style.border='2px solid rgba(124,156,255,0.3)';b.style.opacity='0.5';
   });
-  event.target.style.border='3px solid var(--ok)';event.target.style.opacity='1';
-  // บันทึก pick ลง firebase
+  const btn=document.getElementById('conspPick'+tryalIdx);
+  if(btn){btn.style.border='3px solid var(--ok)';btn.style.opacity='1';}
+
+  // บันทึก pick
   if(firebaseReady&&S.roomCode){
-    db.ref(`rooms/${S.roomCode}/salem/conspiracyPicks/${S.myPlayerId}`).set({fromId,tryalIdx,at:Date.now()});
+    db.ref(`rooms/${S.roomCode}/salem/conspiracyPicks/${S.myPlayerId}`).set({fromId,tryalIdx,at:Date.now()}).then(()=>{
+      // อัปเดต UI
+      $('salemEvActions').innerHTML=`<div style="text-align:center;padding:0.5rem;color:var(--ok);font-size:14px;font-weight:700">✅ เลือกใบ ${tryalIdx+1} แล้ว — รอผู้เล่นคนอื่น...</div>`;
+    });
   }
-  // เพิ่มปุ่ม confirm
-  const btn=document.createElement('button');
-  btn.className='btn btn-ac btn-full';btn.style.marginTop='8px';
-  btn.textContent='✅ ยืนยัน';
-  btn.onclick=salemConspiracyPickDone;
-  $('salemEvActions').appendChild(btn);
-}
-function salemConspiracyPickDone(){
-  $('salemEvOv').classList.remove('open');
-  showToast('✅ เลือกแล้ว — รอ Host ดำเนินการ',3000);
 }
 
-// Host กดส่งต่อไพ่ชีวิต
-function salemDoConspiracySwap(){
-  if(!_salemState||!S.isHost)return;
-  $('salemEvOv').classList.remove('open');
+function salemConspiracyPickNone(){
+  if(firebaseReady&&S.roomCode){
+    db.ref(`rooms/${S.roomCode}/salem/conspiracyPicks/${S.myPlayerId}`).set({fromId:null,tryalIdx:-1,at:Date.now()}).then(()=>{
+      $('salemEvActions').innerHTML=`<div style="text-align:center;padding:0.5rem;color:var(--ok);font-size:14px;font-weight:700">✅ รับทราบแล้ว — รอผู้เล่นคนอื่น...</div>`;
+    });
+  }
+}
+
+// Host ตรวจว่าทุกคน pick แล้วหรือยัง → auto swap
+function salemCheckConspiracyAutoSwap(data){
+  if(!S.isHost||!data.conspiracyEvent)return;
   const nonHostIds=S.players.filter(p=>!p.isHost).map(p=>p.id);
-  const turnOrder=_salemState.turnOrder||nonHostIds;
-  const players=turnOrder.map(id=>_salemState.players?.[id]).filter(p=>p&&p.isAlive!==false);
-  const n=players.length;if(!n)return;
-  // อ่าน picks จาก firebase (หรือ state)
-  const picks=_salemState.conspiracyPicks||{};
+  const turnOrder=data.turnOrder||nonHostIds;
+  const alivePlayers=turnOrder.map(id=>data.players?.[id]).filter(p=>p&&p.isAlive!==false);
+  const picks=data.conspiracyPicks||{};
+  const pickedCount=Object.keys(picks).length;
+  if(pickedCount>=alivePlayers.length){
+    // ทุกคน pick แล้ว → swap อัตโนมัติ
+    setTimeout(()=>salemDoConspiracySwap(data,picks,alivePlayers),500);
+  }
+}
+
+function salemDoConspiracySwap(data,picks,alivePlayers){
+  if(!_salemState||!S.isHost)return;
+  const n=alivePlayers.length;if(!n)return;
   const snapshots={};
-  players.forEach(p=>{snapshots[p.id]=JSON.parse(JSON.stringify(p.tryal||[]));});
+  alivePlayers.forEach(p=>{snapshots[p.id]=JSON.parse(JSON.stringify(p.tryal||[]));});
   const updates={};
-  // แต่ละคน pick จากคนซ้าย (index-1)
-  players.forEach((p,i)=>{
+  const swapLabels={};// pid → {addedSlot, removedSlot}
+
+  alivePlayers.forEach((p,i)=>{
     const leftIdx=(i-1+n)%n;
-    const leftPlayer=players[leftIdx];
+    const leftPlayer=alivePlayers[leftIdx];
     const pick=picks[p.id];
-    let takeIdx=-1;
-    if(pick&&pick.fromId===leftPlayer.id)takeIdx=pick.tryalIdx;
-    else{// fallback: หยิบใบแรกที่ยังไม่เปิด
-      takeIdx=snapshots[leftPlayer.id].findIndex(t=>!t.revealed);
-    }
-    if(takeIdx<0)return;
-    const card=snapshots[leftPlayer.id][takeIdx];
-    if(!card)return;
-    // เอาออกจากคนซ้าย
+    if(!pick||pick.tryalIdx<0||!pick.fromId)return;// ไม่มีไพ่ให้หยิบ
+    const takeIdx=pick.tryalIdx;
+    const fromSnap=snapshots[leftPlayer.id];
+    if(takeIdx>=fromSnap.length||fromSnap[takeIdx]?.revealed)return;
+    const card=fromSnap[takeIdx];
+    // หาตำแหน่งที่ว่างในไพ่ของเรา (ตำแหน่งที่คนขวาเอาไป)
+    // ง่ายกว่า: ลบออกจาก left, เพิ่มเข้า right (เพิ่มท้าย)
     snapshots[leftPlayer.id].splice(takeIdx,1);
-    // ใส่ใน slot ที่ว่างของคนปัจจุบัน (วางตำแหน่งที่โดนหยิบไป)
-    snapshots[p.id].push({...card,_newLabel:'จาก '+leftPlayer.nick});
-    updates[`players/${p.id}/tryal`]=snapshots[p.id].map(t=>{const {_newLabel,...rest}=t;return{...rest};});
-    updates[`players/${leftPlayer.id}/tryal`]=snapshots[leftPlayer.id];
+    const newSlotIdx=snapshots[p.id].length;
+    snapshots[p.id].push({...card,_fromNick:leftPlayer.nick,_fromSlot:takeIdx+1,_newSlot:newSlotIdx+1});
+    swapLabels[p.id]={fromNick:leftPlayer.nick,fromSlot:takeIdx+1,newSlot:newSlotIdx+1};
+  });
+
+  alivePlayers.forEach(p=>{
+    updates[`players/${p.id}/tryal`]=snapshots[p.id].map(t=>{
+      const{_fromNick,_fromSlot,_newSlot,...rest}=t;return rest;
+    });
   });
   updates.conspiracyEvent=null;
   updates.conspiracyPicks=null;
-  updates.conspiracyDone={at:Date.now()};
+  updates.conspiracyDone={at:Date.now(),swapLabels};
+
   salemSave(updates,'🔄 ส่งต่อไพ่ชีวิตเสร็จแล้ว!',false);
-  // แจ้งทุกคน
   setTimeout(()=>{
     if(_salemState)Object.keys(_salemState.players||{}).forEach(pid=>salemCheckWitchDeath(_salemState,pid));
+    setTimeout(()=>{if(firebaseReady&&S.roomCode)db.ref(`rooms/${S.roomCode}/salem/conspiracyDone`).set(null);},12000);
   },800);
-  // แสดง label ชั่วคราวในไพ่ที่ได้รับ (10 วิ)
-  setTimeout(()=>{
-    if(firebaseReady&&S.roomCode)db.ref(`rooms/${S.roomCode}/salem/conspiracyDone`).set(null);
-  },10000);
 }
 
 function salemHostAssignBlackCat(){
@@ -4521,12 +4614,16 @@ function salemDoAssignBlackCat(pid){
     updates['turnOrder']=reordered;
   }
   salemSave(updates,'🐱 วางแมวดำให้ '+(target?.nick||pid),false);
-  // broadcast blackCatEvent ให้ทุกคนเห็นว่าใครได้รับแมวดำ
-  setTimeout(()=>{
-    if(firebaseReady&&S.roomCode){
-      db.ref(`rooms/${S.roomCode}/salem/blackCatEvent`).set({holderId:pid,at:Date.now(),fromConspiracy:false});
-    }
-  },600);
+  // blackCatEvent broadcast เฉพาะกรณีเกมดำเนินอยู่แล้ว (currentTurn มีค่า = เกมเริ่มแล้ว)
+  // ตอนเริ่มเกมครั้งแรก (currentTurn=null) ไม่ต้อง broadcast
+  const alreadyStarted=!!(_salemState?.currentTurn);
+  if(alreadyStarted){
+    setTimeout(()=>{
+      if(firebaseReady&&S.roomCode){
+        db.ref(`rooms/${S.roomCode}/salem/blackCatEvent`).set({holderId:pid,at:Date.now(),fromConspiracy:false});
+      }
+    },600);
+  }
 }
 function salemHostRemoveBlackCat(){
   if(!_salemState)return;
