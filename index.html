@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!-- ════════════════════════════════════════════════════════════════
-     GAME HUB TENG  —  v11.1
+     GAME HUB TENG  —  v11.2
      ────────────────────────────────────────────────────────────
      AI HANDOFF NOTE (สำหรับ AI ที่รับงานต่อ):
-     - เวอร์ชันปัจจุบัน: v11.1
+     - เวอร์ชันปัจจุบัน: v11.2
      - เพิ่มเวอร์ชัน +0.1 ทุกครั้งที่แก้ไข (v11 → v11.1 → v11.2 ...)
      - อัปเดต label มุมบนซ้าย id="versionLabel" ด้วยทุกครั้ง
      ════════════════════════════════════════════════════════════════ -->
@@ -122,6 +122,42 @@ body{
 [data-theme="cream"] .p-badge{background:rgba(181,101,29,0.12);color:var(--ac)}
 [data-theme="cream"] .ww-role-chip.has{border-color:var(--ac);background:rgba(181,101,29,0.08)}
 [data-theme="cream"] .btn-next{background:linear-gradient(180deg,#ede8df 0%,#e0d9ce 100%)}
+/* Salem cream fixes */
+[data-theme="cream"] .salem-pcard.red{background:linear-gradient(160deg,#f5e0dc,#f0d0ca);border-color:rgba(192,57,43,0.4)}
+[data-theme="cream"] .salem-pcard.green{background:linear-gradient(160deg,#daf0e4,#cceadb);border-color:rgba(39,174,96,0.4)}
+[data-theme="cream"] .salem-pcard.blue{background:linear-gradient(160deg,#dce8f5,#ccdff0);border-color:rgba(41,128,185,0.4)}
+[data-theme="cream"] .salem-pcard.black{background:linear-gradient(160deg,#e8e4dc,#ddd8cf);border-color:rgba(100,100,100,0.3)}
+[data-theme="cream"] .salem-pcard-name{color:var(--t0)}
+[data-theme="cream"] .salem-pcard-desc{color:var(--t1)}
+[data-theme="cream"] .salem-pcard-val{color:#8b5e0a}
+[data-theme="cream"] .salem-stripe.red{background:linear-gradient(90deg,#e74c3c,#c0392b)}
+[data-theme="cream"] .salem-stripe.green{background:linear-gradient(90deg,#27ae60,#219a52)}
+[data-theme="cream"] .salem-stripe.blue{background:linear-gradient(90deg,#2980b9,#1f6fa0)}
+[data-theme="cream"] .salem-stripe.black{background:linear-gradient(90deg,#7f8c8d,#636e72)}
+[data-theme="cream"] .salem-pboard{background:rgba(245,240,232,0.96)}
+[data-theme="cream"] .salem-pc{background:var(--card2)}
+[data-theme="cream"] .salem-pc-name{color:var(--t0)}
+[data-theme="cream"] .salem-slot.hidden{background:rgba(0,0,0,0.08)}
+[data-theme="cream"] .salem-slot.witch{background:rgba(155,89,182,0.18);color:#6c3483}
+[data-theme="cream"] .salem-slot.nw{background:rgba(39,174,96,0.18);color:#1a7a45}
+[data-theme="cream"] .salem-slot.cop{background:rgba(41,128,185,0.18);color:#1a5276}
+[data-theme="cream"] .salem-tbtn{background:var(--card2);border-color:var(--line)}
+[data-theme="cream"] .salem-tbtn:hover{background:rgba(0,0,0,0.04)}
+[data-theme="cream"] .salem-ev-ov{background:rgba(245,240,232,0.97)}
+[data-theme="cream"] #salemEvTitle,[data-theme="cream"] #salemEvDesc{color:var(--t0)}
+[data-theme="cream"] .salem-phase-bar{background:rgba(181,101,29,0.10);border-bottom:1px solid rgba(181,101,29,0.2);color:#7d4b0f}
+[data-theme="cream"] .salem-confess-ov{background:rgba(245,240,232,0.97)}
+[data-theme="cream"] .salem-conf-card{background:linear-gradient(135deg,#e8e0d4,#ddd5c6);border-color:rgba(181,101,29,0.4)}
+[data-theme="cream"] .modal-sheet{background:var(--card)}
+/* General cream text fixes */
+[data-theme="cream"] .label{color:var(--t2)}
+[data-theme="cream"] .gap-lbl{color:var(--t2)}
+[data-theme="cream"] .game-name{color:var(--t0)}
+[data-theme="cream"] .game-desc{color:var(--t1)}
+[data-theme="cream"] .toast{background:var(--card2);border-color:rgba(0,0,0,0.1);color:var(--t0)}
+[data-theme="cream"] .menu-item{color:var(--t0)}
+[data-theme="cream"] .confirm-title,[data-theme="cream"] .gameover-title{color:var(--t0)}
+[data-theme="cream"] .confirm-sub,[data-theme="cream"] .gameover-sub{color:var(--t1)}
 
 /* Theme switcher button */
 .theme-btn{
@@ -573,7 +609,7 @@ body::before{
 </style>
 </head>
 <body>
-<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v11.1</div>
+<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v11.2</div>
 
 <div class="toast" id="toast"></div>
 
@@ -3283,20 +3319,21 @@ function syncSalemState(data){
   if(S.isHost&&data&&data.conspiracyEvent&&data.conspiracyPicks){
     salemCheckConspiracyAutoSwap(data);
   }
-  // Host: แสดง overlay รอ
+  // Host: แสดง overlay รอ (update ทุกครั้งที่มี pick ใหม่)
   if(S.isHost&&data&&data.conspiracyEvent){
     const ce=data.conspiracyEvent;
+    const nonHostIds=S.players.filter(p=>!p.isHost).map(p=>p.id);
+    const alivePlayers=((data.turnOrder)||nonHostIds).map(id=>data.players?.[id]).filter(p=>p&&p.isAlive!==false);
+    const picks=data.conspiracyPicks||{};
+    const pickedCount=Object.keys(picks).length;
     if(!S._lastConspiracyAt||ce.at>S._lastConspiracyAt){
       S._lastConspiracyAt=ce.at;
-      const nonHostIds=S.players.filter(p=>!p.isHost).map(p=>p.id);
-      const alivePlayers=((data.turnOrder)||nonHostIds).map(id=>data.players?.[id]).filter(p=>p&&p.isAlive!==false);
-      const picks=data.conspiracyPicks||{};
-      $('salemEvIcon').textContent='🕸️';
-      $('salemEvTitle').textContent='เจตนาร้าย!';
-      $('salemEvDesc').innerHTML=`รอผู้เล่นทุกคนเลือกไพ่ชีวิต...<br><b style="color:var(--ok)">${Object.keys(picks).length}/${alivePlayers.length} คน</b>เลือกแล้ว`;
-      $('salemEvActions').innerHTML=`<div style="color:var(--t2);font-size:13px;text-align:center">จะ swap อัตโนมัติเมื่อทุกคนเลือกเสร็จ</div>`;
-      $('salemEvOv').classList.add('open');
     }
+    $('salemEvIcon').textContent='🕸️';
+    $('salemEvTitle').textContent='เจตนาร้าย!';
+    $('salemEvDesc').innerHTML=`รอผู้เล่นทุกคนเลือกไพ่ชีวิต...<br><b style="color:var(--ok)">${pickedCount}/${alivePlayers.length} คน</b>เลือกแล้ว`;
+    $('salemEvActions').innerHTML=`<div style="color:var(--t2);font-size:13px;text-align:center">จะ swap อัตโนมัติเมื่อทุกคนเลือกเสร็จ</div>`;
+    $('salemEvOv').classList.add('open');
   }
   // Conspiracy done
   if(data&&data.conspiracyDone&&!S.isHost){
@@ -3404,8 +3441,8 @@ function renderSalemGame(data){
               <div style="width:36px;height:36px;border-radius:50%;background:${col}22;color:${col};display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;flex-shrink:0">${esc(p.nick[0].toUpperCase())}</div>
               <div style="flex:1;min-width:0">
                 <div style="font-size:14px;font-weight:700;color:var(--t0)">${esc(p.nick)}${p.id===data.currentTurn?' ⚡':''}${p.id===data.blackCatHolder?' 🐱':''}</div>
-                ${p.accusePoints>0?`<div style="font-size:11px;color:var(--danger)">⚖️ ${p.accusePoints}/7</div>`:''}
-                ${passEmoji?`<div style="font-size:12px">${passEmoji}</div>`:''}
+                ${p.accusePoints>0?`<div style="font-size:11px;color:var(--danger)">⚖️ โดนกล่าวหา ${p.accusePoints}/7</div>`:''}
+                ${passEmoji?`<div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:2px">${(p.passives||[]).map(pid=>{const c=SALEM_CARDS[pid];if(!c)return'';const borderColor=c.color==='red'?'rgba(192,57,43,0.6)':c.color==='green'?'rgba(39,174,96,0.5)':c.color==='blue'?'rgba(41,128,185,0.5)':'rgba(255,255,255,0.2)';const bgColor=c.color==='red'?'rgba(192,57,43,0.12)':c.color==='green'?'rgba(39,174,96,0.1)':c.color==='blue'?'rgba(41,128,185,0.1)':'rgba(255,255,255,0.05)';return`<span style="font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;border:1px solid ${borderColor};background:${bgColor};color:var(--t1)">${c.emoji} ${c.name}</span>`;}).join('')}</div>`:''}
               </div>
               <div style="font-size:11px;color:var(--t2);flex-shrink:0">${turnPos>=0?'เทิร์น '+(turnPos+1):''}</div>
               <div style="display:flex;gap:3px">${slots}</div>
@@ -3521,9 +3558,18 @@ function renderSalemGame(data){
 
     ${passiveCards.length?`
     <div style="padding:0 var(--pad) 0.75rem">
-      <div class="label">การ์ดที่อยู่หน้าคุณ</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        ${passiveCards.map(c=>`<div style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:rgba(41,128,185,0.12);border:1px solid rgba(41,128,185,0.3);border-radius:var(--r-pill);font-size:13px;font-weight:700;color:#7fb3d3">${c.emoji} ${c.name}</div>`).join('')}
+      <div class="label">การ์ด Passive หน้าคุณ</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        ${passiveCards.map(c=>{
+          const borderColor=c.color==='red'?'rgba(192,57,43,0.6)':c.color==='green'?'rgba(39,174,96,0.5)':'rgba(41,128,185,0.5)';
+          const bgColor=c.color==='red'?'rgba(192,57,43,0.12)':c.color==='green'?'rgba(39,174,96,0.1)':'rgba(41,128,185,0.12)';
+          const textColor=c.color==='red'?'#e74c3c':c.color==='green'?'#2ecc71':'#7fb3d3';
+          return`<div style="display:flex;flex-direction:column;gap:3px;padding:7px 11px;background:${bgColor};border:1.5px solid ${borderColor};border-radius:var(--r-s);min-width:80px">
+            <div style="font-size:16px">${c.emoji}</div>
+            <div style="font-size:11px;font-weight:800;color:${textColor}">${c.name}</div>
+            <div style="font-size:9px;color:var(--t2);line-height:1.4">${c.desc}</div>
+          </div>`;
+        }).join('')}
       </div>
     </div>`:''}
 
@@ -4029,14 +4075,14 @@ function renderSalemPboard(players,data,isHost,turnOrder){
       }
       return `<div class="${cls}" title="ใบ ${si+1}">${lbl}</div>`;
     }).join('');
-    return `<div style="padding:8px 10px;background:${isTurn?'rgba(240,192,96,0.10)':'var(--card)'};border-radius:var(--r-s);border:1.5px solid ${isTurn?'rgba(240,192,96,0.5)':isMe?'var(--ac)':'var(--line)'};${p.isAlive===false?'opacity:0.3':''}">
+    return `<div style="padding:8px 10px;background:${isTurn?'rgba(240,192,96,0.10)':'var(--card)'};border-radius:var(--r-s);border:1.5px solid ${isTurn?'rgba(240,192,96,0.5)':'var(--line)'};${p.isAlive===false?'opacity:0.3':''}">
       <div style="display:flex;align-items:center;gap:6px">
         <div style="font-size:11px;font-weight:900;color:var(--t3);min-width:14px">${turnPos+1}</div>
         <div style="width:30px;height:30px;border-radius:50%;background:${col}22;color:${col};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;flex-shrink:0">${esc(p.nick[0].toUpperCase())}</div>
         <div style="flex:1;min-width:0">
-          <div style="font-size:13px;font-weight:800;color:${isTurn?'var(--warn)':'var(--t0)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${isTurn?'⚡ ':''}${esc(p.nick)}${isMe?' (คุณ)':''}${p.isAlive===false?' 💀':''}</div>
-          ${p.accusePoints>0?`<div style="font-size:10px;color:var(--danger);font-weight:700">⚖️ ${p.accusePoints}/7</div>`:''}
-          ${passEmoji?`<div style="font-size:11px;margin-top:1px">${passEmoji}</div>`:''}
+          <div style="font-size:13px;font-weight:800;color:${isTurn?'var(--warn)':'var(--t0)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${isTurn?'⚡ ':''}${esc(p.nick)}${isMe?' <span style="font-size:11px;color:var(--ac);font-weight:700">(คุณ)</span>':''}${p.isAlive===false?' 💀':''}</div>
+          ${p.accusePoints>0?`<div style="font-size:10px;color:var(--danger);font-weight:700">⚖️ โดนกล่าวหา ${p.accusePoints}/7</div>`:''}
+          ${(p.passives||[]).length>0?`<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:2px">${(p.passives||[]).map(pid=>{const c=SALEM_CARDS[pid];if(!c)return'';const borderColor=c.color==='red'?'rgba(192,57,43,0.6)':c.color==='green'?'rgba(39,174,96,0.5)':c.color==='blue'?'rgba(41,128,185,0.5)':'rgba(255,255,255,0.2)';const bgColor=c.color==='red'?'rgba(192,57,43,0.12)':c.color==='green'?'rgba(39,174,96,0.1)':c.color==='blue'?'rgba(41,128,185,0.1)':'rgba(255,255,255,0.05)';return`<span style="font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;border:1px solid ${borderColor};background:${bgColor};color:var(--t1)">${c.emoji} ${c.name}</span>`;}).join('')}</div>`:''}
         </div>
         <div style="display:flex;gap:2px;flex-shrink:0">${slots}</div>
       </div>
@@ -4496,6 +4542,9 @@ function salemShowConspiracyPickEvent(ce,data){
   const players=turnOrder.map(id=>data.players?.[id]).filter(p=>p&&p.isAlive!==false);
   const n=players.length;if(!n)return;
 
+  // คนจั่วได้ไพ่ = ce.by → ไม่ต้องเลือกไพ่ (ให้แสดงแค่รอ)
+  const isDrawer=ce.by===S.myPlayerId;
+
   // คนซ้ายของเรา = คนก่อนหน้าใน turnOrder (วนลูป)
   const myIdx=players.findIndex(p=>p.id===S.myPlayerId);
   const leftIdx=myIdx>=0?(myIdx-1+n)%n:-1;
@@ -4506,13 +4555,23 @@ function salemShowConspiracyPickEvent(ce,data){
 
   $('salemEvIcon').textContent='🕸️';
   $('salemEvTitle').textContent='เจตนาร้าย!';
-  $('salemEvDesc').innerHTML=`<b>${esc(drawer?.nick||'?')}</b> จั่วได้การ์ดเจตนาร้าย!${bcHolder?`<br><br>⚠️ <b>${esc(bcHolder.nick)}</b> (ผู้ครอง 🐱) ต้องเปิดไพ่ชีวิต 1 ใบ`:''}${leftPlayer?`<br><br>🔄 เลือกไพ่จาก <b>${esc(leftPlayer.nick)}</b> (คนซ้าย) 1 ใบ`:''}`;
+  $('salemEvDesc').innerHTML=`<b>${esc(drawer?.nick||'?')}</b> จั่วได้การ์ดเจตนาร้าย!${bcHolder?`<br><br>⚠️ <b>${esc(bcHolder.nick)}</b> (ผู้ครอง 🐱) ต้องเปิดไพ่ชีวิต 1 ใบ`:''}${(!isDrawer&&leftPlayer)?`<br><br>🔄 เลือกไพ่จาก <b>${esc(leftPlayer.nick)}</b> (คนซ้าย) 1 ใบ`:''}`;
 
   // ตรวจว่าตัวเองเลือกไปแล้วหรือยัง
   const myPick=data.conspiracyPicks?.[S.myPlayerId];
   let html='';
   if(myPick){
     html=`<div style="text-align:center;padding:1rem;color:var(--ok);font-size:14px;font-weight:700">✅ เลือกแล้ว — รอผู้เล่นคนอื่น...</div>`;
+  } else if(isDrawer){
+    // คนจั่วได้ไม่ต้องเลือกไพ่ — auto submit none
+    html=`<div style="text-align:center;padding:1rem;color:var(--warn);font-size:14px;font-weight:700">⚡ คุณจั่วได้ไพ่นี้!</div>
+      <div style="text-align:center;font-size:13px;color:var(--t2);margin-bottom:8px">รอผู้เล่นทุกคนส่งต่อไพ่ชีวิต...</div>`;
+    // auto-submit pick = none สำหรับคนจั่ว
+    if(firebaseReady&&S.roomCode&&!data.conspiracyPicks?.[S.myPlayerId]){
+      setTimeout(()=>{
+        db.ref(`rooms/${S.roomCode}/salem/conspiracyPicks/${S.myPlayerId}`).set({fromId:null,tryalIdx:-1,at:Date.now()});
+      },300);
+    }
   } else if(leftPlayer){
     const leftTryal=leftPlayer.tryal||[];
     const hasUnopenedCard=leftTryal.some(t=>!t.revealed);
@@ -4597,54 +4656,65 @@ function salemDoConspiracySwap(data,picks,alivePlayers){
   // ── snapshot ณ เริ่มต้น (immutable) ──
   const origSnap={};
   alivePlayers.forEach(p=>{origSnap[p.id]=JSON.parse(JSON.stringify(p.tryal||[]));});
-  // result arrays ที่จะแก้ไข
+  // result arrays ที่จะแก้ไข — เริ่มจาก snapshot
   const result={};
   alivePlayers.forEach(p=>{result[p.id]=JSON.parse(JSON.stringify(p.tryal||[]));});
   const updates={};
   const swapLabels={};
 
-  // 1. หาว่าแต่ละคนจะสูญเสียไพ่ใบไหน (คนทางขวาหยิบจากเรา = pick ของคน index+1)
-  const removedIdx={};// pid → tryalIdx ที่โดนหยิบออก
+  // 1. สร้าง map: ใครโดนหยิบไพ่ใบไหน (คนขวาของเราหยิบจากเรา)
+  const removedFromPlayer={};// pid → tryalIdx ที่โดนหยิบออก
   alivePlayers.forEach((p,i)=>{
     const rightIdx=(i+1)%n;
     const rightPlayer=alivePlayers[rightIdx];
     const rightPick=picks[rightPlayer.id];
+    // คนขวา pick fromId===p.id หมายความว่าหยิบจากเรา
     if(rightPick&&rightPick.tryalIdx>=0&&rightPick.fromId===p.id){
-      removedIdx[p.id]=rightPick.tryalIdx;
+      removedFromPlayer[p.id]=rightPick.tryalIdx;
     }
   });
 
-  // 2. แต่ละคนหยิบไพ่จากคนซ้ายแล้วแทนที่ตำแหน่งที่โดนหยิบไป
+  // 2. แต่ละคนรับไพ่ใหม่จากคนซ้าย → วางทับช่องที่คนขวาเอาออก
   alivePlayers.forEach((p,i)=>{
     const leftIdx=(i-1+n)%n;
     const leftPlayer=alivePlayers[leftIdx];
     const pick=picks[p.id];
+    // ถ้าไม่ได้ pick หรือ pick = none → ไม่รับไพ่ใหม่
     if(!pick||pick.tryalIdx<0||!pick.fromId)return;
     const takeIdx=pick.tryalIdx;
     const srcCard=origSnap[leftPlayer.id]?.[takeIdx];
     if(!srcCard||srcCard.revealed)return;
-    // ตำแหน่งที่จะวางไพ่ใหม่ = ตำแหน่งที่คนขวาเอาออกไป (ถ้ามี) ไม่งั้นต่อท้าย
-    const placeIdx=removedIdx[p.id]!==undefined?removedIdx[p.id]:result[p.id].length;
+    // ช่องที่จะวาง = ช่องที่คนขวาเอาออกจากเรา (ถ้ามี) ไม่งั้นต่อท้าย
+    const placeIdx=removedFromPlayer[p.id]!==undefined?removedFromPlayer[p.id]:result[p.id].length;
+    const newCard={...srcCard,pos:placeIdx};
     if(placeIdx<result[p.id].length){
-      result[p.id][placeIdx]={...srcCard};
+      result[p.id][placeIdx]=newCard;
     } else {
-      result[p.id].push({...srcCard});
+      result[p.id].push(newCard);
     }
     swapLabels[p.id]={fromNick:leftPlayer.nick,fromSlot:takeIdx+1,newSlot:placeIdx+1};
   });
 
-  // 3. ลบไพ่ที่โดนหยิบออก (แทนที่ด้วย placeholder ชั่วคราวก่อนจะถูก replace ข้างบน)
-  // ทำซ้ำ: ใบที่โดนหยิบออก → เอาออกจาก result แล้ว mark slot ว่าง
-  // เนื่องจากขั้น 2 ใส่ไพ่ใหม่ทับแล้ว ไม่ต้องทำอะไรเพิ่ม
-  // แต่ถ้าคนขวาไม่ได้ pick จากเรา → ลบออกแทน
+  // 3. ลบไพ่ที่โดนหยิบออกจากเจ้าของเดิม
+  // (ถ้าคนขวา pick จากเรา และ step2 ยังไม่ได้ replace ช่องนั้น → ต้องลบออก)
   alivePlayers.forEach((p,i)=>{
+    const removedIdx=removedFromPlayer[p.id];
+    if(removedIdx===undefined)return;
     const rightIdx=(i+1)%n;
     const rightPlayer=alivePlayers[rightIdx];
     const rightPick=picks[rightPlayer.id];
-    const wasRemoved=rightPick&&rightPick.tryalIdx>=0&&rightPick.fromId===p.id;
-    if(wasRemoved){
-      // ตำแหน่งนี้ถูก replace โดยขั้น 2 แล้ว ไม่ต้องทำอะไร
+    // step2 ของเจ้าตัว (p) ได้ replace ช่อง removedIdx แล้วหรือไม่?
+    // p ได้รับไพ่จากคนซ้าย → swapLabels[p.id] มีค่า
+    const pGotNew=!!swapLabels[p.id];
+    if(!pGotNew){
+      // เราไม่ได้รับไพ่ใหม่ → ช่องที่โดนเอาออกต้องว่าง → ลบออกแล้ว splice
+      if(removedIdx<result[p.id].length){
+        result[p.id].splice(removedIdx,1);
+        // ปรับ pos
+        result[p.id].forEach((t,idx)=>{t.pos=idx;});
+      }
     }
+    // ถ้า pGotNew → step2 ได้ใส่ไพ่ใหม่ทับช่อง removedIdx แล้ว ไม่ต้องทำอะไร
   });
 
   alivePlayers.forEach(p=>{
