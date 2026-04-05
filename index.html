@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!-- ════════════════════════════════════════════════════════════════
-     GAME HUB TENG  —  v11.2
+     GAME HUB TENG  —  v11.3
      ────────────────────────────────────────────────────────────
      AI HANDOFF NOTE (สำหรับ AI ที่รับงานต่อ):
-     - เวอร์ชันปัจจุบัน: v11.2
+     - เวอร์ชันปัจจุบัน: v11.3
      - เพิ่มเวอร์ชัน +0.1 ทุกครั้งที่แก้ไข (v11 → v11.1 → v11.2 ...)
      - อัปเดต label มุมบนซ้าย id="versionLabel" ด้วยทุกครั้ง
      ════════════════════════════════════════════════════════════════ -->
@@ -609,7 +609,7 @@ body::before{
 </style>
 </head>
 <body>
-<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v11.2</div>
+<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v11.3</div>
 
 <div class="toast" id="toast"></div>
 
@@ -3307,12 +3307,23 @@ function syncSalemState(data){
       ev.classList.remove('open');
     }
   }
-  // Conspiracy pick event
+  // Conspiracy pick event — re-render ทุกครั้งที่ event หรือ picks เปลี่ยน
   if(data&&data.conspiracyEvent&&!S.isHost){
     const ce=data.conspiracyEvent;
-    if(!S._lastConspiracyAt||ce.at>S._lastConspiracyAt){
-      S._lastConspiracyAt=ce.at;
+    // แสดง UI ทุกครั้งที่มี event (ทั้งครั้งแรกและเมื่อ picks อัปเดต)
+    const eventKey=ce.at+'_'+(Object.keys(data.conspiracyPicks||{}).length);
+    if(S._lastConspiracyKey!==eventKey){
+      S._lastConspiracyKey=eventKey;
+      if(!S._lastConspiracyAt||ce.at>S._lastConspiracyAt) S._lastConspiracyAt=ce.at;
       salemShowConspiracyPickEvent(ce,data);
+    }
+  }
+  // ถ้า conspiracyEvent หายไป → ปิด overlay
+  if(data&&!data.conspiracyEvent&&S._lastConspiracyAt&&!S.isHost){
+    S._lastConspiracyKey=null;
+    const ev=$('salemEvOv');
+    if(ev&&ev.classList.contains('open')&&$('salemEvTitle')?.textContent==='เจตนาร้าย!'){
+      ev.classList.remove('open');
     }
   }
   // Host: ตรวจ auto-swap เมื่อทุกคน pick แล้ว
@@ -3618,24 +3629,8 @@ function renderSalemNightPhase(body,me,data,players,turnOrder){
   const allDone=currentConfessIdx<0;
   const myTryals=me.tryal||[];
 
-  // ถ้าทุกคน confess แล้ว → Host จบ Night phase อัตโนมัติ
-  if(allDone&&S.isHost){
-    setTimeout(()=>{
-      if(!_salemState||!_salemState.nightPhase)return;
-      const updates={nightPhase:false,blackCatHolder:null};
-      // reset nightConfessed + ล้างแมวดำ passive ทุกคน
-      Object.values(_salemState.players||{}).forEach(p=>{
-        updates[`players/${p.id}/nightConfessed`]=null;
-        const newPassives=(p.passives||[]).filter(x=>x!=='blackcat');
-        if((p.passives||[]).includes('blackcat'))updates[`players/${p.id}/passives`]=newPassives;
-      });
-      updates.currentTurn=null;// Host ต้องวางแมวดำใหม่ก่อนเริ่มเทิร์น
-      salemSave(updates,'☀️ จบกลางคืน — Host วางแมวดำใหม่เพื่อเริ่มรอบต่อไป',false);
-    },1500);
-  }
-
-  // non-host: ถ้า allDone และยัง render nightPhase body อยู่ → แสดง "กำลังรอ Host"
-  // (จะหายเองเมื่อ nightPhase=false sync มาถึง)
+  // Host: ถ้า allDone → ไม่ auto-end แล้ว รอ Host กด ปุ่ม "จบกลางคืน" แทน
+  // (auto-end เดิมทำให้หน้าค้างเพราะ render ซ้ำก่อน state sync)
 
   // Constable protect: Host ใส่ค้อนในรายชื่อ
   const constableProtectSection=S.isHost?`
@@ -3658,7 +3653,7 @@ function renderSalemNightPhase(body,me,data,players,turnOrder){
     <div style="background:rgba(30,20,60,0.85);border-bottom:1px solid rgba(155,89,182,0.3);padding:12px var(--pad);text-align:center">
       <div style="font-size:22px;margin-bottom:4px">🌙</div>
       <div style="font-size:15px;font-weight:900;color:#c39bd3">ช่วงรัตติกาล — สารภาพบาป</div>
-      <div style="font-size:12px;color:rgba(195,155,211,0.7);margin-top:2px">${allDone?'✅ ทุกคนตัดสินใจแล้ว — กำลังกลับสู่เกม...':'เรียงทีละคนตามลำดับเทิร์น'}</div>
+      <div style="font-size:12px;color:rgba(195,155,211,0.7);margin-top:2px">${allDone?'✅ ทุกคนตัดสินใจแล้ว':'เรียงทีละคนตามลำดับเทิร์น'}</div>
     </div>
     ${constableProtectSection}
     <div style="padding:var(--pad);display:flex;flex-direction:column;gap:8px;max-width:480px;margin:0 auto">
@@ -3672,6 +3667,12 @@ function renderSalemNightPhase(body,me,data,players,turnOrder){
           <div style="font-size:12px;color:var(--t2)">${done?(p.nightConfessed?'สารภาพ':'ไม่สารภาพ'):isCurrent?'กำลังตัดสินใจ...':''}</div>
         </div>`;
       }).join('')}
+      ${allDone&&!S.isHost?`
+        <div style="margin-top:0.5rem;text-align:center;font-size:13px;color:rgba(195,155,211,0.7)">กำลังรอ Host จบกลางคืน...</div>
+      `:''}
+      ${allDone&&S.isHost?`
+        <button class="btn btn-ac btn-full" style="height:52px;font-size:16px;font-weight:800;margin-top:0.5rem;background:linear-gradient(180deg,#c39bd3,#9b59b6)" onclick="salemHostEndNight()">☀️ จบกลางคืน — เริ่มกลางวัน</button>
+      `:''}
     </div>
   `;
 
@@ -3756,6 +3757,19 @@ function salemNightConfess(doConfess){
     syncSalemState(_salemState);
     showToast(doConfess?'🙏 สารภาพแล้ว':'🚫 ไม่สารภาพ');
   }
+}
+
+/* ── Host จบ Night Phase ── */
+function salemHostEndNight(){
+  if(!S.isHost||!_salemState)return;
+  const updates={nightPhase:false,blackCatHolder:null,constableProtect:null};
+  Object.values(_salemState.players||{}).forEach(p=>{
+    updates[`players/${p.id}/nightConfessed`]=null;
+    const newPassives=(p.passives||[]).filter(x=>x!=='blackcat');
+    if((p.passives||[]).includes('blackcat'))updates[`players/${p.id}/passives`]=newPassives;
+  });
+  updates.currentTurn=null;
+  salemSave(updates,'☀️ จบกลางคืน — Host วางแมวดำใหม่เพื่อเริ่มรอบต่อไป',false);
 }
 
 /* ── Constable protect ── */
@@ -4524,15 +4538,28 @@ function salemTriggerConspiracy(){
   const at=Date.now();
   const nonHostIds=S.players.filter(p=>!p.isHost).map(p=>p.id);
   const alivePlayers=((_salemState.turnOrder)||nonHostIds).map(id=>_salemState.players?.[id]).filter(p=>p&&p.isAlive!==false);
-  // reset picks
+  const eventData={by:S.myPlayerId,at,bcHolderId:bcHolder?.id||null,totalPlayers:alivePlayers.length};
   if(firebaseReady&&S.roomCode){
-    db.ref(`rooms/${S.roomCode}/salem/conspiracyPicks`).set(null);
-    db.ref(`rooms/${S.roomCode}/salem/conspiracyEvent`).set({by:S.myPlayerId,at,bcHolderId:bcHolder?.id||null,totalPlayers:alivePlayers.length});
+    // reset picks ก่อน แล้วค่อย set event (ต้องทำ atomic เพื่อไม่ให้ host trigger swap ก่อนกำหนด)
+    const batch={
+      'conspiracyPicks':null,
+      'conspiracyEvent':eventData,
+      'conspiracyDone':null,
+    };
+    db.ref(`rooms/${S.roomCode}/salem`).update(batch);
     if(bcHolder&&bcHolder.id!==S.myPlayerId){
       db.ref(`rooms/${S.roomCode}/salem/blackCatEvent`).set({holderId:bcHolder.id,at,fromConspiracy:true});
     }
+    // ไม่เรียก salemShowConspiracyPickEvent ที่นี่ — รอ Firebase sync มาแทน
+    // เพื่อให้มั่นใจว่า data.players ครบก่อน render UI
+  } else {
+    // offline mode
+    if(!_salemState.conspiracyEvent) {
+      _salemState.conspiracyEvent=eventData;
+      _salemState.conspiracyPicks=null;
+      syncSalemState(_salemState);
+    }
   }
-  salemShowConspiracyPickEvent({by:S.myPlayerId,at,bcHolderId:bcHolder?.id||null,totalPlayers:alivePlayers.length},_salemState);
 }
 
 function salemShowConspiracyPickEvent(ce,data){
@@ -4896,19 +4923,22 @@ function salemAdvanceTurn(){
   }
 
   const ci=aliveTurnOrder.indexOf(_salemState.currentTurn);
-  // คนต่อไปไปทาง "ซ้าย" ของแมวดำ = index ถัดไป (วนลูป)
+  // คนถัดไป = index+1 (วนลูป)
   let nextIdx=(ci+1)%aliveTurnOrder.length;
-  let tries=0;
-  while(_salemState.players?.[aliveTurnOrder[nextIdx]]?.skipTurn&&tries<aliveTurnOrder.length){
-    nextIdx=(nextIdx+1)%aliveTurnOrder.length;tries++;
+  // ถ้าคนถัดไปมี skipTurn → ข้ามไป 1 คน แล้ว clear skipTurn ของเขา (ข้ามแค่ครั้งเดียว)
+  const skippedId=_salemState.players?.[aliveTurnOrder[nextIdx]]?.skipTurn ? aliveTurnOrder[nextIdx] : null;
+  if(skippedId){
+    // ข้ามคนนี้ไป 1 เทิร์น แล้วหา nextIdx ถัดไป
+    nextIdx=(nextIdx+1)%aliveTurnOrder.length;
   }
   const nextId=aliveTurnOrder[nextIdx];
   const updates={currentTurn:nextId,advanceTurnRequest:null};
-  if(_salemState.players?.[nextId]?.skipTurn)updates[`players/${nextId}/skipTurn`]=false;
+  // clear skipTurn ของคนที่ถูกข้าม (ไม่ใช่คนที่กำลังจะเล่น)
+  if(skippedId) updates[`players/${skippedId}/skipTurn`]=false;
   // reset hasDrawn/hasActed สำหรับเทิร์นใหม่
   updates[`players/${nextId}/hasDrawn`]=false;
   updates[`players/${nextId}/hasActed`]=false;
-  salemSave(updates,'',false);
+  salemSave(updates,skippedId?'⛓️ '+(_salemState.players?.[skippedId]?.nick||skippedId)+' โดนข้ามเทิร์น':'',false);
 }
 
 /* ── Win/Death check ── */
