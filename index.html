@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!-- ════════════════════════════════════════════════════════════════
-     GAME HUB TENG  —  v11
+     GAME HUB TENG  —  v11.1
      ────────────────────────────────────────────────────────────
      AI HANDOFF NOTE (สำหรับ AI ที่รับงานต่อ):
-     - เวอร์ชันปัจจุบัน: v11
+     - เวอร์ชันปัจจุบัน: v11.1
      - เพิ่มเวอร์ชัน +0.1 ทุกครั้งที่แก้ไข (v11 → v11.1 → v11.2 ...)
      - อัปเดต label มุมบนซ้าย id="versionLabel" ด้วยทุกครั้ง
      ════════════════════════════════════════════════════════════════ -->
@@ -573,7 +573,7 @@ body::before{
 </style>
 </head>
 <body>
-<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v11</div>
+<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v11.1</div>
 
 <div class="toast" id="toast"></div>
 
@@ -659,7 +659,7 @@ MenuOverlay')">
       </div>
     </div>
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:1rem">
-      <input class="inp inp-center" id="joinCodeInput" placeholder="รหัสห้อง" maxlength="6" autocomplete="off" style="letter-spacing:0.12em;text-transform:uppercase;font-size:20px"/>
+      <input class="inp inp-center" id="joinCodeInput" placeholder="รหัสห้อง" maxlength="6" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" inputmode="text" style="letter-spacing:0.12em;text-transform:uppercase;font-size:20px"/>
       <button class="btn btn-ac btn-full" onclick="joinRoomFromModal()">เข้าร่วมห้อง</button>
     </div>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem">
@@ -1290,13 +1290,17 @@ function confirmRoomName(){
   showScreen('screen-nick');
 }
 function joinRoom(){
-  const i=$('joinCodeInput'),code=i?i.value.trim().toUpperCase():'';
+  const i=$('joinCodeInput');
+  // sanitize: เอาเฉพาะ A-Z 0-9, ตัดช่องว่างทุกทิศ, uppercase
+  const raw=i?i.value:'';
+  const code=raw.replace(/[^A-Za-z0-9]/g,'').toUpperCase().slice(0,6);
+  if(i)i.value=code;// อัปเดต input ให้ตรงกับค่าจริง
   if(code.length<4){showToast('ใส่รหัสห้องด้วยนะ');return}
   if(!firebaseReady){showToast('กำลังเชื่อมต่อ...');return}
-  // ตรวจสอบว่าห้องมีอยู่จริง
   showToast('กำลังค้นหาห้อง...',3000);
-  db.ref('rooms/'+code+'/players').once('value').then(snap=>{
-    if(!snap.exists()||snap.numChildren()===0){
+  // เช็คที่ rooms/${code} โดยตรง (ไม่ใช่ /players) เพื่อรองรับห้องที่ Host เพิ่งสร้างและยังไม่มี player
+  db.ref('rooms/'+code).once('value').then(snap=>{
+    if(!snap.exists()){
       showToast('❌ ไม่พบห้อง "'+code+'"');
       return;
     }
@@ -1304,9 +1308,12 @@ function joinRoom(){
     closeModal('modal-join');
     const lb=$('nickRoomLabel');if(lb)lb.textContent='ห้อง: '+code;
     const bb=$('nickBackBtn');if(bb)bb.setAttribute('onclick','openJoinModal(_joinModalGame||"ww")');
-    const ni=$('nickInput');if(ni)ni.value='';
+    const ni=$('nickInput');if(ni){ni.value='';setTimeout(()=>ni.focus(),300);}
     showScreen('screen-nick');
-  }).catch(()=>showToast('เชื่อมต่อไม่ได้ ลองใหม่'));
+  }).catch(err=>{
+    console.error('joinRoom error',err);
+    showToast('เชื่อมต่อไม่ได้ ลองใหม่');
+  });
 }
 function confirmNick(){
   const i=$('nickInput'),nick=i?i.value.trim():'';
@@ -4884,7 +4891,16 @@ document.addEventListener('DOMContentLoaded',()=>{
   },{passive:true});
 
   checkDeepLink();
-  $('joinCodeInput')?.addEventListener('keydown',e=>{if(e.key==='Enter')joinRoomFromModal()});
+  const jci=$('joinCodeInput');
+  if(jci){
+    jci.addEventListener('keydown',e=>{if(e.key==='Enter')joinRoomFromModal()});
+    // sanitize real-time: ลบ space และตัวพิเศษออก, force uppercase (สำหรับ iOS)
+    jci.addEventListener('input',()=>{
+      const pos=jci.selectionStart;
+      const cleaned=jci.value.replace(/[^A-Za-z0-9]/g,'').toUpperCase().slice(0,6);
+      if(jci.value!==cleaned){jci.value=cleaned;try{jci.setSelectionRange(pos,pos);}catch(e){}}
+    });
+  }
   $('roomNameInput')?.addEventListener('keydown',e=>{if(e.key==='Enter')confirmRoomName()});
   $('nickInput')?.addEventListener('keydown',e=>{if(e.key==='Enter')confirmNick()});
   $('wheelAddInput')?.addEventListener('keydown',e=>{if(e.key==='Enter')addWheelItem()});
