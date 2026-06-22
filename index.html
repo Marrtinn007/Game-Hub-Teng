@@ -1258,19 +1258,57 @@ function initFirebase(){
 }
 /* ══ SINGLE-DEVICE LOGIN GUARD ══════════════════════════════════
    เครื่อง/แท็บที่ login ล่าสุดของบัญชีเดียวกันจะ "ทับ" session เก่าเสมอ
-   เครื่องเก่าที่เห็น sid เปลี่ยนจะถูกบังคับออกจากระบบอัตโนมัติ           */
+   เครื่องเก่าที่เห็น sid เปลี่ยนจะถูกบังคับออกจากระบบอัตโนมัติ
+   ถ้าบัญชีเดิมกำลังอยู่ในห้องอยู่ (จากเครื่องเก่า) เครื่องใหม่จะถูกพาเข้าห้องนั้นต่อให้เลย */
 let _sessionRef=null;
 function startSessionGuard(uid){
   if(!db||!uid)return;
   stopSessionGuard();
   const ref=db.ref('userSessions/'+uid);
-  // เขียนทับเป็นของเครื่องนี้ทันที — เครื่องล่าสุดชนะเสมอ
-  ref.set({sid:S.sessionId,ts:Date.now()}).catch(()=>{});
-  _sessionRef=ref;
-  ref.on('value',snap=>{
-    const v=snap.val();
-    if(v&&v.sid&&v.sid!==S.sessionId)forceKickedBySameAccount();
+  ref.once('value').then(snap=>{
+    const old=snap.val();
+    // เขียนทับเป็นของเครื่องนี้ทันที — เครื่องล่าสุดชนะเสมอ (เคลียร์ room pointer ไปก่อน รอ join สำเร็จแล้วค่อยเซ็ตใหม่)
+    ref.set({sid:S.sessionId,ts:Date.now()}).catch(()=>{});
+    _sessionRef=ref;
+    ref.on('value',snap2=>{
+      const v=snap2.val();
+      if(v&&v.sid&&v.sid!==S.sessionId)forceKickedBySameAccount();
+    });
+    // ถ้าบัญชีนี้กำลังอยู่ในห้องอยู่ก่อนแล้ว (จากเครื่อง/แท็บอื่น) ให้สวมรอยเข้าห้องนั้นทันที
+    if(old&&old.roomCode&&!S.roomCode){
+      _resumeRoomFromOtherDevice(old.roomCode,!!old.isHost);
+    }
+  }).catch(()=>{
+    ref.set({sid:S.sessionId,ts:Date.now()}).catch(()=>{});
+    _sessionRef=ref;
+    ref.on('value',snap2=>{
+      const v=snap2.val();
+      if(v&&v.sid&&v.sid!==S.sessionId)forceKickedBySameAccount();
+    });
   });
+}
+function _resumeRoomFromOtherDevice(roomCode,isHost){
+  if(!db||!roomCode)return;
+  db.ref('rooms/'+roomCode).once('value').then(snap=>{
+    if(!snap.exists())return; // ห้องถูกยุบไปแล้ว ไม่ต้องทำอะไร
+    const v=snap.val();
+    S.roomCode=roomCode;
+    S.isHost=isHost;
+    S.roomName=v?.roomName||S.roomName||'';
+    S.nickname=S.nickname||currentUser?.displayName?.split(' ')[0]||'ผู้เล่น';
+    showToast('📲 ดึงห้องเดิมมาที่อุปกรณ์นี้แล้ว');
+    enterLobby();
+  }).catch(()=>{});
+}
+function _syncSessionRoomPointer(){
+  const uid=currentUser?.uid;
+  if(!db||!uid)return;
+  db.ref('userSessions/'+uid).update({sid:S.sessionId,ts:Date.now(),roomCode:S.roomCode||null,playerId:S.myPlayerId||null,isHost:!!S.isHost}).catch(()=>{});
+}
+function _clearSessionRoomPointer(){
+  const uid=currentUser?.uid;
+  if(!db||!uid)return;
+  db.ref('userSessions/'+uid).update({roomCode:null,playerId:null,isHost:false}).catch(()=>{});
 }
 function stopSessionGuard(){
   if(_sessionRef){_sessionRef.off();_sessionRef=null;}
