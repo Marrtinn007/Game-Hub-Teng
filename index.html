@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!-- ════════════════════════════════════════════════════════════════
-     GAME HUB TENG  —  v12.6
+     GAME HUB TENG  — v12.5
      ────────────────────────────────────────────────────────────
      AI HANDOFF NOTE (สำหรับ AI ที่รับงานต่อ):
-     - เวอร์ชันปัจจุบัน: v12.6
+     - เวอร์ชันปัจจุบัน: v12.5
      - เพิ่มเวอร์ชัน +0.1 ทุกครั้งที่แก้ไข (v11 → v11.1 → v11.2 ...)
      - อัปเดต label มุมบนซ้าย id="versionLabel" ด้วยทุกครั้ง
      ════════════════════════════════════════════════════════════════ -->
@@ -624,7 +624,7 @@ body::before{
 </style>
 </head>
 <body>
-<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v12.6</div>
+<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v12.7</div>
 
 <div class="toast" id="toast"></div>
 
@@ -1620,24 +1620,30 @@ function enterLobby(){
   // ถ้ามี uid ให้ลบ node เก่าของตัวเองก่อน (กรณีเข้าซ้ำ) — และรับช่วงสิทธิ์หัวห้องต่อถ้าของเดิมเป็นหัวห้อง
   if(myUid){
     db.ref(`rooms/${S.roomCode}/players`).once('value').then(snap=>{
+      const stripUpdates={};
       const delUpdates={};
       let inheritedHost=false;
       snap.forEach(c=>{
         const d=c.val();
         if(d.uid===myUid&&c.key!==S.myPlayerId){
           if(d.isHost)inheritedHost=true;
+          // step1: ถอด isHost+online ออกก่อนทันที ป้องกัน auto-promote ยิงระหว่าง transition
+          stripUpdates[`rooms/${S.roomCode}/players/${c.key}/isHost`]=false;
+          stripUpdates[`rooms/${S.roomCode}/players/${c.key}/online`]=false;
+          // step2: ลบ node ทิ้งทีหลัง
           delUpdates[`rooms/${S.roomCode}/players/${c.key}`]=null;
           delUpdates[`rooms/${S.roomCode}/kicked/${c.key}`]=null;
         }
       });
-      // เครื่อง/แท็บล่าสุดที่เข้ามาแทนที่ ควรได้สิทธิ์หัวห้องเหมือนของเดิมเสมอ
       if(inheritedHost)S.isHost=true;
-      // รอลบ node เก่าให้เสร็จก่อน แล้วค่อย doJoin()
-      // ป้องกัน race condition ที่ทำให้มี isHost:true 2 node พร้อมกัน
-      const doDelete=Object.keys(delUpdates).length
-        ?db.ref().update(delUpdates)
+      const doStrip=Object.keys(stripUpdates).length
+        ?db.ref().update(stripUpdates)
         :Promise.resolve();
-      doDelete.then(()=>doJoin()).catch(()=>doJoin());
+      // รอถอด isHost เก่าก่อน → doJoin เพิ่ม node ใหม่ → ลบ node เก่าทิ้ง
+      doStrip.then(()=>{
+        doJoin();
+        if(Object.keys(delUpdates).length)db.ref().update(delUpdates).catch(()=>{});
+      }).catch(()=>doJoin());
     }).catch(()=>doJoin());
   } else {
     doJoin();
@@ -1730,15 +1736,13 @@ function enterLobby(){
     // ── Auto-promote: ถ้าไม่มี Host เลยในห้อง ให้คนที่ joinedAt เก่าสุดรับตำแหน่ง ──
     // ใช้เฉพาะ online players เพื่อไม่โปรโมทคนที่ออกไปแล้ว
     const onlinePlayers=S.players.filter(p=>p.online!==false);
-    const hasHost=onlinePlayers.some(p=>p.isHost);
+    const hasHost=S.players.some(p=>p.isHost);// เช็ค isHost จากทุก player ไม่ใช่แค่ online
     if(!hasHost&&onlinePlayers.length>0&&firebaseReady&&S.roomCode){
-      // ถ้า host เดิม (offline) มี uid เดียวกับคนที่กำลัง rejoin อยู่ในห้องนี้
-      // (คือเครื่องใหม่กำลังจะเข้ามาแทนที่) → รอก่อน ไม่ promote ใคร
+      // ถ้ายังมี node ที่ isHost:false แต่มี uid เดียวกับ currentUser อยู่
+      // แสดงว่าเครื่องใหม่กำลัง strip+rejoin อยู่ — รอก่อน ไม่ promote ใคร
       const myUid=currentUser?.uid||null;
-      const offlineHostExistsWithMyUid=myUid&&S.players.some(p=>p.online===false&&p.isHost&&p.uid===myUid);
-      if(offlineHostExistsWithMyUid){
-        // เครื่องใหม่กำลัง rejoin อยู่ — รอ node เก่าถูกลบแล้วค่อย promote เอง
-      } else {
+      const rejoiningHostExists=myUid&&S.players.some(p=>p.uid===myUid&&p.id!==S.myPlayerId);
+      if(!rejoiningHostExists){
         // เรียงตาม joinedAt — คนเก่าสุดได้เป็น Host
         const oldest=onlinePlayers.slice().sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0))[0];
         // ให้แค่คนที่จะได้เป็น Host เป็นคนเขียน — ป้องกัน race condition
