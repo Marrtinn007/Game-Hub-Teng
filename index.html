@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!-- ════════════════════════════════════════════════════════════════
-     GAME HUB TENG  —  v11.5
+     GAME HUB TENG  —  v11.6
      ────────────────────────────────────────────────────────────
      AI HANDOFF NOTE (สำหรับ AI ที่รับงานต่อ):
-     - เวอร์ชันปัจจุบัน: v11.5
+     - เวอร์ชันปัจจุบัน: v11.6
      - เพิ่มเวอร์ชัน +0.1 ทุกครั้งที่แก้ไข (v11 → v11.1 → v11.2 ...)
      - อัปเดต label มุมบนซ้าย id="versionLabel" ด้วยทุกครั้ง
      ════════════════════════════════════════════════════════════════ -->
@@ -624,7 +624,7 @@ body::before{
 </style>
 </head>
 <body>
-<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v11.5</div>
+<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v11.6</div>
 
 <div class="toast" id="toast"></div>
 
@@ -1240,6 +1240,8 @@ function initFirebase(){
         const cur=document.querySelector('.screen.active');
         if(!cur||cur.id==='screen-login')showScreen('screen-home');
         checkDeepLink();
+        // หลังล็อคอินใหม่ (เช่น เปิดเครื่องใหม่) ให้ตรวจว่าบัญชีนี้ยังอยู่ในห้องไหนอยู่ไหม
+        if(firebaseReady&&!new URLSearchParams(location.search).get('room'))checkRejoinRoom(user.uid);
       } else {
         stopSessionGuard();
         document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -1266,16 +1268,16 @@ function startSessionGuard(uid){
   stopSessionGuard();
   _sessionGuardActive=true;
   const ref=db.ref('userSessions/'+uid);
-  // เขียนทับ sid ก่อน รอ Firebase confirm แล้วค่อย listen
-  // ป้องกัน race condition ที่เครื่องใหม่เตะตัวเอง
-  ref.set({sid:S.sessionId,ts:Date.now()}).then(()=>{
-    if(!_sessionGuardActive)return;
-    _sessionRef=ref;
-    ref.on('value',snap=>{
-      const v=snap.val();
-      if(v&&v.sid&&v.sid!==S.sessionId)forceKickedBySameAccount();
-    });
-  }).catch(()=>{});
+  _sessionRef=ref;
+  // ฟังก่อน แล้วเขียนทับ — ข้าม snapshot แรก (ของตัวเอง) ด้วย flag
+  let _firstSnap=true;
+  ref.on('value',snap=>{
+    if(_firstSnap){_firstSnap=false;return;} // snapshot แรกคือของเราเอง ข้ามไป
+    const v=snap.val();
+    if(v&&v.sid&&v.sid!==S.sessionId)forceKickedBySameAccount();
+  });
+  // เขียนทับ — เครื่องล่าสุดชนะเสมอ → เครื่องเก่าจะเห็น sid เปลี่ยนและโดนเตะ
+  ref.set({sid:S.sessionId,ts:Date.now()}).catch(()=>{});
 }
 function stopSessionGuard(){
   _sessionGuardActive=false;
@@ -1297,6 +1299,43 @@ function forceKickedBySameAccount(){
     auth&&auth.signOut();
   },700);
 }
+/* ══ AUTO-REJOIN: เครื่องใหม่เข้ามาแทนที่ในห้องเดิม ══════════════
+   สแกนหา room ที่ uid นี้อยู่ ถ้าเจอ → เข้าล็อบบี้อัตโนมัติ
+   (ไม่ต้องกรอก nick ใหม่ เพราะใช้ชื่อเดิมจาก Firebase)           */
+function checkRejoinRoom(uid){
+  if(!db||!uid||!firebaseReady)return;
+  // รอ session guard เขียนก่อน 800ms จึงค่อยสแกน
+  setTimeout(()=>{
+    db.ref('rooms').once('value').then(snap=>{
+      if(!snap.exists())return;
+      let foundRoom=null,foundPlayer=null;
+      snap.forEach(roomSnap=>{
+        if(foundRoom)return;
+        const players=roomSnap.child('players');
+        players.forEach(pSnap=>{
+          const d=pSnap.val();
+          if(d&&d.uid===uid){
+            foundRoom=roomSnap.key;
+            foundPlayer={key:pSnap.key,...d};
+          }
+        });
+      });
+      if(!foundRoom||!foundPlayer)return;
+      // เจอห้อง — rejoin โดยไม่ต้องกรอก nick
+      const cur=document.querySelector('.screen.active');
+      // ถ้าอยู่ในหน้า lobby/game อยู่แล้ว ไม่ต้อง rejoin ซ้ำ
+      if(cur&&!['screen-home','screen-login'].includes(cur.id))return;
+      S.pendingRoomCode=foundRoom;
+      S.roomCode=foundRoom;
+      S.nickname=foundPlayer.name||currentUser?.displayName?.split(' ')[0]||'ผู้เล่น';
+      S.isHost=!!foundPlayer.isHost;
+      S.roomName=null; // จะโหลดจาก Firebase
+      showToast('🔄 กลับเข้าห้องเดิม...',2500);
+      enterLobby();
+    }).catch(()=>{});
+  },800);
+}
+
 function signInWithGoogle(){
   if(!auth){showToast('กำลังเชื่อมต่อ...');return;}
   const provider=new firebase.auth.GoogleAuthProvider();
