@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!-- ════════════════════════════════════════════════════════════════
-     GAME HUB TENG  —  v12.1
+     GAME HUB TENG  —  v12.3
      ────────────────────────────────────────────────────────────
      AI HANDOFF NOTE (สำหรับ AI ที่รับงานต่อ):
-     - เวอร์ชันปัจจุบัน: v12.1
+     - เวอร์ชันปัจจุบัน: v12.3
      - เพิ่มเวอร์ชัน +0.1 ทุกครั้งที่แก้ไข (v11 → v11.1 → v11.2 ...)
      - อัปเดต label มุมบนซ้าย id="versionLabel" ด้วยทุกครั้ง
      ════════════════════════════════════════════════════════════════ -->
@@ -624,7 +624,7 @@ body::before{
 </style>
 </head>
 <body>
-<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v12.1</div>
+<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v12.3</div>
 
 <div class="toast" id="toast"></div>
 
@@ -1290,7 +1290,11 @@ function forceKickedBySameAccount(){
       db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}`).remove();
     }
   }catch(e){}
-  S.roomCode=null;S.myPlayerId=null;S.selectedGame=null;S.players=[];
+  // ปิด listeners ทั้งหมดก่อน — ไม่งั้น gameRef ยังยิง event แม้จะ signOut แล้ว
+  [roomRef,gameRef,wwRef].forEach(r=>r?.off());
+  roomRef=gameRef=wwRef=null;
+  db.ref('.info/connected').off();
+  Object.assign(S,{roomCode:null,myPlayerId:null,selectedGame:null,players:[],roomName:null,isHost:false,nickname:null});
   // แสดง popup — รอให้กด ตกลง ก่อนค่อย signOut
   $('sessionKickedOverlay')?.classList.add('show');
 }
@@ -1307,47 +1311,35 @@ function checkRejoinRoom(uid){
   if(!currentUser||currentUser.uid!==uid)return;
   const ov=$('connectingOverlay');
   const rn=$('connectingRoomName');
-  const _done=(found)=>{
-    if(!found){
-      _rejoinInProgress=false;
-      if(ov)ov.style.display='none';
-    }
-    // ถ้าเจอห้อง → enterLobby → showScreen('screen-lobby') จะ clear เอง
-  };
-  // scan ก่อน แล้วค่อยแสดง overlay เมื่อเจอห้องจริงๆ
-  db.ref('rooms').once('value').then(snap=>{
-    if(!snap.exists()){_done(false);return;}
-    if(!currentUser||currentUser.uid!==uid){_done(false);return;}
-    let foundRoom=null,foundPlayer=null;
-    snap.forEach(roomSnap=>{
-      if(foundRoom)return;
-      const players=roomSnap.child('players');
-      players.forEach(pSnap=>{
-        const d=pSnap.val();
-        if(d&&d.uid===uid){
-          foundRoom=roomSnap.key;
-          foundPlayer={key:pSnap.key,...d};
-        }
-      });
-    });
-    if(!foundRoom||!foundPlayer){_done(false);return;}
-    const cur=document.querySelector('.screen.active');
-    if(cur&&!['screen-home','screen-login'].includes(cur.id)){_done(false);return;}
-    // เจอห้อง — แสดง overlay แล้ว lock ไม่ให้ showScreen ซ่อน
-    _rejoinInProgress=true;
-    if(ov)ov.style.display='flex';
-    if(rn){
-      db.ref('rooms/'+foundRoom+'/roomName').once('value').then(ns=>{
-        rn.textContent='ห้อง: '+(ns.val()||foundRoom);
-      });
-    }
-    S.pendingRoomCode=foundRoom;
-    S.roomCode=foundRoom;
-    S.nickname=foundPlayer.name||currentUser?.displayName?.split(' ')[0]||'ผู้เล่น';
-    S.isHost=!!foundPlayer.isHost;
-    S.roomName=null;
-    enterLobby();
-  }).catch(()=>{_done(false);});
+  const _fail=()=>{_rejoinInProgress=false;if(ov)ov.style.display='none';};
+  // อ่าน activeRoom จาก userSessions โดยตรง — เร็วและไม่ต้องสแกนทั้ง rooms
+  db.ref('userSessions/'+uid).once('value').then(snap=>{
+    const sess=snap.val();
+    if(!sess||!sess.activeRoom){_fail();return;}
+    if(!currentUser||currentUser.uid!==uid){_fail();return;}
+    const roomCode=sess.activeRoom;
+    // ตรวจว่าห้องยังมีอยู่จริง
+    db.ref('rooms/'+roomCode).once('value').then(roomSnap=>{
+      if(!roomSnap.exists()){
+        // ห้องหายแล้ว ลบ activeRoom ทิ้ง
+        db.ref('userSessions/'+uid+'/activeRoom').remove().catch(()=>{});
+        _fail();return;
+      }
+      const cur=document.querySelector('.screen.active');
+      if(cur&&!['screen-home','screen-login'].includes(cur.id)){_fail();return;}
+      // แสดง overlay ทันที
+      _rejoinInProgress=true;
+      if(ov)ov.style.display='flex';
+      const roomName=roomSnap.child('roomName').val()||roomCode;
+      if(rn)rn.textContent='ห้อง: '+roomName;
+      S.pendingRoomCode=roomCode;
+      S.roomCode=roomCode;
+      S.nickname=sess.activeNick||currentUser?.displayName?.split(' ')[0]||'ผู้เล่น';
+      S.isHost=!!sess.activeIsHost;
+      S.roomName=roomName;
+      enterLobby();
+    }).catch(_fail);
+  }).catch(_fail);
 }
 
 function signInWithGoogle(){
@@ -1617,6 +1609,15 @@ function enterLobby(){
     const playerData={name:S.nickname,isHost:S.isHost,joinedAt:Date.now(),online:true,photo:currentUser?.photoURL||'',uid:myUid||''};
     playerRef.set(playerData);
     db.ref(`rooms/${S.roomCode}/kicked/${playerKey}`).remove();
+    // บันทึก activeRoom ไว้ใน userSessions เพื่อใช้ rejoin ครั้งหน้า
+    if(currentUser?.uid){
+      db.ref('userSessions/'+currentUser.uid).update({
+        activeRoom:S.roomCode,
+        activeNick:S.nickname,
+        activeIsHost:S.isHost||false,
+        activePlayerId:playerKey
+      }).catch(()=>{});
+    }
     setupLobbyListeners(playerRef);
   };
   // ถ้ามี uid ให้ลบ node เก่าของตัวเองก่อน (กรณีเข้าซ้ำ) — และรับช่วงสิทธิ์หัวห้องต่อถ้าของเดิมเป็นหัวห้อง
@@ -1696,6 +1697,7 @@ function enterLobby(){
         [roomRef,gameRef,wwRef].forEach(r=>r?.off());
         roomRef=gameRef=wwRef=null;
         Object.assign(S,{roomCode:null,roomName:null,nickname:null,players:[],selectedGame:null,myPlayerId:null,isHost:false});
+        if(currentUser?.uid)db.ref('userSessions/'+currentUser.uid+'/activeRoom').remove().catch(()=>{});
         showToast('คุณถูกเตะออกจากห้อง',3500);
         showScreen('screen-home');
       });
@@ -1790,19 +1792,24 @@ function enterLobby(){
 }
 function renderPlayers(){
   const list=$('playersList'),cnt=$('playerCount');if(!list)return;
-  // กรองเฉพาะคนที่ online หรือ Host (ไม่แสดงคน offline ที่ค้างใน db)
-  const visiblePlayers=S.players.filter(p=>p&&p.name); // แสดงทุกคน ไม่ filter online
-  if(cnt)cnt.textContent=visiblePlayers.length;
-  list.innerHTML=visiblePlayers.map((p,i)=>{
-    const canKick=S.isHost&&!p.isHost;
+  let players=S.players.filter(p=>p&&p.name);
+  // Host อยู่บนสุดเสมอ
+  players.sort((a,b)=>(b.isHost?1:0)-(a.isHost?1:0));
+  if(cnt)cnt.textContent=players.length;
+  list.innerHTML=players.map((p,i)=>{
+    const isMe=p.id===S.myPlayerId;
+    const canKick=S.isHost&&!p.isHost&&!isMe;
+    const isOffline=p.online===false;
     const avatarHTML=p.photo
       ?`<img src="${esc(p.photo)}" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid ${COLORS[i%COLORS.length]}44" />`
       :`<div class="p-avatar" style="background:${COLORS[i%COLORS.length]}28;color:${COLORS[i%COLORS.length]}">${esc(p.name.charAt(0).toUpperCase())}</div>`;
-    const isOffline=p.online===false;
+    // badge แถวเดียวกัน: ผู้ดำเนินการเกม | คุณ
+    const hostBadge=p.isHost?'<div class="p-badge">ผู้ดำเนินการเกม</div>':'';
+    const meBadge=isMe?'<div class="p-badge" style="background:rgba(124,156,255,0.15);color:var(--ac)">คุณ</div>':'';
     return `<div class="player-row" style="${isOffline?'opacity:0.45':''}">
       ${avatarHTML}
-      <div class="p-name">${esc(p.name)}${isOffline?' <span style="font-size:11px;color:var(--t2)">(ออกไปชั่วคราว)</span>':''}</div>
-      ${p.isHost?'<div class="p-badge">ผู้ดำเนินการเกม</div>':''}
+      <div class="p-name" style="flex:1;min-width:0">${esc(p.name)}${isOffline?' <span style="font-size:11px;color:var(--t2)">(ออกไปชั่วคราว)</span>':''}</div>
+      ${hostBadge}${meBadge}
       ${canKick?`<button class="kick-btn" onclick="openKickConfirm('${esc(p.id)}','${esc(p.name)}')" title="เตะออก">✕</button>`:''}
     </div>`;
   }).join('');
@@ -1880,6 +1887,7 @@ function leaveRoom(){
     }
     [roomRef,gameRef,wwRef].forEach(r=>r?.off());
     roomRef=gameRef=wwRef=null;
+    if(currentUser?.uid)db.ref('userSessions/'+currentUser.uid+'/activeRoom').remove().catch(()=>{});
     Object.assign(S,{roomCode:null,roomName:null,nickname:null,players:[],selectedGame:null,myPlayerId:null,isHost:false});
     showScreen('screen-home');
   };
