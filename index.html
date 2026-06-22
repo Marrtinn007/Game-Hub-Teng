@@ -1260,19 +1260,25 @@ function initFirebase(){
    เครื่อง/แท็บที่ login ล่าสุดของบัญชีเดียวกันจะ "ทับ" session เก่าเสมอ
    เครื่องเก่าที่เห็น sid เปลี่ยนจะถูกบังคับออกจากระบบอัตโนมัติ           */
 let _sessionRef=null;
+let _sessionGuardActive=false;
 function startSessionGuard(uid){
   if(!db||!uid)return;
   stopSessionGuard();
+  _sessionGuardActive=true;
   const ref=db.ref('userSessions/'+uid);
-  // เขียนทับเป็นของเครื่องนี้ทันที — เครื่องล่าสุดชนะเสมอ
-  ref.set({sid:S.sessionId,ts:Date.now()}).catch(()=>{});
-  _sessionRef=ref;
-  ref.on('value',snap=>{
-    const v=snap.val();
-    if(v&&v.sid&&v.sid!==S.sessionId)forceKickedBySameAccount();
-  });
+  // เขียนทับ sid ก่อน รอ Firebase confirm แล้วค่อย listen
+  // ป้องกัน race condition ที่เครื่องใหม่เตะตัวเอง
+  ref.set({sid:S.sessionId,ts:Date.now()}).then(()=>{
+    if(!_sessionGuardActive)return;
+    _sessionRef=ref;
+    ref.on('value',snap=>{
+      const v=snap.val();
+      if(v&&v.sid&&v.sid!==S.sessionId)forceKickedBySameAccount();
+    });
+  }).catch(()=>{});
 }
 function stopSessionGuard(){
+  _sessionGuardActive=false;
   if(_sessionRef){_sessionRef.off();_sessionRef=null;}
 }
 function forceKickedBySameAccount(){
