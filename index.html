@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!-- ════════════════════════════════════════════════════════════════
-     GAME HUB TENG  —  v11.6
+     GAME HUB TENG  —  v11.7
      ────────────────────────────────────────────────────────────
      AI HANDOFF NOTE (สำหรับ AI ที่รับงานต่อ):
-     - เวอร์ชันปัจจุบัน: v11.6
+     - เวอร์ชันปัจจุบัน: v11.7
      - เพิ่มเวอร์ชัน +0.1 ทุกครั้งที่แก้ไข (v11 → v11.1 → v11.2 ...)
      - อัปเดต label มุมบนซ้าย id="versionLabel" ด้วยทุกครั้ง
      ════════════════════════════════════════════════════════════════ -->
@@ -624,7 +624,7 @@ body::before{
 </style>
 </head>
 <body>
-<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v11.6</div>
+<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v11.7</div>
 
 <div class="toast" id="toast"></div>
 
@@ -1291,23 +1291,23 @@ function forceKickedBySameAccount(){
     }
   }catch(e){}
   S.roomCode=null;S.myPlayerId=null;S.selectedGame=null;S.players=[];
-  showToast('บัญชีนี้ถูกเข้าสู่ระบบจากอุปกรณ์อื่น — ออกจากระบบที่นี่แล้ว',5000);
-  setTimeout(()=>{
-    // ซ่อนทุกหน้าก่อน แล้วแสดงหน้า login ทันที
-    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-    $('screen-login')?.classList.add('active');
-    auth&&auth.signOut();
-  },700);
+  // แสดง toast ขณะยังอยู่หน้าเดิม แล้วรอ 1.8s ให้อ่านได้ก่อนค่อย signOut
+  // onAuthStateChanged จะ redirect ไป screen-login เอง
+  showToast('📱 มีการเข้าสู่ระบบจากอุปกรณ์อื่น',3000);
+  setTimeout(()=>{ auth&&auth.signOut(); },1800);
 }
 /* ══ AUTO-REJOIN: เครื่องใหม่เข้ามาแทนที่ในห้องเดิม ══════════════
    สแกนหา room ที่ uid นี้อยู่ ถ้าเจอ → เข้าล็อบบี้อัตโนมัติ
    (ไม่ต้องกรอก nick ใหม่ เพราะใช้ชื่อเดิมจาก Firebase)           */
 function checkRejoinRoom(uid){
   if(!db||!uid||!firebaseReady)return;
-  // รอ session guard เขียนก่อน 800ms จึงค่อยสแกน
+  // รอ 2.5s — ให้เครื่องเก่า signOut และลบตัวเองออกจากห้องก่อน
+  // แล้วค่อยสแกน room ที่ uid นี้ยังอยู่
   setTimeout(()=>{
+    if(!currentUser||currentUser.uid!==uid)return; // ถูก signOut ไปก่อนแล้ว
     db.ref('rooms').once('value').then(snap=>{
       if(!snap.exists())return;
+      if(!currentUser||currentUser.uid!==uid)return;
       let foundRoom=null,foundPlayer=null;
       snap.forEach(roomSnap=>{
         if(foundRoom)return;
@@ -1321,19 +1321,17 @@ function checkRejoinRoom(uid){
         });
       });
       if(!foundRoom||!foundPlayer)return;
-      // เจอห้อง — rejoin โดยไม่ต้องกรอก nick
       const cur=document.querySelector('.screen.active');
-      // ถ้าอยู่ในหน้า lobby/game อยู่แล้ว ไม่ต้อง rejoin ซ้ำ
       if(cur&&!['screen-home','screen-login'].includes(cur.id))return;
       S.pendingRoomCode=foundRoom;
       S.roomCode=foundRoom;
       S.nickname=foundPlayer.name||currentUser?.displayName?.split(' ')[0]||'ผู้เล่น';
       S.isHost=!!foundPlayer.isHost;
-      S.roomName=null; // จะโหลดจาก Firebase
+      S.roomName=null;
       showToast('🔄 กลับเข้าห้องเดิม...',2500);
       enterLobby();
     }).catch(()=>{});
-  },800);
+  },2500);
 }
 
 function signInWithGoogle(){
