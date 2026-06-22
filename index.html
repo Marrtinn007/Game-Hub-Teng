@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!-- ════════════════════════════════════════════════════════════════
-     GAME HUB TENG  —  v11.4
+     GAME HUB TENG  —  v11.5
      ────────────────────────────────────────────────────────────
      AI HANDOFF NOTE (สำหรับ AI ที่รับงานต่อ):
-     - เวอร์ชันปัจจุบัน: v11.4
+     - เวอร์ชันปัจจุบัน: v11.5
      - เพิ่มเวอร์ชัน +0.1 ทุกครั้งที่แก้ไข (v11 → v11.1 → v11.2 ...)
      - อัปเดต label มุมบนซ้าย id="versionLabel" ด้วยทุกครั้ง
      ════════════════════════════════════════════════════════════════ -->
@@ -624,7 +624,7 @@ body::before{
 </style>
 </head>
 <body>
-<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v11.4</div>
+<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v11.5</div>
 
 <div class="toast" id="toast"></div>
 
@@ -1258,57 +1258,19 @@ function initFirebase(){
 }
 /* ══ SINGLE-DEVICE LOGIN GUARD ══════════════════════════════════
    เครื่อง/แท็บที่ login ล่าสุดของบัญชีเดียวกันจะ "ทับ" session เก่าเสมอ
-   เครื่องเก่าที่เห็น sid เปลี่ยนจะถูกบังคับออกจากระบบอัตโนมัติ
-   ถ้าบัญชีเดิมกำลังอยู่ในห้องอยู่ (จากเครื่องเก่า) เครื่องใหม่จะถูกพาเข้าห้องนั้นต่อให้เลย */
+   เครื่องเก่าที่เห็น sid เปลี่ยนจะถูกบังคับออกจากระบบอัตโนมัติ           */
 let _sessionRef=null;
 function startSessionGuard(uid){
   if(!db||!uid)return;
   stopSessionGuard();
   const ref=db.ref('userSessions/'+uid);
-  ref.once('value').then(snap=>{
-    const old=snap.val();
-    // เขียนทับเป็นของเครื่องนี้ทันที — เครื่องล่าสุดชนะเสมอ (เคลียร์ room pointer ไปก่อน รอ join สำเร็จแล้วค่อยเซ็ตใหม่)
-    ref.set({sid:S.sessionId,ts:Date.now()}).catch(()=>{});
-    _sessionRef=ref;
-    ref.on('value',snap2=>{
-      const v=snap2.val();
-      if(v&&v.sid&&v.sid!==S.sessionId)forceKickedBySameAccount();
-    });
-    // ถ้าบัญชีนี้กำลังอยู่ในห้องอยู่ก่อนแล้ว (จากเครื่อง/แท็บอื่น) ให้สวมรอยเข้าห้องนั้นทันที
-    if(old&&old.roomCode&&!S.roomCode){
-      _resumeRoomFromOtherDevice(old.roomCode,!!old.isHost);
-    }
-  }).catch(()=>{
-    ref.set({sid:S.sessionId,ts:Date.now()}).catch(()=>{});
-    _sessionRef=ref;
-    ref.on('value',snap2=>{
-      const v=snap2.val();
-      if(v&&v.sid&&v.sid!==S.sessionId)forceKickedBySameAccount();
-    });
-  });
-}
-function _resumeRoomFromOtherDevice(roomCode,isHost){
-  if(!db||!roomCode)return;
-  db.ref('rooms/'+roomCode).once('value').then(snap=>{
-    if(!snap.exists())return; // ห้องถูกยุบไปแล้ว ไม่ต้องทำอะไร
+  // เขียนทับเป็นของเครื่องนี้ทันที — เครื่องล่าสุดชนะเสมอ
+  ref.set({sid:S.sessionId,ts:Date.now()}).catch(()=>{});
+  _sessionRef=ref;
+  ref.on('value',snap=>{
     const v=snap.val();
-    S.roomCode=roomCode;
-    S.isHost=isHost;
-    S.roomName=v?.roomName||S.roomName||'';
-    S.nickname=S.nickname||currentUser?.displayName?.split(' ')[0]||'ผู้เล่น';
-    showToast('📲 ดึงห้องเดิมมาที่อุปกรณ์นี้แล้ว');
-    enterLobby();
-  }).catch(()=>{});
-}
-function _syncSessionRoomPointer(){
-  const uid=currentUser?.uid;
-  if(!db||!uid)return;
-  db.ref('userSessions/'+uid).update({sid:S.sessionId,ts:Date.now(),roomCode:S.roomCode||null,playerId:S.myPlayerId||null,isHost:!!S.isHost}).catch(()=>{});
-}
-function _clearSessionRoomPointer(){
-  const uid=currentUser?.uid;
-  if(!db||!uid)return;
-  db.ref('userSessions/'+uid).update({roomCode:null,playerId:null,isHost:false}).catch(()=>{});
+    if(v&&v.sid&&v.sid!==S.sessionId)forceKickedBySameAccount();
+  });
 }
 function stopSessionGuard(){
   if(_sessionRef){_sessionRef.off();_sessionRef=null;}
@@ -1320,8 +1282,14 @@ function forceKickedBySameAccount(){
       db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}`).remove();
     }
   }catch(e){}
+  S.roomCode=null;S.myPlayerId=null;S.selectedGame=null;S.players=[];
   showToast('บัญชีนี้ถูกเข้าสู่ระบบจากอุปกรณ์อื่น — ออกจากระบบที่นี่แล้ว',5000);
-  setTimeout(()=>{auth&&auth.signOut();},700);
+  setTimeout(()=>{
+    // ซ่อนทุกหน้าก่อน แล้วแสดงหน้า login ทันที
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    $('screen-login')?.classList.add('active');
+    auth&&auth.signOut();
+  },700);
 }
 function signInWithGoogle(){
   if(!auth){showToast('กำลังเชื่อมต่อ...');return;}
