@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!-- ════════════════════════════════════════════════════════════════
-     GAME HUB TENG  —  v12.4
+     GAME HUB TENG  —  v12.5
      ────────────────────────────────────────────────────────────
      AI HANDOFF NOTE (สำหรับ AI ที่รับงานต่อ):
-     - เวอร์ชันปัจจุบัน: v12.4
+     - เวอร์ชันปัจจุบัน: v12.5
      - เพิ่มเวอร์ชัน +0.1 ทุกครั้งที่แก้ไข (v11 → v11.1 → v11.2 ...)
      - อัปเดต label มุมบนซ้าย id="versionLabel" ด้วยทุกครั้ง
      ════════════════════════════════════════════════════════════════ -->
@@ -624,7 +624,7 @@ body::before{
 </style>
 </head>
 <body>
-<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v12.4</div>
+<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v12.5</div>
 
 <div class="toast" id="toast"></div>
 
@@ -1728,14 +1728,22 @@ function enterLobby(){
     const onlinePlayers=S.players.filter(p=>p.online!==false);
     const hasHost=onlinePlayers.some(p=>p.isHost);
     if(!hasHost&&onlinePlayers.length>0&&firebaseReady&&S.roomCode){
-      // เรียงตาม joinedAt — คนเก่าสุดได้เป็น Host
-      const oldest=onlinePlayers.slice().sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0))[0];
-      // ให้แค่คนที่จะได้เป็น Host เป็นคนเขียน — ป้องกัน race condition
-      if(oldest&&oldest.id===S.myPlayerId){
-        S.isHost=true;
-        db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}/isHost`).set(true).then(()=>{
-          showToast('คุณเป็นหัวห้องแล้ว 👑',3000);
-        }).catch(()=>{});
+      // ถ้า host เดิม (offline) มี uid เดียวกับคนที่กำลัง rejoin อยู่ในห้องนี้
+      // (คือเครื่องใหม่กำลังจะเข้ามาแทนที่) → รอก่อน ไม่ promote ใคร
+      const myUid=currentUser?.uid||null;
+      const offlineHostExistsWithMyUid=myUid&&S.players.some(p=>p.online===false&&p.isHost&&p.uid===myUid);
+      if(offlineHostExistsWithMyUid){
+        // เครื่องใหม่กำลัง rejoin อยู่ — รอ node เก่าถูกลบแล้วค่อย promote เอง
+      } else {
+        // เรียงตาม joinedAt — คนเก่าสุดได้เป็น Host
+        const oldest=onlinePlayers.slice().sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0))[0];
+        // ให้แค่คนที่จะได้เป็น Host เป็นคนเขียน — ป้องกัน race condition
+        if(oldest&&oldest.id===S.myPlayerId){
+          S.isHost=true;
+          db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}/isHost`).set(true).then(()=>{
+            showToast('คุณเป็นหัวห้องแล้ว 👑',3000);
+          }).catch(()=>{});
+        }
       }
     }
     // แสดงหน้า lobby ครั้งแรกหลังได้ข้อมูลจริงจาก Firebase
