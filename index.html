@@ -624,7 +624,7 @@ body::before{
 </style>
 </head>
 <body>
-<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v12.8</div>
+<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v12.9</div>
 
 <div class="toast" id="toast"></div>
 
@@ -1620,48 +1620,23 @@ function enterLobby(){
   // ถ้ามี uid ให้ลบ node เก่าของตัวเองก่อน (กรณีเข้าซ้ำ) — และรับช่วงสิทธิ์หัวห้องต่อถ้าของเดิมเป็นหัวห้อง
   if(myUid){
     db.ref(`rooms/${S.roomCode}/players`).once('value').then(snap=>{
-      const oldKeys=[];
+      const delUpdates={};
       let inheritedHost=false;
       snap.forEach(c=>{
         const d=c.val();
         if(d.uid===myUid&&c.key!==S.myPlayerId){
           if(d.isHost)inheritedHost=true;
-          oldKeys.push(c.key);
+          delUpdates[`rooms/${S.roomCode}/players/${c.key}`]=null;
+          delUpdates[`rooms/${S.roomCode}/kicked/${c.key}`]=null;
         }
       });
+      // เครื่อง/แท็บล่าสุดที่เข้ามาแทนที่ ควรได้สิทธิ์หัวห้องเหมือนของเดิมเสมอ
       if(inheritedHost)S.isHost=true;
-      if(oldKeys.length){
-        // atomic update: ลบ node เก่าและ add node ใหม่ในคำสั่งเดียว
-        // ทำให้ Firebase ไม่มีช่วงที่ isHost:true หายไปแล้ว node ใหม่ยังไม่มา
-        const playerKey=`${S.roomCode}_${Date.now()}_${Math.random().toString(36).slice(2,6)}`;
-        S.myPlayerId=playerKey;
-        const playerData={name:S.nickname,isHost:S.isHost,joinedAt:Date.now(),online:true,photo:currentUser?.photoURL||'',uid:myUid||''};
-        const atomicUpdates={};
-        oldKeys.forEach(k=>{
-          atomicUpdates[`rooms/${S.roomCode}/players/${k}`]=null;
-          atomicUpdates[`rooms/${S.roomCode}/kicked/${k}`]=null;
-        });
-        atomicUpdates[`rooms/${S.roomCode}/players/${playerKey}`]=playerData;
-        db.ref().update(atomicUpdates)
-          .then(()=>_doJoinAfterKeySet(playerKey))
-          .catch(()=>_doJoinAfterKeySet(playerKey));
-      } else {
-        doJoin();
-      }
+      if(Object.keys(delUpdates).length)db.ref().update(delUpdates);
+      doJoin();
     }).catch(()=>doJoin());
   } else {
     doJoin();
-  }
-  function _doJoinAfterKeySet(playerKey){
-    const playerRef=db.ref(`rooms/${S.roomCode}/players/${playerKey}`);
-    db.ref(`rooms/${S.roomCode}/kicked/${playerKey}`).remove();
-    if(currentUser?.uid){
-      db.ref('userSessions/'+currentUser.uid).update({
-        activeRoom:S.roomCode,activeNick:S.nickname,
-        activeIsHost:S.isHost||false,activePlayerId:playerKey
-      }).catch(()=>{});
-    }
-    setupLobbyListeners(playerRef);
   }
   function setupLobbyListeners(playerRef){
 
@@ -1749,32 +1724,19 @@ function enterLobby(){
       if(S.isHost)showToast('คุณเป็นหัวห้องแล้ว 👑',3000);
     }
     // ── Auto-promote: ถ้าไม่มี Host เลยในห้อง ให้คนที่ joinedAt เก่าสุดรับตำแหน่ง ──
-    // ใช้เฉพาะ online players และต้องไม่มี uid เดียวกันที่กำลัง rejoin อยู่
+    // ใช้เฉพาะ online players เพื่อไม่โปรโมทคนที่ออกไปแล้ว
     const onlinePlayers=S.players.filter(p=>p.online!==false);
-    const hasHost=S.players.some(p=>p.isHost);
+    const hasHost=onlinePlayers.some(p=>p.isHost);
     if(!hasHost&&onlinePlayers.length>0&&firebaseReady&&S.roomCode){
-      const _promoteCode=S.roomCode;
-      clearTimeout(window._promoteTimer);
-      window._promoteTimer=setTimeout(()=>{
-        if(!firebaseReady||!S.roomCode||S.roomCode!==_promoteCode)return;
-        // re-read จาก Firebase โดยตรง ป้องกัน stale S.players
-        db.ref(`rooms/${S.roomCode}/players`).once('value').then(freshSnap=>{
-          const fresh=[];
-          freshSnap.forEach(c=>{const d=c.val();if(d&&d.name)fresh.push({id:c.key,...d});});
-          const stillNoHost=fresh.every(p=>!p.isHost);
-          const onlineFresh=fresh.filter(p=>p.online!==false);
-          if(!stillNoHost||onlineFresh.length===0)return;
-          const oldest=onlineFresh.slice().sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0))[0];
-          if(oldest&&oldest.id===S.myPlayerId){
-            S.isHost=true;
-            db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}/isHost`).set(true).then(()=>{
-              showToast('คุณเป็นหัวห้องแล้ว 👑',3000);
-            }).catch(()=>{});
-          }
+      // เรียงตาม joinedAt — คนเก่าสุดได้เป็น Host
+      const oldest=onlinePlayers.slice().sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0))[0];
+      // ให้แค่คนที่จะได้เป็น Host เป็นคนเขียน — ป้องกัน race condition
+      if(oldest&&oldest.id===S.myPlayerId){
+        S.isHost=true;
+        db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}/isHost`).set(true).then(()=>{
+          showToast('คุณเป็นหัวห้องแล้ว 👑',3000);
         }).catch(()=>{});
-      },2000);// รอ 2 วิก่อน promote — ให้เครื่องใหม่มี เวลา rejoin เข้ามาก่อน
-    } else {
-      clearTimeout(window._promoteTimer);
+      }
     }
     // แสดงหน้า lobby ครั้งแรกหลังได้ข้อมูลจริงจาก Firebase
     if(!_lobbyShown){
@@ -1931,7 +1893,20 @@ function leaveRoom(){
   // ตรวจ isHost จริงๆ จาก Firebase ก่อนตัดสินใจยุบหรือออก
   const doLeave=(amHost)=>{
     if(amHost&&firebaseReady&&S.roomCode){
-      db.ref(`rooms/${S.roomCode}`).set(null);
+      // ลบ players ทั้งหมดก่อน → listener ของทุก client จะ detect ห้องว่างและ redirect home
+      // จากนั้นลบ sub-node อื่นๆ — ต้องทำทีละ node เพราะ Rules ไม่ได้ให้ write ที่ root room
+      const rc=S.roomCode;
+      const wipeUpdates={};
+      S.players.forEach(p=>{wipeUpdates[`rooms/${rc}/players/${p.id}`]=null;});
+      wipeUpdates[`rooms/${rc}/game`]=null;
+      wipeUpdates[`rooms/${rc}/ww`]=null;
+      wipeUpdates[`rooms/${rc}/wwTimer`]=null;
+      wipeUpdates[`rooms/${rc}/spy`]=null;
+      wipeUpdates[`rooms/${rc}/king`]=null;
+      wipeUpdates[`rooms/${rc}/salem`]=null;
+      wipeUpdates[`rooms/${rc}/kicked`]=null;
+      wipeUpdates[`rooms/${rc}/roomName`]=null;
+      db.ref().update(wipeUpdates).catch(()=>{});
     } else if(firebaseReady&&S.myPlayerId&&S.roomCode){
       db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}`).remove();
     }
@@ -1950,34 +1925,43 @@ function leaveRoom(){
   }
 }
 /* ══ TRANSFER HOST ═══════════════════════ */
+const _transferMap=new Map();
 function openTransferHost(){
   // เฉพาะคนที่ online และไม่ใช่ host
   const others=S.players.filter(p=>!p.isHost&&p.name);
   if(!others.length){showToast('ไม่มีผู้เล่นอื่นในห้อง');return;}
+  _transferMap.clear();
   const list=$('transferPlayerList');
   if(list){
-    list.innerHTML=others.map(p=>`
-      <button onclick="confirmTransferHost('${esc(p.id)}','${esc(p.name)}')"
+    list.innerHTML=others.map((p,i)=>{
+      _transferMap.set('t'+i,{id:p.id,name:p.name});
+      return `<button onclick="confirmTransferHost('t${i}')"
         style="display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;background:var(--card2);border:1px solid var(--line);border-radius:var(--r);cursor:pointer;font-family:'Kanit',sans-serif;color:var(--t0)">
         ${p.photo?`<img src="${esc(p.photo)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0"/>`:`<div style="width:32px;height:32px;border-radius:50%;background:var(--ac-dim);display:flex;align-items:center;justify-content:center;font-weight:900;color:var(--ac);flex-shrink:0">${esc(p.name.charAt(0).toUpperCase())}</div>`}
         <span style="font-size:14px;font-weight:700">${esc(p.name)}</span>
-      </button>`).join('');
+      </button>`;
+    }).join('');
   }
   $('transferHostOverlay')?.classList.add('show');
 }
-function confirmTransferHost(newHostId,newHostName){
-  if(!firebaseReady||!S.roomCode||!S.isHost)return;
-  // โอน: ตั้ง newHost เป็น isHost=true, ตัวเองเป็น false
-  const updates={};
-  updates[`rooms/${S.roomCode}/players/${newHostId}/isHost`]=true;
-  updates[`rooms/${S.roomCode}/players/${S.myPlayerId}/isHost`]=false;
-  db.ref().update(updates).then(()=>{
-    S.isHost=false;
-    $('transferHostOverlay')?.classList.remove('show');
-    $('leaveConfirmOverlay')?.classList.remove('show');
-    showToast('โอนหัวห้องให้ '+newHostName+' แล้ว ✅');
-    renderPlayers();renderLobbyUI();
-  }).catch(err=>showToast('โอนไม่ได้: '+err.message));
+function confirmTransferHost(key){
+  const target=_transferMap.get(key);
+  if(!target){showToast('ไม่พบผู้เล่น');return;}
+  if(!firebaseReady||!S.roomCode){showToast('เชื่อมต่อไม่ได้');return;}
+  // ตรวจสิทธิ์จาก Firebase จริงก่อนโอน — ไม่พึ่ง S.isHost อย่างเดียว
+  db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}/isHost`).once('value').then(snap=>{
+    if(snap.val()!==true){showToast('คุณไม่ใช่หัวห้องแล้ว');return;}
+    const updates={};
+    updates[`rooms/${S.roomCode}/players/${target.id}/isHost`]=true;
+    updates[`rooms/${S.roomCode}/players/${S.myPlayerId}/isHost`]=false;
+    db.ref().update(updates).then(()=>{
+      S.isHost=false;
+      $('transferHostOverlay')?.classList.remove('show');
+      $('leaveConfirmOverlay')?.classList.remove('show');
+      showToast('โอนหัวห้องให้ '+target.name+' แล้ว ✅');
+      renderPlayers();renderLobbyUI();
+    }).catch(err=>showToast('โอนไม่ได้: '+err.message));
+  }).catch(()=>showToast('เชื่อมต่อไม่ได้ ลองใหม่'));
 }
 
 
