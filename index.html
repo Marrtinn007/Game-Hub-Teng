@@ -1241,7 +1241,7 @@ function initFirebase(){
         if(!cur||cur.id==='screen-login')showScreen('screen-home');
         checkDeepLink();
         // หลังล็อคอินใหม่ (เช่น เปิดเครื่องใหม่) ให้ตรวจว่าบัญชีนี้ยังอยู่ในห้องไหนอยู่ไหม
-        if(firebaseReady&&!new URLSearchParams(location.search).get('room'))checkRejoinRoom(user.uid);
+        if(firebaseReady&&!new URLSearchParams(location.search).get('room'))setTimeout(()=>checkRejoinRoom(user.uid),1500);
       } else {
         stopSessionGuard();
         document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
