@@ -3,7 +3,7 @@
      GAME HUB TENG  —  v11.3
      ────────────────────────────────────────────────────────────
      AI HANDOFF NOTE (สำหรับ AI ที่รับงานต่อ):
-     - เวอร์ชันปัจจุบัน: v11.3
+     - เวอร์ชันปัจจุบัน: v11.4
      - เพิ่มเวอร์ชัน +0.1 ทุกครั้งที่แก้ไข (v11 → v11.1 → v11.2 ...)
      - อัปเดต label มุมบนซ้าย id="versionLabel" ด้วยทุกครั้ง
      ════════════════════════════════════════════════════════════════ -->
@@ -606,10 +606,25 @@ body::before{
   100%{ transform:translate(2vw,-4vh) scale(1.04) }
 }
 /* ═══════════════════════════════════════════════════════════════ */
+
+/* ── Login Screen ── */
+.login-box{display:flex;flex-direction:column;align-items:center;text-align:center;padding:2.5rem 2rem;margin:auto;width:calc(100% - 3rem);max-width:360px;position:relative;z-index:1}
+.login-logo{font-size:64px;margin-bottom:1rem;line-height:1}
+.login-title{font-size:28px;font-weight:900;color:var(--t0);margin-bottom:6px}
+.login-sub{font-size:15px;color:var(--t2);margin-bottom:2rem;font-weight:400}
+.login-note{font-size:12px;color:var(--t3);margin-top:1rem}
+.btn-google{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;height:54px;border-radius:var(--r-l);background:#fff;color:#3c4043;font-size:16px;font-weight:700;border:none;cursor:pointer;font-family:'Kanit',sans-serif;box-shadow:0 4px 0 rgba(0,0,0,0.2),0 6px 16px rgba(0,0,0,0.15);transition:transform 0.12s var(--spring),box-shadow 0.12s}
+.btn-google:active{transform:translateY(3px)!important;box-shadow:0 1px 0 rgba(0,0,0,0.15)!important}
+[data-theme="cream"] .btn-google{box-shadow:0 4px 0 rgba(0,0,0,0.12),0 6px 16px rgba(0,0,0,0.08)}
+
+/* ── Kick button in player row ── */
+.kick-btn{width:30px;height:30px;border-radius:50%;background:rgba(240,110,122,0.12);border:1px solid rgba(240,110,122,0.25);color:var(--danger);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;flex-shrink:0;transition:all 0.14s;opacity:0.7}
+.kick-btn:hover{opacity:1;background:rgba(240,110,122,0.22)}
+.kick-btn:active{transform:scale(0.88)!important}
 </style>
 </head>
 <body>
-<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v11.3</div>
+<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v11.4</div>
 
 <div class="toast" id="toast"></div>
 
@@ -726,15 +741,45 @@ MenuOverlay')">
   </div>
 </div>
 
+<!-- ══ LOGIN ══ -->
+<div class="screen active" id="screen-login">
+  <div class="login-box elevated anim-pop">
+    <div class="login-logo">🎮</div>
+    <div class="login-title">Game Hub <span style="color:var(--ac)">Teng</span></div>
+    <div class="login-sub">เข้าสู่ระบบเพื่อเริ่มเล่น</div>
+    <button class="btn-google" onclick="signInWithGoogle()">
+      <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      เข้าสู่ระบบด้วย Google
+    </button>
+    <div class="login-note">สำหรับสมาชิกเท่านั้น</div>
+  </div>
+</div>
+
 <!-- ══ HOME ══ -->
-<div class="screen active" id="screen-home">
-  <!-- theme btn มุมขวาบน -->
-  <div style="position:absolute;top:14px;right:14px;z-index:50">
-    <button class="theme-btn" id="themeSwitcherBtn" onclick="toggleThemeSheet()" title="เปลี่ยนธีม"><svg id="themeBtnIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
-    <div class="theme-sheet" id="themeSheet" style="position:absolute;top:calc(100% + 8px);right:0">
-      <button class="theme-option" onclick="setTheme('dark')"><span class="theme-dot" style="background:#1c1f26;border-color:#7c9cff"></span>🌙 Dark</button>
-      <button class="theme-option" onclick="setTheme('cream')"><span class="theme-dot" style="background:#fffdf8;border-color:#b5651d"></span>🍵 Cream</button>
-      <button class="theme-option" onclick="setTheme('ocean')"><span class="theme-dot" style="background:#0d1d30;border-color:#38bdf8"></span>🌊 Ocean</button>
+<div class="screen" id="screen-home">
+  <!-- profile btn มุมขวาบน (แทนปุ่มธีมเดิม) -->
+  <div style="position:absolute;top:12px;right:14px;z-index:50" id="profileMenuWrap">
+    <img id="homeUserAvatar" src="" style="width:36px;height:36px;border-radius:50%;display:none;border:2px solid var(--ac);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3)" alt="" onclick="toggleProfileMenu()" title="บัญชีของฉัน"/>
+    <!-- Dropdown -->
+    <div id="profileDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:6px;min-width:190px;box-shadow:0 8px 24px rgba(0,0,0,0.35);z-index:200">
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 10px 8px;border-bottom:1px solid var(--line);margin-bottom:4px">
+        <img id="profileDropAvatar" src="" style="width:32px;height:32px;border-radius:50%;flex-shrink:0" alt=""/>
+        <div style="min-width:0">
+          <div id="profileDropName" style="font-size:13px;font-weight:700;color:var(--t0);overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+          <div id="profileDropEmail" style="font-size:11px;color:var(--t3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+        </div>
+      </div>
+      <!-- Theme section -->
+      <div style="padding:4px 6px 2px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;color:var(--t3);text-transform:uppercase;padding:2px 4px 6px">ธีม</div>
+        <div style="display:flex;gap:6px;padding-bottom:8px;border-bottom:1px solid var(--line)">
+          <button onclick="setTheme('dark')" style="flex:1;height:32px;border-radius:8px;border:1.5px solid var(--line);background:#1c1f26;cursor:pointer;font-size:13px" title="Dark">🌙</button>
+          <button onclick="setTheme('cream')" style="flex:1;height:32px;border-radius:8px;border:1.5px solid var(--line);background:#fffdf8;cursor:pointer;font-size:13px" title="Cream">🍵</button>
+          <button onclick="setTheme('ocean')" style="flex:1;height:32px;border-radius:8px;border:1.5px solid var(--line);background:#0d1d30;cursor:pointer;font-size:13px" title="Ocean">🌊</button>
+        </div>
+      </div>
+      <button id="adminMenuBtn" style="display:none;width:100%;text-align:left;padding:8px 10px;background:none;border:none;color:var(--ac);font-family:'Kanit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;margin-top:2px" onclick="toggleProfileMenu();openAdminPanel()">🛡️ Admin Panel</button>
+      <button style="width:100%;text-align:left;padding:8px 10px;background:none;border:none;color:var(--danger);font-family:'Kanit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;margin-top:2px" onclick="toggleProfileMenu();signOut()">↩ ออกจากระบบ</button>
     </div>
   </div>
   <div class="home-hero">
@@ -742,38 +787,24 @@ MenuOverlay')">
     <div class="home-title">Game Hub <span class="home-title-accent">Teng</span></div>
     <div class="home-sub">สนุกกับเพื่อน · เริ่มได้ทันที</div>
   </div>
-  <div class="games-section">
-    <div class="games-section-label">🎲 ต้องสร้างห้อง</div>
-    <div class="games-grid">
-      <div class="game-card" onclick="openJoinModal('ww')">
-        <div class="game-icon" style="background:rgba(249,168,212,0.14);font-size:24px">🐺</div>
-        <div class="game-name">Werewolf</div><div class="game-desc">4–18 คน · แจกไพ่บทบาท</div>
-      </div>
-      <div class="game-card" onclick="openJoinModal('spyfall')">
-        <div class="game-icon" style="background:rgba(192,132,252,0.14);font-size:24px">🕵️</div>
-        <div class="game-name">Spyfall</div><div class="game-desc">3+ คน · หาสายลับ</div>
-      </div>
-      <div class="game-card" onclick="openJoinModal('king')">
-        <div class="game-icon" style="background:rgba(255,209,102,0.16);font-size:24px">👑</div>
-        <div class="game-name">King's Game</div><div class="game-desc">3+ คน · ราชาสั่ง</div>
-      </div>
-      <div class="game-card" onclick="openJoinModal('salem')">
-        <div class="game-icon" style="background:rgba(155,89,182,0.16);font-size:24px">🧙</div>
-        <div class="game-name">Salem 1692</div><div class="game-desc">4–12 คน · ไพ่ชีวิต</div>
-      </div>
-    </div>
-    <div class="games-section-label" style="margin-top:1.5rem">⚡ เริ่มได้เลย</div>
-    <div class="games-grid">
-      <div class="game-card" onclick="launchSolo('wheel')">
-        <div class="game-icon" style="background:rgba(134,239,172,0.14);font-size:24px">🎰</div>
-        <div class="game-name">Spin the Wheel</div><div class="game-desc">ตัดสินใจแทนคุณได้เลย</div>
-      </div>
-      <div class="game-card" onclick="launchSolo('cards')">
-        <div class="game-icon" style="background:rgba(253,164,175,0.14);font-size:24px">🃏</div>
-        <div class="game-name">ไพ่ปาร์ตี้</div><div class="game-desc">ชาเลนจ์สนุกๆ ในวงเพื่อน</div>
-      </div>
-    </div>
+  <div id="homeUserBar" style="padding:0 var(--pad) 0.5rem">
+    <span id="homeUserName" style="font-size:13px;color:var(--t2);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block"></span>
   </div>
+  <!-- Admin Panel Sheet -->
+  <div id="adminPanelOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:300;backdrop-filter:blur(4px)" onclick="closeAdminPanel()"></div>
+  <div id="adminPanelSheet" style="display:none;position:fixed;bottom:0;left:0;right:0;background:var(--card);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:1.5rem var(--pad) 2rem;z-index:301;max-height:80dvh;overflow-y:auto">
+    <div style="width:40px;height:4px;background:var(--line);border-radius:2px;margin:0 auto 1.25rem"></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.25rem">
+      <span style="font-size:20px">&#x1F6E1;&#xFE0F;</span>
+      <div style="font-size:17px;font-weight:800;flex:1">Admin Panel</div>
+    </div>
+    <div id="adminStats" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem"></div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:var(--t3);text-transform:uppercase;margin-bottom:10px">จัดการเกม</div>
+    <div id="adminGamesList" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:var(--t3);text-transform:uppercase;margin:1.25rem 0 10px">ล้างข้อมูล</div>
+    <button class="btn" style="width:100%;height:46px;background:rgba(240,110,122,0.1);color:var(--danger);border:1px solid rgba(240,110,122,0.2);font-size:14px;font-weight:700" onclick="cleanupRooms()">&#x1F5D1;&#xFE0F; ล้างห้องที่ค้างอยู่ทั้งหมด</button>
+  </div>
+  <div class="games-section" id="homeGamesSection"></div>
 </div>
 
 <!-- ══ ROOM NAME ══ -->
@@ -803,13 +834,19 @@ MenuOverlay')">
 <!-- ══ LOBBY ══ -->
 <div class="screen" id="screen-lobby">
   <div class="lobby-header">
-    <button class="btn-icon" onclick="leaveRoom()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
+    <button class="btn-icon" onclick="confirmLeaveRoom()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
     <div class="lobby-title"><div class="lobby-room-code" id="lobbyCode">ห้อง · ------</div><div class="lobby-room-name" id="lobbyRoomName">Game Hub Teng</div></div>
   </div>
   <div class="share-box" style="margin-top:1rem"><div class="share-lbl">รหัสห้อง</div><div class="share-code" id="shareCode">------</div>
     <button class="btn btn-sf" style="width:100%;height:42px;font-size:14px;gap:7px" onclick="copyRoomLink()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>คัดลอกลิงก์</button>
   </div>
-  <div class="lobby-sec"><div class="label">ผู้เล่น <span id="playerCount" style="color:var(--ac)">0</span></div><div class="players-list" id="playersList"></div></div>
+  <div class="lobby-sec">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <div class="label" style="margin:0;flex:1">ผู้เล่น <span id="playerCount" style="color:var(--ac)">0</span></div>
+      <button id="transferHostBtn" style="display:none;height:30px;padding:0 12px;border-radius:100px;background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.25);color:var(--ac);font-family:'Kanit',sans-serif;font-size:12px;font-weight:700;cursor:pointer" onclick="openTransferHost()">👑 โอนหัวห้อง</button>
+    </div>
+    <div class="players-list" id="playersList"></div>
+  </div>
   <div class="gap-lbl">เลือกเกม</div>
   <div class="game-select-grid" id="gameSelectGrid">
     <div class="game-select-card" data-game="ww" onclick="selectGame('ww')"><div class="gs-icon">🐺</div><div class="gs-name">Werewolf</div></div>
@@ -1034,7 +1071,7 @@ MenuOverlay')">
   var cdns=['https://www.gstatic.com/firebasejs/'+v+'/firebase-app-compat.js','https://cdn.jsdelivr.net/npm/firebase@'+v+'/firebase-app-compat.min.js'];
   var dbCdns=['https://www.gstatic.com/firebasejs/'+v+'/firebase-database-compat.js','https://cdn.jsdelivr.net/npm/firebase@'+v+'/firebase-database-compat.min.js'];
   function tryLoad(urls,idx,onDone){if(idx>=urls.length)return;loadScript(urls[idx],onDone,function(){tryLoad(urls,idx+1,onDone)})}
-  tryLoad(cdns,0,function(){tryLoad(dbCdns,0,function(){if(typeof initFirebase==='function')initFirebase()})});
+  var authCdns=['https://www.gstatic.com/firebasejs/'+v+'/firebase-auth-compat.js','https://cdn.jsdelivr.net/npm/firebase@'+v+'/firebase-auth-compat.min.js'];tryLoad(cdns,0,function(){tryLoad(dbCdns,0,function(){tryLoad(authCdns,0,function(){if(typeof initFirebase==='function')initFirebase();})})});
 })();
 </script>
 <script>
@@ -1172,16 +1209,93 @@ const COLORS=['#a78bfa','#60a5fa','#34d399','#f87171','#fbbf24','#c084fc','#38bd
 
 /* ══ FIREBASE ════════════════════════════ */
 let db=null,firebaseReady=false,roomRef=null,gameRef=null,wwRef=null;
+let auth=null,currentUser=null,hiddenGames={};
+const ADMIN_UIDS=['ovP5ZTz1Mbhg5x44R7K595GRYxN2'];
+function isAdmin(){return !!(currentUser&&ADMIN_UIDS.includes(currentUser.uid));}
 function initFirebase(){
-  try{firebase.initializeApp(CONFIG.firebase);db=firebase.database();firebaseReady=true;checkDeepLink()}
-  catch(e){console.warn('Firebase:',e.message)}
+  try{
+    firebase.initializeApp(CONFIG.firebase);
+    db=firebase.database();
+    auth=firebase.auth();
+    firebaseReady=true;
+    db.ref('config/hiddenGames').on('value',snap=>{hiddenGames=snap.val()||{};renderHomeGames();if($('adminPanelSheet')?.style.display!=='none')renderAdminGames();});
+    auth.onAuthStateChanged(user=>{
+      currentUser=user;
+      if(user){
+        const av=$('homeUserAvatar'),nm=$('homeUserName');
+        const dn=$('profileDropName'),de=$('profileDropEmail'),da=$('profileDropAvatar'),ab=$('adminMenuBtn');
+        if(av&&user.photoURL){av.src=user.photoURL;av.style.display='';}
+        if(da&&user.photoURL){da.src=user.photoURL;}
+        if(nm)nm.textContent='สวัสดี, '+(user.displayName?.split(' ')[0]||'ผู้เล่น')+' 👋';
+        if(dn)dn.textContent=user.displayName||user.email||'';
+        if(de)de.textContent=user.email||'';
+        if(ab)ab.style.display=isAdmin()?'':'none';
+        $('screen-login')?.classList.remove('active');
+        const cur=document.querySelector('.screen.active');
+        if(!cur||cur.id==='screen-login')showScreen('screen-home');
+        checkDeepLink();
+      } else {
+        document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+        $('screen-login')?.classList.add('active');
+      }
+    });
+    // รับผลลัพธ์หลัง redirect กลับมา (เฉพาะ http/https เท่านั้น)
+    if(location.protocol==='http:'||location.protocol==='https:'){
+      auth.getRedirectResult().then(result=>{
+        if(result&&result.user)console.log('Google login OK:',result.user.displayName);
+      }).catch(err=>{
+        console.warn('Redirect result:',err.code);
+      });
+    }
+  }catch(e){console.warn('Firebase:',e.message);checkDeepLink();}
+}
+function signInWithGoogle(){
+  if(!auth){showToast('กำลังเชื่อมต่อ...');return;}
+  const provider=new firebase.auth.GoogleAuthProvider();
+  provider.setCustomParameters({prompt:'select_account'});
+  // ลอง popup ก่อน (เร็วกว่า) — ถ้าไม่ได้ค่อย fallback redirect
+  auth.signInWithPopup(provider).catch(err=>{
+    console.warn('Popup failed, trying redirect:',err.code);
+    const useRedirect=['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request','auth/operation-not-supported-in-this-environment'];
+    if(useRedirect.includes(err.code)){
+      auth.signInWithRedirect(provider).catch(e=>showToast('เข้าสู่ระบบไม่ได้: '+e.message));
+    } else {
+      showToast('เข้าสู่ระบบไม่ได้: '+err.message);
+    }
+  });
+}
+function signOut(){
+  auth?.signOut().then(()=>{
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    $('screen-login')?.classList.add('active');
+  });
 }
 function checkDeepLink(){
-  const r=new URLSearchParams(location.search).get('room');if(!r)return;
-  S.pendingRoomCode=r.toUpperCase().slice(0,6);S.isHost=false;
-  const lb=$('nickRoomLabel');if(lb)lb.textContent='ห้อง: '+S.pendingRoomCode;
-  const bb=$('nickBackBtn');if(bb)bb.setAttribute('onclick','showScreen("screen-home")');
-  const ni=$('nickInput');if(ni)ni.value='';showScreen('screen-nick');
+  const r=new URLSearchParams(location.search).get('room');
+  if(!r)return;
+  const code=r.toUpperCase().slice(0,6);
+  // ล้าง URL ออกก่อนเลย ไม่ให้ค้างไว้
+  history.replaceState(null,'',location.pathname);
+  if(!firebaseReady){
+    // รอ Firebase พร้อมก่อน
+    const wait=setInterval(()=>{
+      if(firebaseReady){clearInterval(wait);_deepLinkJoin(code);}
+    },300);
+    setTimeout(()=>clearInterval(wait),8000);
+    return;
+  }
+  _deepLinkJoin(code);
+}
+function _deepLinkJoin(code){
+  // เช็คก่อนว่าห้องยังมีอยู่
+  db.ref('rooms/'+code).once('value').then(snap=>{
+    if(!snap.exists()){showToast('❌ ห้อง "'+code+'" ไม่มีแล้ว');return;}
+    S.pendingRoomCode=code;S.isHost=false;
+    const lb=$('nickRoomLabel');if(lb)lb.textContent='ห้อง: '+code;
+    const bb=$('nickBackBtn');if(bb)bb.setAttribute('onclick','showScreen("screen-home")');
+    const ni=$('nickInput');if(ni)ni.value='';
+    showScreen('screen-nick');
+  }).catch(()=>showToast('เชื่อมต่อไม่ได้ ลองใหม่'));
 }
 
 /* ══ SETTINGS ════════════════════════════ */
@@ -1383,11 +1497,36 @@ function enterLobby(){
   if(ce)ce.textContent=`ห้อง · ${S.roomCode}`;if(se)se.textContent=S.roomCode;
   if(roomRef){roomRef.off();roomRef=null}if(gameRef){gameRef.off();gameRef=null}
   if(wwRef){wwRef.off();wwRef=null}
-  const playerKey=`${S.roomCode}_${Date.now()}_${Math.random().toString(36).slice(2,6)}`;
-  S.myPlayerId=playerKey;
-  const playerRef=db.ref(`rooms/${S.roomCode}/players/${playerKey}`);
-  const playerData={name:S.nickname,isHost:S.isHost,joinedAt:Date.now(),online:true};
-  playerRef.set(playerData);
+  // ลบ node เก่าของตัวเองที่ค้างอยู่ (online:false หรือถูกเตะ) ก่อน join ใหม่
+  // ใช้ uid จาก Google Auth เพื่อ track ว่าเป็นคนเดิม
+  const myUid=currentUser?.uid||null;
+  const doJoin=()=>{
+    const playerKey=`${S.roomCode}_${Date.now()}_${Math.random().toString(36).slice(2,6)}`;
+    S.myPlayerId=playerKey;
+    const playerRef=db.ref(`rooms/${S.roomCode}/players/${playerKey}`);
+    const playerData={name:S.nickname,isHost:S.isHost,joinedAt:Date.now(),online:true,photo:currentUser?.photoURL||'',uid:myUid||''};
+    playerRef.set(playerData);
+    db.ref(`rooms/${S.roomCode}/kicked/${playerKey}`).remove();
+    setupLobbyListeners(playerRef);
+  };
+  // ถ้ามี uid ให้ลบ node เก่าของตัวเองก่อน (กรณีเข้าซ้ำ)
+  if(myUid){
+    db.ref(`rooms/${S.roomCode}/players`).once('value').then(snap=>{
+      const delUpdates={};
+      snap.forEach(c=>{
+        const d=c.val();
+        if(d.uid===myUid&&c.key!==S.myPlayerId){
+          delUpdates[`rooms/${S.roomCode}/players/${c.key}`]=null;
+          delUpdates[`rooms/${S.roomCode}/kicked/${c.key}`]=null;
+        }
+      });
+      if(Object.keys(delUpdates).length)db.ref().update(delUpdates);
+      doJoin();
+    }).catch(()=>doJoin());
+  } else {
+    doJoin();
+  }
+  function setupLobbyListeners(playerRef){
 
   // ── Resilient Presence: mark offline on disconnect แต่ไม่ลบ ──
   // เมื่อ TCP หลุด Firebase จะ mark online:false แต่ข้อมูลยังอยู่
@@ -1423,10 +1562,25 @@ function enterLobby(){
     const rn=$('lobbyRoomName');if(rn)rn.textContent=S.roomName;
   }
   db.ref(`rooms/${S.roomCode}/roomName`).on('value',snap=>{const name=snap.val();if(name){S.roomName=name;const rn=$('lobbyRoomName');if(rn)rn.textContent=name;}});
+  // ฟัง kicked list — ใช้ Firebase isHost แทน S.isHost เพื่อความถูกต้องหลังโอนหัวห้อง
+  db.ref(`rooms/${S.roomCode}/kicked/${S.myPlayerId}`).on('value',snap=>{
+    if(snap.val()===true){
+      // ตรวจสอบ isHost ปัจจุบันจาก Firebase ก่อนเตะ
+      db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}/isHost`).once('value').then(h=>{
+        if(h.val()===true)return; // host จริงๆ ไม่โดนเตะ
+        if(location.search)history.replaceState(null,'',location.pathname);
+        [roomRef,gameRef,wwRef].forEach(r=>r?.off());
+        roomRef=gameRef=wwRef=null;
+        Object.assign(S,{roomCode:null,roomName:null,nickname:null,players:[],selectedGame:null,myPlayerId:null,isHost:false});
+        showToast('คุณถูกเตะออกจากห้อง',3500);
+        showScreen('screen-home');
+      });
+    }
+  });
+  let _lobbyShown=false;
   roomRef=db.ref(`rooms/${S.roomCode}/players`);
   roomRef.on('value',snap=>{
     if(!snap.exists()&&S.roomCode){
-      // ห้องถูกยุบ — ทุกคนกลับ home
       [roomRef,gameRef,wwRef].forEach(r=>r?.off());
       roomRef=gameRef=wwRef=null;
       Object.assign(S,{roomCode:null,roomName:null,nickname:null,players:[],selectedGame:null,myPlayerId:null,isHost:false});
@@ -1434,7 +1588,23 @@ function enterLobby(){
       showScreen('screen-home');
       return;
     }
-    S.players=[];snap.forEach(c=>{S.players.push({id:c.key,...c.val()})});
+    S.players=[];
+    snap.forEach(c=>{
+      const d=c.val();
+      // กรองเฉพาะ node ที่มีข้อมูลครบ (มี name) ป้องกัน undefined error
+      if(d&&d.name)S.players.push({id:c.key,...d});
+    });
+    // sync S.isHost จาก Firebase เสมอ เผื่อมีการโอนหัวห้อง
+    const me=S.players.find(p=>p.id===S.myPlayerId);
+    if(me&&me.isHost!==S.isHost){
+      S.isHost=!!me.isHost;
+      if(S.isHost)showToast('คุณเป็นหัวห้องแล้ว 👑',3000);
+    }
+    // แสดงหน้า lobby ครั้งแรกหลังได้ข้อมูลจริงจาก Firebase
+    if(!_lobbyShown){
+      _lobbyShown=true;
+      showScreen('screen-lobby');
+    }
     renderPlayers();renderLobbyUI();
   });
   gameRef=db.ref(`rooms/${S.roomCode}/game`);
@@ -1490,43 +1660,137 @@ function enterLobby(){
       if(onSalem)renderSalemSetup();
     }
   });
-  
-  showScreen('screen-lobby');
+  // หมายเหตุ: showScreen('screen-lobby') ถูกย้ายไปรันใน roomRef.on('value') ครั้งแรก
+  // เพื่อให้แน่ใจว่ามีข้อมูลผู้เล่นก่อนแสดงหน้า lobby
+  } // end setupLobbyListeners
 }
 function renderPlayers(){
   const list=$('playersList'),cnt=$('playerCount');if(!list)return;
-  // นับเฉพาะคนที่ online (หรือ Host)
-  const onlinePlayers=S.players.filter(p=>p.online!==false||p.isHost);
-  if(cnt)cnt.textContent=onlinePlayers.length;
-  list.innerHTML=S.players.map((p,i)=>{
-    const isOffline=p.online===false&&!p.isHost;
-    return `<div class="player-row" style="${isOffline?'opacity:0.4':''}">
-      <div class="p-avatar" style="background:${COLORS[i%COLORS.length]}28;color:${COLORS[i%COLORS.length]}">${esc(p.name.charAt(0).toUpperCase())}</div>
-      <div class="p-name">${esc(p.name)}${isOffline?' <span style="font-size:11px;color:var(--t3)">(ออฟไลน์)</span>':''}</div>
+  // กรองเฉพาะคนที่ online หรือ Host (ไม่แสดงคน offline ที่ค้างใน db)
+  const visiblePlayers=S.players.filter(p=>p.online!==false||p.isHost);
+  if(cnt)cnt.textContent=visiblePlayers.length;
+  list.innerHTML=visiblePlayers.map((p,i)=>{
+    const canKick=S.isHost&&!p.isHost;
+    const avatarHTML=p.photo
+      ?`<img src="${esc(p.photo)}" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid ${COLORS[i%COLORS.length]}44" />`
+      :`<div class="p-avatar" style="background:${COLORS[i%COLORS.length]}28;color:${COLORS[i%COLORS.length]}">${esc(p.name.charAt(0).toUpperCase())}</div>`;
+    return `<div class="player-row">
+      ${avatarHTML}
+      <div class="p-name">${esc(p.name)}</div>
       ${p.isHost?'<div class="p-badge">ผู้ดำเนินการเกม</div>':''}
+      ${canKick?`<button class="kick-btn" onclick="openKickConfirm('${esc(p.id)}','${esc(p.name)}')" title="เตะออก">✕</button>`:''}
     </div>`;
   }).join('');
 }
 function renderLobbyUI(){
-  const grid=$('gameSelectGrid'),startBtn=$('btnStartGame'),hint=$('hostHint');
-  if(S.isHost){if(grid){grid.style.pointerEvents='auto';grid.style.opacity='1';}if(startBtn)startBtn.style.display='';if(hint)hint.style.display='none';}
-  else{if(grid){grid.style.pointerEvents='none';grid.style.opacity='0.38';}if(startBtn)startBtn.style.display='none';if(hint)hint.style.display='block';}
+  const grid=$('gameSelectGrid'),startBtn=$('btnStartGame'),hint=$('hostHint'),txBtn=$('transferHostBtn');
+  // นับเฉพาะคนที่ online จริงๆ (ไม่นับ offline node ที่ค้าง)
+  const onlinePlayers=S.players.filter(p=>p.online!==false||p.isHost);
+  const nonHostOnline=onlinePlayers.filter(p=>!p.isHost);
+  if(S.isHost){
+    if(grid){grid.style.pointerEvents='auto';grid.style.opacity='1';}
+    if(startBtn){
+      startBtn.style.display='';
+      startBtn.disabled=!S.selectedGame;
+      startBtn.title='';
+    }
+    if(hint)hint.style.display='none';
+    if(txBtn)txBtn.style.display=nonHostOnline.length>0?'':'none';
+  } else {
+    if(grid){grid.style.pointerEvents='none';grid.style.opacity='0.38';}
+    if(startBtn)startBtn.style.display='none';
+    if(hint)hint.style.display='block';
+    if(txBtn)txBtn.style.display='none';
+  }
 }
 function copyRoomLink(){
   const url=`${location.origin}${location.pathname}?room=${S.roomCode}`;
   navigator.clipboard?.writeText(url).then(()=>showToast('📋 คัดลอกลิงก์แล้ว!'));
 }
-function leaveRoom(){
-  if(S.isHost&&firebaseReady&&S.roomCode){
-    // Host ยุบห้อง — ลบทั้ง room
-    db.ref(`rooms/${S.roomCode}`).set(null);
-  } else if(firebaseReady&&S.myPlayerId&&S.roomCode){
-    db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}`).remove();
+function confirmLeaveRoom(){
+  // ตรวจ isHost จริงๆ จาก Firebase ก่อนแสดง popup
+  if(S.isHost){
+    $('leaveConfirmOverlay')?.classList.add('show');
+  } else {
+    // double-check จาก Firebase เผื่อโอนแล้ว S.isHost ยังไม่อัป
+    db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}/isHost`).once('value').then(snap=>{
+      if(snap.val()===true){$('leaveConfirmOverlay')?.classList.add('show');}
+      else{leaveRoom();}
+    }).catch(()=>leaveRoom());
   }
-  [roomRef,gameRef,wwRef].forEach(r=>r?.off());
-  roomRef=gameRef=wwRef=null;
-  Object.assign(S,{roomCode:null,roomName:null,nickname:null,players:[],selectedGame:null,myPlayerId:null,isHost:false});
-  showScreen('screen-home');
+}
+function leaveRoom(){
+  $('leaveConfirmOverlay')?.classList.remove('show');
+  // ล้าง URL params ไม่ให้ checkDeepLink พาเข้าห้องเดิมอีก
+  if(location.search)history.replaceState(null,'',location.pathname);
+  // ตรวจ isHost จริงๆ จาก Firebase ก่อนตัดสินใจยุบหรือออก
+  const doLeave=(amHost)=>{
+    if(amHost&&firebaseReady&&S.roomCode){
+      db.ref(`rooms/${S.roomCode}`).set(null);
+    } else if(firebaseReady&&S.myPlayerId&&S.roomCode){
+      db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}`).remove();
+    }
+    [roomRef,gameRef,wwRef].forEach(r=>r?.off());
+    roomRef=gameRef=wwRef=null;
+    Object.assign(S,{roomCode:null,roomName:null,nickname:null,players:[],selectedGame:null,myPlayerId:null,isHost:false});
+    showScreen('screen-home');
+  };
+  if(firebaseReady&&S.myPlayerId&&S.roomCode){
+    db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}/isHost`).once('value')
+      .then(snap=>doLeave(snap.val()===true))
+      .catch(()=>doLeave(S.isHost));
+  } else {
+    doLeave(S.isHost);
+  }
+}
+/* ══ TRANSFER HOST ═══════════════════════ */
+function openTransferHost(){
+  // เฉพาะคนที่ online และไม่ใช่ host
+  const others=S.players.filter(p=>!p.isHost&&p.online!==false&&p.name);
+  if(!others.length){showToast('ไม่มีผู้เล่นอื่นในห้อง');return;}
+  const list=$('transferPlayerList');
+  if(list){
+    list.innerHTML=others.map(p=>`
+      <button onclick="confirmTransferHost('${esc(p.id)}','${esc(p.name)}')"
+        style="display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;background:var(--card2);border:1px solid var(--line);border-radius:var(--r);cursor:pointer;font-family:'Kanit',sans-serif;color:var(--t0)">
+        ${p.photo?`<img src="${esc(p.photo)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0"/>`:`<div style="width:32px;height:32px;border-radius:50%;background:var(--ac-dim);display:flex;align-items:center;justify-content:center;font-weight:900;color:var(--ac);flex-shrink:0">${esc(p.name.charAt(0).toUpperCase())}</div>`}
+        <span style="font-size:14px;font-weight:700">${esc(p.name)}</span>
+      </button>`).join('');
+  }
+  $('transferHostOverlay')?.classList.add('show');
+}
+function confirmTransferHost(newHostId,newHostName){
+  if(!firebaseReady||!S.roomCode||!S.isHost)return;
+  // โอน: ตั้ง newHost เป็น isHost=true, ตัวเองเป็น false
+  const updates={};
+  updates[`rooms/${S.roomCode}/players/${newHostId}/isHost`]=true;
+  updates[`rooms/${S.roomCode}/players/${S.myPlayerId}/isHost`]=false;
+  db.ref().update(updates).then(()=>{
+    S.isHost=false;
+    $('transferHostOverlay')?.classList.remove('show');
+    $('leaveConfirmOverlay')?.classList.remove('show');
+    showToast('โอนหัวห้องให้ '+newHostName+' แล้ว ✅');
+    renderPlayers();renderLobbyUI();
+  }).catch(err=>showToast('โอนไม่ได้: '+err.message));
+}
+
+
+let _kickTargetId=null;
+function openKickConfirm(pid,name){
+  _kickTargetId=pid;
+  const el=$('kickConfirmName');
+  if(el)el.textContent='เตะ "'+name+'" ออก?';
+  $('kickConfirmOverlay')?.classList.add('show');
+}
+function cancelKick(){_kickTargetId=null;$('kickConfirmOverlay')?.classList.remove('show');}
+function doKick(){
+  if(!_kickTargetId||!S.isHost){cancelKick();return;}
+  if(firebaseReady&&S.roomCode){
+    db.ref(`rooms/${S.roomCode}/players/${_kickTargetId}`).remove();
+    db.ref(`rooms/${S.roomCode}/kicked/${_kickTargetId}`).set(true);
+  }
+  cancelKick();
+  showToast('เตะผู้เล่นออกแล้ว');
 }
 
 /* ══ GAME ════════════════════════════════ */
@@ -3093,6 +3357,170 @@ function fmtTime(s){
   return m+':'+(sec<10?'0':'')+sec;
 }
 
+
+
+/* ══ PROFILE MENU ════════════════════════════════════════════ */
+function toggleProfileMenu(){
+  const d=$('profileDropdown');
+  if(!d)return;
+  const isOpen=d.style.display!=='none';
+  d.style.display=isOpen?'none':'block';
+  if(!isOpen){
+    // ปิดเมื่อคลิกที่อื่น
+    setTimeout(()=>{
+      document.addEventListener('click',function _close(e){
+        if(!$('profileMenuWrap')?.contains(e.target)){
+          d.style.display='none';
+          document.removeEventListener('click',_close);
+        }
+      });
+    },10);
+  }
+}
+
+/* ══ ADMIN PANEL ══════════════════════════════════════════════ */
+function openAdminPanel(){
+  if(!isAdmin()){showToast('ไม่มีสิทธิ์ Admin');return;}
+  $('adminPanelOverlay').style.display='';
+  $('adminPanelSheet').style.display='';
+  renderAdminStats();
+  renderAdminGames();
+}
+function closeAdminPanel(){
+  $('adminPanelOverlay').style.display='none';
+  $('adminPanelSheet').style.display='none';
+}
+function renderAdminStats(){
+  if(!db||!isAdmin())return;
+  db.ref('rooms').once('value').then(snap=>{
+    const rooms=snap.val()||{};
+    const roomKeys=Object.keys(rooms);
+    let activeRooms=0,totalPlayers=0;
+    const emptyRooms=[];
+    roomKeys.forEach(k=>{
+      const players=rooms[k].players||{};
+      // นับเฉพาะ player ที่มีข้อมูลครบและ online
+      const onlinePlayers=Object.values(players).filter(p=>p&&p.name&&p.online!==false);
+      if(onlinePlayers.length>0){
+        activeRooms++;
+        totalPlayers+=onlinePlayers.length;
+      } else {
+        emptyRooms.push(k);
+      }
+    });
+    // ยุบห้องว่างอัตโนมัติ
+    if(emptyRooms.length){
+      const updates={};
+      emptyRooms.forEach(k=>updates['rooms/'+k]=null);
+      db.ref().update(updates).then(()=>{
+        if(emptyRooms.length>0)console.log('Auto-cleaned',emptyRooms.length,'empty rooms');
+      });
+    }
+    const el=$('adminStats');
+    if(!el)return;
+    el.innerHTML=`
+      <div style="background:var(--card2);border-radius:var(--r);padding:12px 14px;border:1px solid var(--line)">
+        <div style="font-size:24px;font-weight:900;color:var(--ac)">${activeRooms}</div>
+        <div style="font-size:12px;color:var(--t2);margin-top:2px">ห้องที่เปิดอยู่</div>
+      </div>
+      <div style="background:var(--card2);border-radius:var(--r);padding:12px 14px;border:1px solid var(--line)">
+        <div style="font-size:24px;font-weight:900;color:var(--ok)">${totalPlayers}</div>
+        <div style="font-size:12px;color:var(--t2);margin-top:2px">ผู้เล่น online</div>
+      </div>`;
+  });
+}
+function renderAdminGames(){
+  const el=$('adminGamesList');if(!el)return;
+  el.innerHTML=HOME_GAMES_CONFIG.map(g=>{
+    const isHidden=!!hiddenGames[g.id];
+    const toggleId='toggle_'+g.id;
+    return `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--card2);border-radius:var(--r);border:1px solid var(--line)">
+      <span style="font-size:20px;width:28px;text-align:center">${g.icon}</span>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:700;${isHidden?'opacity:0.4':''}">${g.name}</div>
+        <div style="font-size:11px;color:var(--t3)">${isHidden?'🙈 ซ่อนอยู่':'👁️ แสดงอยู่'}</div>
+      </div>
+      <div id="${toggleId}" onclick="adminToggleGame('${g.id}',${isHidden})"
+        style="position:relative;width:46px;height:26px;flex-shrink:0;cursor:pointer;border-radius:13px;background:${isHidden?'rgba(255,255,255,0.1)':'var(--ac)'};border:1px solid ${isHidden?'var(--line)':'var(--ac)'};transition:all 0.25s">
+        <div style="position:absolute;top:3px;left:${isHidden?'3':'23'}px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left 0.25s;box-shadow:0 1px 4px rgba(0,0,0,0.3)"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function adminToggleGame(id,currentlyHidden){
+  if(!db||!isAdmin())return;
+  const newHidden={...hiddenGames};
+  // currentlyHidden=true → กดเพื่อแสดง, false → กดเพื่อซ่อน
+  if(currentlyHidden) delete newHidden[id];
+  else newHidden[id]=true;
+  // อัป local ก่อนเพื่อ UI ตอบสนองทันที
+  hiddenGames=newHidden;
+  renderAdminGames();
+  renderHomeGames();
+  // แล้วค่อย sync Firebase
+  db.ref('config/hiddenGames').set(Object.keys(newHidden).length?newHidden:null)
+    .then(()=>showToast(currentlyHidden?('✅ แสดง '+id+' แล้ว'):('🙈 ซ่อน '+id+' แล้ว')))
+    .catch(err=>{
+      // rollback ถ้า Firebase error
+      if(currentlyHidden) hiddenGames[id]=true; else delete hiddenGames[id];
+      renderAdminGames();renderHomeGames();
+      showToast('❌ บันทึกไม่ได้: '+err.message);
+    });
+}
+function cleanupRooms(){
+  if(!db||!isAdmin())return;
+  showToast('กำลังตรวจสอบ...',2000);
+  db.ref('rooms').once('value').then(snap=>{
+    const rooms=snap.val()||{};
+    const toDelete=[];
+    Object.keys(rooms).forEach(k=>{
+      const players=rooms[k].players||{};
+      const onlinePlayers=Object.values(players).filter(p=>p&&p.name&&p.online!==false);
+      if(onlinePlayers.length===0)toDelete.push(k);
+    });
+    if(!toDelete.length){showToast('ไม่มีห้องที่ต้องล้าง ✅');return;}
+    const updates={};
+    toDelete.forEach(k=>updates['rooms/'+k]=null);
+    db.ref().update(updates).then(()=>{
+      showToast('ลบ '+toDelete.length+' ห้องแล้ว 🗑️');
+      renderAdminStats();
+    }).catch(err=>showToast('ลบไม่ได้: '+err.message));
+  });
+}
+
+/* ══ HOME GAMES ══════════════════════════════════════════════ */
+const HOME_GAMES_CONFIG=[
+  {id:'ww',    label:'🎲 ต้องสร้างห้อง', icon:'🐺', bg:'rgba(249,168,212,0.14)', name:'Werewolf',      desc:'4–18 คน · แจกไพ่บทบาท',     action:"openJoinModal('ww')",    solo:false},
+  {id:'spyfall',label:null,               icon:'🕵️', bg:'rgba(192,132,252,0.14)', name:'Spyfall',        desc:'3+ คน · หาสายลับ',           action:"openJoinModal('spyfall')",solo:false},
+  {id:'king',   label:null,               icon:'👑', bg:'rgba(255,209,102,0.16)', name:"King's Game",    desc:'3+ คน · ราชาสั่ง',           action:"openJoinModal('king')",  solo:false},
+  {id:'salem',  label:null,               icon:'🧙', bg:'rgba(155,89,182,0.16)', name:'Salem 1692',      desc:'4–12 คน · ไพ่ชีวิต',        action:"openJoinModal('salem')", solo:false},
+  {id:'wheel',  label:'⚡ เริ่มได้เลย',   icon:'🎰', bg:'rgba(134,239,172,0.14)',name:'Spin the Wheel',  desc:'ตัดสินใจแทนคุณได้เลย',      action:"launchSolo('wheel')",    solo:true},
+  {id:'cards',  label:null,               icon:'🃏', bg:'rgba(253,164,175,0.14)',name:'ไพ่ปาร์ตี้',      desc:'ชาเลนจ์สนุกๆ ในวงเพื่อน',  action:"launchSolo('cards')",    solo:true},
+];
+function renderHomeGames(){
+  const sec=$('homeGamesSection');if(!sec)return;
+  const visible=HOME_GAMES_CONFIG.filter(g=>!hiddenGames[g.id]);
+  const multiRoom=visible.filter(g=>!g.solo);
+  const soloGames=visible.filter(g=>g.solo);
+  let html='';
+  if(multiRoom.length){
+    html+=`<div class="games-section-label">🎲 ต้องสร้างห้อง</div><div class="games-grid">`;
+    multiRoom.forEach(g=>{
+      html+=`<div class="game-card" onclick="${g.action}"><div class="game-icon" style="background:${g.bg};font-size:24px">${g.icon}</div><div class="game-name">${g.name}</div><div class="game-desc">${g.desc}</div></div>`;
+    });
+    html+='</div>';
+  }
+  if(soloGames.length){
+    html+=`<div class="games-section-label" style="margin-top:1.5rem">⚡ เริ่มได้เลย</div><div class="games-grid">`;
+    soloGames.forEach(g=>{
+      html+=`<div class="game-card" onclick="${g.action}"><div class="game-icon" style="background:${g.bg};font-size:24px">${g.icon}</div><div class="game-name">${g.name}</div><div class="game-desc">${g.desc}</div></div>`;
+    });
+    html+='</div>';
+  }
+  if(!visible.length) html='<div style="text-align:center;padding:3rem 1rem;color:var(--t3);font-size:15px">ยังไม่มีเกมที่เปิดให้เล่น</div>';
+  sec.innerHTML=html;
+}
 
 /* ══ THEME SWITCHER ════════════════════════════════════════════ */
 const THEMES={
@@ -4990,6 +5418,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(t&&!t.disabled){_haptic(8);}
   },{passive:true});
 
+  renderHomeGames();
   checkDeepLink();
   const jci=$('joinCodeInput');
   if(jci){
@@ -5009,6 +5438,44 @@ document.addEventListener('DOMContentLoaded',()=>{
 </script>
 
 
+
+<!-- Leave room confirm (Host) -->
+<div class="confirm-overlay" id="leaveConfirmOverlay">
+  <div class="confirm-box elevated">
+    <span class="confirm-icon">🏠</span>
+    <div class="confirm-title">ออกจากห้อง?</div>
+    <div class="confirm-sub">คุณเป็นหัวห้อง — ถ้าออกโดยไม่โอนสิทธิ์ ห้องจะยุบทันที</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:1rem">
+      <button class="btn btn-next" style="background:var(--ac);color:#fff;height:46px" onclick="$('leaveConfirmOverlay').classList.remove('show');openTransferHost()">👑 โอนหัวห้องก่อนออก</button>
+      <button class="btn btn-next" style="background:var(--danger);color:#fff;height:46px" onclick="leaveRoom()">🚪 ยุบห้องและออกเลย</button>
+      <button class="btn btn-sf btn-next" style="height:40px" onclick="$('leaveConfirmOverlay').classList.remove('show')">ยกเลิก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Transfer host -->
+<div class="confirm-overlay" id="transferHostOverlay">
+  <div class="confirm-box elevated">
+    <span class="confirm-icon">👑</span>
+    <div class="confirm-title">โอนหัวห้อง</div>
+    <div class="confirm-sub">เลือกผู้เล่นที่จะรับหน้าที่หัวห้องต่อจากคุณ</div>
+    <div id="transferPlayerList" style="display:flex;flex-direction:column;gap:8px;margin:1rem 0;max-height:220px;overflow-y:auto"></div>
+    <button class="btn btn-sf btn-next" style="width:100%;height:42px" onclick="$('transferHostOverlay').classList.remove('show')">ยกเลิก</button>
+  </div>
+</div>
+
+<!-- Kick confirm -->
+<div class="confirm-overlay" id="kickConfirmOverlay">
+  <div class="confirm-box elevated">
+    <span class="confirm-icon">👢</span>
+    <div class="confirm-title" id="kickConfirmName">เตะผู้เล่น?</div>
+    <div class="confirm-sub">ผู้เล่นคนนี้จะถูกเตะออกจากห้องทันที</div>
+    <div class="confirm-btns">
+      <button class="btn btn-sf btn-next" onclick="cancelKick()">ยกเลิก</button>
+      <button class="btn btn-next" style="background:var(--danger);color:#fff" onclick="doKick()">เตะออก</button>
+    </div>
+  </div>
+</div>
 </body>
 </html/* ── iPad / Large screens (768px+) ── */
 @media(min-width:768px){
