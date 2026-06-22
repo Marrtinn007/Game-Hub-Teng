@@ -624,7 +624,7 @@ body::before{
 </style>
 </head>
 <body>
-<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v12.9</div>
+<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v13.0</div>
 
 <div class="toast" id="toast"></div>
 
@@ -1599,14 +1599,10 @@ function enterLobby(){
   // ลบ node เก่าของตัวเองที่ค้างอยู่ (online:false หรือถูกเตะ) ก่อน join ใหม่
   // ใช้ uid จาก Google Auth เพื่อ track ว่าเป็นคนเดิม
   const myUid=currentUser?.uid||null;
-  const doJoin=()=>{
-    const playerKey=`${S.roomCode}_${Date.now()}_${Math.random().toString(36).slice(2,6)}`;
+  const doJoin=(playerKey)=>{
     S.myPlayerId=playerKey;
     const playerRef=db.ref(`rooms/${S.roomCode}/players/${playerKey}`);
-    const playerData={name:S.nickname,isHost:S.isHost,joinedAt:Date.now(),online:true,photo:currentUser?.photoURL||'',uid:myUid||''};
-    playerRef.set(playerData);
     db.ref(`rooms/${S.roomCode}/kicked/${playerKey}`).remove();
-    // บันทึก activeRoom ไว้ใน userSessions เพื่อใช้ rejoin ครั้งหน้า
     if(currentUser?.uid){
       db.ref('userSessions/'+currentUser.uid).update({
         activeRoom:S.roomCode,
@@ -1617,26 +1613,44 @@ function enterLobby(){
     }
     setupLobbyListeners(playerRef);
   };
-  // ถ้ามี uid ให้ลบ node เก่าของตัวเองก่อน (กรณีเข้าซ้ำ) — และรับช่วงสิทธิ์หัวห้องต่อถ้าของเดิมเป็นหัวห้อง
+  // ถ้ามี uid ให้ลบ node เก่า + เพิ่ม node ใหม่แบบ atomic ในคำสั่งเดียว
+  // ป้องกัน race condition ที่ทำให้มี isHost:true 2 node พร้อมกัน
   if(myUid){
     db.ref(`rooms/${S.roomCode}/players`).once('value').then(snap=>{
-      const delUpdates={};
+      const oldKeys=[];
       let inheritedHost=false;
       snap.forEach(c=>{
         const d=c.val();
-        if(d.uid===myUid&&c.key!==S.myPlayerId){
+        if(d&&d.uid===myUid){
           if(d.isHost)inheritedHost=true;
-          delUpdates[`rooms/${S.roomCode}/players/${c.key}`]=null;
-          delUpdates[`rooms/${S.roomCode}/kicked/${c.key}`]=null;
+          oldKeys.push(c.key);
         }
       });
-      // เครื่อง/แท็บล่าสุดที่เข้ามาแทนที่ ควรได้สิทธิ์หัวห้องเหมือนของเดิมเสมอ
       if(inheritedHost)S.isHost=true;
-      if(Object.keys(delUpdates).length)db.ref().update(delUpdates);
-      doJoin();
-    }).catch(()=>doJoin());
+      const playerKey=`${S.roomCode}_${Date.now()}_${Math.random().toString(36).slice(2,6)}`;
+      const playerData={name:S.nickname,isHost:S.isHost,joinedAt:Date.now(),online:true,photo:currentUser?.photoURL||'',uid:myUid||''};
+      const atomicUpdates={};
+      // ลบ node เก่าทั้งหมด + เพิ่ม node ใหม่ในคำสั่งเดียว → Firebase ไม่มีช่วงที่ host หาย
+      oldKeys.forEach(k=>{
+        atomicUpdates[`rooms/${S.roomCode}/players/${k}`]=null;
+        atomicUpdates[`rooms/${S.roomCode}/kicked/${k}`]=null;
+      });
+      atomicUpdates[`rooms/${S.roomCode}/players/${playerKey}`]=playerData;
+      db.ref().update(atomicUpdates)
+        .then(()=>doJoin(playerKey))
+        .catch(()=>doJoin(playerKey));
+    }).catch(()=>{
+      // fallback: ไม่มีข้อมูลเก่า สร้าง node ใหม่ตามปกติ
+      const playerKey=`${S.roomCode}_${Date.now()}_${Math.random().toString(36).slice(2,6)}`;
+      const playerData={name:S.nickname,isHost:S.isHost,joinedAt:Date.now(),online:true,photo:currentUser?.photoURL||'',uid:myUid||''};
+      db.ref(`rooms/${S.roomCode}/players/${playerKey}`).set(playerData);
+      doJoin(playerKey);
+    });
   } else {
-    doJoin();
+    const playerKey=`${S.roomCode}_${Date.now()}_${Math.random().toString(36).slice(2,6)}`;
+    const playerData={name:S.nickname,isHost:S.isHost,joinedAt:Date.now(),online:true,photo:currentUser?.photoURL||'',uid:myUid||''};
+    db.ref(`rooms/${S.roomCode}/players/${playerKey}`).set(playerData);
+    doJoin(playerKey);
   }
   function setupLobbyListeners(playerRef){
 
@@ -1724,19 +1738,31 @@ function enterLobby(){
       if(S.isHost)showToast('คุณเป็นหัวห้องแล้ว 👑',3000);
     }
     // ── Auto-promote: ถ้าไม่มี Host เลยในห้อง ให้คนที่ joinedAt เก่าสุดรับตำแหน่ง ──
-    // ใช้เฉพาะ online players เพื่อไม่โปรโมทคนที่ออกไปแล้ว
-    const onlinePlayers=S.players.filter(p=>p.online!==false);
-    const hasHost=onlinePlayers.some(p=>p.isHost);
-    if(!hasHost&&onlinePlayers.length>0&&firebaseReady&&S.roomCode){
-      // เรียงตาม joinedAt — คนเก่าสุดได้เป็น Host
-      const oldest=onlinePlayers.slice().sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0))[0];
-      // ให้แค่คนที่จะได้เป็น Host เป็นคนเขียน — ป้องกัน race condition
-      if(oldest&&oldest.id===S.myPlayerId){
-        S.isHost=true;
-        db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}/isHost`).set(true).then(()=>{
-          showToast('คุณเป็นหัวห้องแล้ว 👑',3000);
+    // delay 2.5s ก่อน promote — ให้เครื่องใหม่ที่ rejoin มีเวลาเข้ามาแทนที่ก่อน
+    const hasHost=S.players.some(p=>p.isHost);
+    if(!hasHost&&S.players.length>0&&firebaseReady&&S.roomCode){
+      const _snapCode=S.roomCode;
+      clearTimeout(window._promoteTimer);
+      window._promoteTimer=setTimeout(()=>{
+        if(!S.roomCode||S.roomCode!==_snapCode||!firebaseReady)return;
+        // อ่านใหม่จาก Firebase โดยตรง ไม่ใช้ S.players ที่อาจ stale
+        db.ref(`rooms/${S.roomCode}/players`).once('value').then(fSnap=>{
+          const fresh=[];
+          fSnap.forEach(c=>{const d=c.val();if(d&&d.name)fresh.push({id:c.key,...d});});
+          if(fresh.some(p=>p.isHost))return; // มีคนรับ host แล้ว
+          const online=fresh.filter(p=>p.online!==false);
+          if(!online.length)return;
+          const oldest=online.slice().sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0))[0];
+          if(oldest.id===S.myPlayerId){
+            S.isHost=true;
+            db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}/isHost`).set(true)
+              .then(()=>showToast('คุณเป็นหัวห้องแล้ว 👑',3000))
+              .catch(()=>{});
+          }
         }).catch(()=>{});
-      }
+      },2500);
+    } else {
+      clearTimeout(window._promoteTimer);
     }
     // แสดงหน้า lobby ครั้งแรกหลังได้ข้อมูลจริงจาก Firebase
     if(!_lobbyShown){
@@ -1893,20 +1919,20 @@ function leaveRoom(){
   // ตรวจ isHost จริงๆ จาก Firebase ก่อนตัดสินใจยุบหรือออก
   const doLeave=(amHost)=>{
     if(amHost&&firebaseReady&&S.roomCode){
-      // ลบ players ทั้งหมดก่อน → listener ของทุก client จะ detect ห้องว่างและ redirect home
-      // จากนั้นลบ sub-node อื่นๆ — ต้องทำทีละ node เพราะ Rules ไม่ได้ให้ write ที่ root room
+      // ลบ players ทุกคนก่อน → ทุก client detect ห้องว่างแล้ว redirect home
+      // จากนั้นลบ sub-node อื่น (Rules ไม่ให้ set(null) ที่ root room โดยตรง)
       const rc=S.roomCode;
-      const wipeUpdates={};
-      S.players.forEach(p=>{wipeUpdates[`rooms/${rc}/players/${p.id}`]=null;});
-      wipeUpdates[`rooms/${rc}/game`]=null;
-      wipeUpdates[`rooms/${rc}/ww`]=null;
-      wipeUpdates[`rooms/${rc}/wwTimer`]=null;
-      wipeUpdates[`rooms/${rc}/spy`]=null;
-      wipeUpdates[`rooms/${rc}/king`]=null;
-      wipeUpdates[`rooms/${rc}/salem`]=null;
-      wipeUpdates[`rooms/${rc}/kicked`]=null;
-      wipeUpdates[`rooms/${rc}/roomName`]=null;
-      db.ref().update(wipeUpdates).catch(()=>{});
+      const wipe={};
+      S.players.forEach(p=>{wipe[`rooms/${rc}/players/${p.id}`]=null;});
+      wipe[`rooms/${rc}/game`]=null;
+      wipe[`rooms/${rc}/ww`]=null;
+      wipe[`rooms/${rc}/wwTimer`]=null;
+      wipe[`rooms/${rc}/spy`]=null;
+      wipe[`rooms/${rc}/king`]=null;
+      wipe[`rooms/${rc}/salem`]=null;
+      wipe[`rooms/${rc}/kicked`]=null;
+      wipe[`rooms/${rc}/roomName`]=null;
+      db.ref().update(wipe).catch(()=>{});
     } else if(firebaseReady&&S.myPlayerId&&S.roomCode){
       db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}`).remove();
     }
@@ -1927,7 +1953,6 @@ function leaveRoom(){
 /* ══ TRANSFER HOST ═══════════════════════ */
 const _transferMap=new Map();
 function openTransferHost(){
-  // เฉพาะคนที่ online และไม่ใช่ host
   const others=S.players.filter(p=>!p.isHost&&p.name);
   if(!others.length){showToast('ไม่มีผู้เล่นอื่นในห้อง');return;}
   _transferMap.clear();
@@ -1948,7 +1973,7 @@ function confirmTransferHost(key){
   const target=_transferMap.get(key);
   if(!target){showToast('ไม่พบผู้เล่น');return;}
   if(!firebaseReady||!S.roomCode){showToast('เชื่อมต่อไม่ได้');return;}
-  // ตรวจสิทธิ์จาก Firebase จริงก่อนโอน — ไม่พึ่ง S.isHost อย่างเดียว
+  // verify สิทธิ์จาก Firebase ก่อนโอน
   db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}/isHost`).once('value').then(snap=>{
     if(snap.val()!==true){showToast('คุณไม่ใช่หัวห้องแล้ว');return;}
     const updates={};
