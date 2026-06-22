@@ -741,8 +741,14 @@ MenuOverlay')">
   </div>
 </div>
 
+<!-- ══ SPLASH (กันกระพริบหน้า login ตอนเช็คสถานะล็อกอิน) ══ -->
+<div class="screen active" id="screen-splash" style="align-items:center;justify-content:center">
+  <div style="font-size:40px;animation:splashFade 1.2s ease-in-out infinite">🎮</div>
+</div>
+<style>@keyframes splashFade{0%,100%{opacity:0.4}50%{opacity:1}}</style>
+
 <!-- ══ LOGIN ══ -->
-<div class="screen active" id="screen-login">
+<div class="screen" id="screen-login">
   <div class="login-box elevated anim-pop">
     <div class="login-logo">🎮</div>
     <div class="login-title">Game Hub <span style="color:var(--ac)">Teng</span></div>
@@ -1216,6 +1222,7 @@ function initFirebase(){
     db.ref('config/hiddenGames').on('value',snap=>{hiddenGames=snap.val()||{};renderHomeGames();if($('screen-lobby')?.classList.contains('active'))renderLobbyUI();if($('adminPanelSheet')?.style.display!=='none')renderAdminGames();});
     auth.onAuthStateChanged(user=>{
       currentUser=user;
+      $('screen-splash')?.classList.remove('active');
       if(user){
         const av=$('homeUserAvatar'),nm=$('homeUserName');
         const dn=$('profileDropName'),de=$('profileDropEmail'),da=$('profileDropAvatar'),ab=$('adminMenuBtn');
@@ -1242,7 +1249,7 @@ function initFirebase(){
         console.warn('Redirect result:',err.code);
       });
     }
-  }catch(e){console.warn('Firebase:',e.message);checkDeepLink();}
+  }catch(e){console.warn('Firebase:',e.message);$('screen-splash')?.classList.remove('active');$('screen-login')?.classList.add('active');renderHomeGames();checkDeepLink();}
 }
 function signInWithGoogle(){
   if(!auth){showToast('กำลังเชื่อมต่อ...');return;}
@@ -1723,14 +1730,20 @@ function copyRoomLink(){
   const url=`${location.origin}${location.pathname}?room=${S.roomCode}`;
   navigator.clipboard?.writeText(url).then(()=>showToast('📋 คัดลอกลิงก์แล้ว!'));
 }
+function updateLeaveTransferBtn(){
+  const others=S.players.filter(p=>!p.isHost&&p.online!==false&&p.name);
+  const btn=$('leaveTransferBtn');
+  if(btn)btn.style.display=others.length?'':'none';
+}
 function confirmLeaveRoom(){
   // ตรวจ isHost จริงๆ จาก Firebase ก่อนแสดง popup
   if(S.isHost){
+    updateLeaveTransferBtn();
     $('leaveConfirmOverlay')?.classList.add('show');
   } else {
     // double-check จาก Firebase เผื่อโอนแล้ว S.isHost ยังไม่อัป
     db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}/isHost`).once('value').then(snap=>{
-      if(snap.val()===true){$('leaveConfirmOverlay')?.classList.add('show');}
+      if(snap.val()===true){updateLeaveTransferBtn();$('leaveConfirmOverlay')?.classList.add('show');}
       else{leaveRoom();}
     }).catch(()=>leaveRoom());
   }
@@ -5434,7 +5447,6 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(t&&!t.disabled){_haptic(8);}
   },{passive:true});
 
-  renderHomeGames();
   checkDeepLink();
   const jci=$('joinCodeInput');
   if(jci){
@@ -5462,7 +5474,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     <div class="confirm-title">ออกจากห้อง?</div>
     <div class="confirm-sub">คุณเป็นหัวห้อง — ถ้าออกโดยไม่โอนสิทธิ์ ห้องจะยุบทันที</div>
     <div style="display:flex;flex-direction:column;gap:8px;margin-top:1rem">
-      <button class="btn btn-next" style="background:var(--ac);color:#fff;height:46px" onclick="$('leaveConfirmOverlay').classList.remove('show');openTransferHost()">👑 โอนหัวห้องก่อนออก</button>
+      <button id="leaveTransferBtn" class="btn btn-next" style="background:var(--ac);color:#fff;height:46px" onclick="$('leaveConfirmOverlay').classList.remove('show');openTransferHost()">👑 โอนหัวห้องก่อนออก</button>
       <button class="btn btn-next" style="background:var(--danger);color:#fff;height:46px" onclick="leaveRoom()">🚪 ยุบห้องและออกเลย</button>
       <button class="btn btn-sf btn-next" style="height:40px" onclick="$('leaveConfirmOverlay').classList.remove('show')">ยกเลิก</button>
     </div>
