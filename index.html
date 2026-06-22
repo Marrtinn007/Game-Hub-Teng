@@ -1241,7 +1241,7 @@ function initFirebase(){
         if(!cur||cur.id==='screen-login')showScreen('screen-home');
         checkDeepLink();
         // หลังล็อคอินใหม่ (เช่น เปิดเครื่องใหม่) ให้ตรวจว่าบัญชีนี้ยังอยู่ในห้องไหนอยู่ไหม
-        if(firebaseReady&&!new URLSearchParams(location.search).get('room'))setTimeout(()=>checkRejoinRoom(user.uid),1500);
+        if(firebaseReady&&!new URLSearchParams(location.search).get('room'))checkRejoinRoom(user.uid);
       } else {
         stopSessionGuard();
         document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -1285,11 +1285,8 @@ function stopSessionGuard(){
 }
 function forceKickedBySameAccount(){
   stopSessionGuard();
-  try{
-    if(S.roomCode&&S.myPlayerId&&firebaseReady){
-      db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}`).remove();
-    }
-  }catch(e){}
+  // ไม่ลบตัวเองออกจากห้อง — เครื่องใหม่จะ rejoin เข้ามาแทนที่แล้วลบ node เก่าเอง
+  // ถ้าลบตรงนี้และเป็น Host ห้องจะยุบก่อนที่เครื่องใหม่จะเข้ามาได้
   // ปิด listeners ทั้งหมดก่อน — ไม่งั้น gameRef ยังยิง event แม้จะ signOut แล้ว
   [roomRef,gameRef,wwRef].forEach(r=>r?.off());
   roomRef=gameRef=wwRef=null;
@@ -1725,6 +1722,21 @@ function enterLobby(){
     if(me&&me.isHost!==S.isHost){
       S.isHost=!!me.isHost;
       if(S.isHost)showToast('คุณเป็นหัวห้องแล้ว 👑',3000);
+    }
+    // ── Auto-promote: ถ้าไม่มี Host เลยในห้อง ให้คนที่ joinedAt เก่าสุดรับตำแหน่ง ──
+    // ใช้เฉพาะ online players เพื่อไม่โปรโมทคนที่ออกไปแล้ว
+    const onlinePlayers=S.players.filter(p=>p.online!==false);
+    const hasHost=onlinePlayers.some(p=>p.isHost);
+    if(!hasHost&&onlinePlayers.length>0&&firebaseReady&&S.roomCode){
+      // เรียงตาม joinedAt — คนเก่าสุดได้เป็น Host
+      const oldest=onlinePlayers.slice().sort((a,b)=>(a.joinedAt||0)-(b.joinedAt||0))[0];
+      // ให้แค่คนที่จะได้เป็น Host เป็นคนเขียน — ป้องกัน race condition
+      if(oldest&&oldest.id===S.myPlayerId){
+        S.isHost=true;
+        db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}/isHost`).set(true).then(()=>{
+          showToast('คุณเป็นหัวห้องแล้ว 👑',3000);
+        }).catch(()=>{});
+      }
     }
     // แสดงหน้า lobby ครั้งแรกหลังได้ข้อมูลจริงจาก Firebase
     if(!_lobbyShown){
