@@ -777,11 +777,14 @@ MenuOverlay')">
       </div>
       <!-- Theme section -->
       <div style="padding:4px 6px 2px">
-        <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;color:var(--t3);text-transform:uppercase;padding:2px 4px 6px">ธีม</div>
+        <div style="display:flex;align-items:baseline;justify-content:space-between;padding:2px 4px 6px">
+          <span style="font-size:10px;font-weight:700;letter-spacing:0.08em;color:var(--t3);text-transform:uppercase">ธีม</span>
+          <span id="themeActiveLabel" style="font-size:11px;font-weight:700;color:var(--ac)"></span>
+        </div>
         <div style="display:flex;gap:6px;padding-bottom:8px;border-bottom:1px solid var(--line)">
-          <button onclick="setTheme('dark')" style="flex:1;height:32px;border-radius:8px;border:1.5px solid var(--line);background:#1c1f26;cursor:pointer;font-size:13px" title="Dark">🌙</button>
-          <button onclick="setTheme('cream')" style="flex:1;height:32px;border-radius:8px;border:1.5px solid var(--line);background:#fffdf8;cursor:pointer;font-size:13px" title="Cream">🍵</button>
-          <button onclick="setTheme('ocean')" style="flex:1;height:32px;border-radius:8px;border:1.5px solid var(--line);background:#0d1d30;cursor:pointer;font-size:13px" title="Ocean">🌊</button>
+          <button id="themeDotBtn-dark" onclick="setTheme('dark')" style="flex:1;height:32px;border-radius:8px;border:1.5px solid var(--line);background:#1c1f26;cursor:pointer;font-size:13px;transition:border-color 0.15s,box-shadow 0.15s" title="Dark">🌙</button>
+          <button id="themeDotBtn-cream" onclick="setTheme('cream')" style="flex:1;height:32px;border-radius:8px;border:1.5px solid var(--line);background:#fffdf8;cursor:pointer;font-size:13px;transition:border-color 0.15s,box-shadow 0.15s" title="Cream">🍵</button>
+          <button id="themeDotBtn-ocean" onclick="setTheme('ocean')" style="flex:1;height:32px;border-radius:8px;border:1.5px solid var(--line);background:#0d1d30;cursor:pointer;font-size:13px;transition:border-color 0.15s,box-shadow 0.15s" title="Ocean">🌊</button>
         </div>
       </div>
       <button id="adminMenuBtn" style="display:none;width:100%;text-align:left;padding:8px 10px;background:none;border:none;color:var(--ac);font-family:'Kanit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;margin-top:2px" onclick="toggleProfileMenu();openAdminPanel()">🛡️ Admin Panel</button>
@@ -797,9 +800,9 @@ MenuOverlay')">
     <span id="homeUserName" style="font-size:13px;color:var(--t2);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block"></span>
   </div>
   <!-- Admin Panel Sheet -->
-  <div id="adminPanelOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:300;backdrop-filter:blur(4px)" onclick="closeAdminPanel()"></div>
-  <div id="adminPanelSheet" style="display:none;position:fixed;bottom:0;left:0;right:0;background:var(--card);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:1.5rem var(--pad) 2rem;z-index:301;max-height:80dvh;overflow-y:auto">
-    <div style="width:40px;height:4px;background:var(--line);border-radius:2px;margin:0 auto 1.25rem"></div>
+  <div id="adminPanelOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0);z-index:300;backdrop-filter:blur(0px);transition:background-color 0.28s,backdrop-filter 0.28s;opacity:0" onclick="closeAdminPanel()"></div>
+  <div id="adminPanelSheet" style="display:none;position:fixed;bottom:0;left:0;right:0;background:var(--card);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:1.5rem var(--pad) 2rem;z-index:301;max-height:80dvh;overflow-y:auto;transform:translateY(100%);transition:transform 0.32s var(--spring);box-shadow:0 -6px 40px rgba(0,0,0,0.6)">
+    <div id="adminPanelHandle" style="width:40px;height:4px;background:var(--line);border-radius:2px;margin:0 auto 1.25rem;cursor:grab;touch-action:none"></div>
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.25rem">
       <span style="font-size:20px">&#x1F6E1;&#xFE0F;</span>
       <div style="font-size:17px;font-weight:800;flex:1">Admin Panel</div>
@@ -1224,6 +1227,7 @@ function initFirebase(){
       currentUser=user;
       $('screen-splash')?.classList.remove('active');
       if(user){
+        startSessionGuard(user.uid);
         const av=$('homeUserAvatar'),nm=$('homeUserName');
         const dn=$('profileDropName'),de=$('profileDropEmail'),da=$('profileDropAvatar'),ab=$('adminMenuBtn');
         if(av&&user.photoURL){av.src=user.photoURL;av.style.display='';}
@@ -1237,6 +1241,7 @@ function initFirebase(){
         if(!cur||cur.id==='screen-login')showScreen('screen-home');
         checkDeepLink();
       } else {
+        stopSessionGuard();
         document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
         $('screen-login')?.classList.add('active');
       }
@@ -1250,6 +1255,35 @@ function initFirebase(){
       });
     }
   }catch(e){console.warn('Firebase:',e.message);$('screen-splash')?.classList.remove('active');$('screen-login')?.classList.add('active');renderHomeGames();checkDeepLink();}
+}
+/* ══ SINGLE-DEVICE LOGIN GUARD ══════════════════════════════════
+   เครื่อง/แท็บที่ login ล่าสุดของบัญชีเดียวกันจะ "ทับ" session เก่าเสมอ
+   เครื่องเก่าที่เห็น sid เปลี่ยนจะถูกบังคับออกจากระบบอัตโนมัติ           */
+let _sessionRef=null;
+function startSessionGuard(uid){
+  if(!db||!uid)return;
+  stopSessionGuard();
+  const ref=db.ref('userSessions/'+uid);
+  // เขียนทับเป็นของเครื่องนี้ทันที — เครื่องล่าสุดชนะเสมอ
+  ref.set({sid:S.sessionId,ts:Date.now()}).catch(()=>{});
+  _sessionRef=ref;
+  ref.on('value',snap=>{
+    const v=snap.val();
+    if(v&&v.sid&&v.sid!==S.sessionId)forceKickedBySameAccount();
+  });
+}
+function stopSessionGuard(){
+  if(_sessionRef){_sessionRef.off();_sessionRef=null;}
+}
+function forceKickedBySameAccount(){
+  stopSessionGuard();
+  try{
+    if(S.roomCode&&S.myPlayerId&&firebaseReady){
+      db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}`).remove();
+    }
+  }catch(e){}
+  showToast('บัญชีนี้ถูกเข้าสู่ระบบจากอุปกรณ์อื่น — ออกจากระบบที่นี่แล้ว',5000);
+  setTimeout(()=>{auth&&auth.signOut();},700);
 }
 function signInWithGoogle(){
   if(!auth){showToast('กำลังเชื่อมต่อ...');return;}
@@ -1307,6 +1341,7 @@ let SETTINGS={...DEFAULT_SETTINGS};
 /* ══ STATE ═══════════════════════════════ */
 const S={
   roomCode:null,roomName:null,nickname:null,isHost:false,myPlayerId:null,
+  sessionId:'sess_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),
   players:[],selectedGame:null,pendingRoomCode:null,paused:false,
   wheelItems:[],wheelSpinning:false,wheelAngle:0,
   cardDeck:[],cardIdx:0,cardRound:0,_cardSpinning:false,
@@ -1515,17 +1550,21 @@ function enterLobby(){
     db.ref(`rooms/${S.roomCode}/kicked/${playerKey}`).remove();
     setupLobbyListeners(playerRef);
   };
-  // ถ้ามี uid ให้ลบ node เก่าของตัวเองก่อน (กรณีเข้าซ้ำ)
+  // ถ้ามี uid ให้ลบ node เก่าของตัวเองก่อน (กรณีเข้าซ้ำ) — และรับช่วงสิทธิ์หัวห้องต่อถ้าของเดิมเป็นหัวห้อง
   if(myUid){
     db.ref(`rooms/${S.roomCode}/players`).once('value').then(snap=>{
       const delUpdates={};
+      let inheritedHost=false;
       snap.forEach(c=>{
         const d=c.val();
         if(d.uid===myUid&&c.key!==S.myPlayerId){
+          if(d.isHost)inheritedHost=true;
           delUpdates[`rooms/${S.roomCode}/players/${c.key}`]=null;
           delUpdates[`rooms/${S.roomCode}/kicked/${c.key}`]=null;
         }
       });
+      // เครื่อง/แท็บล่าสุดที่เข้ามาแทนที่ ควรได้สิทธิ์หัวห้องเหมือนของเดิมเสมอ
+      if(inheritedHost)S.isHost=true;
       if(Object.keys(delUpdates).length)db.ref().update(delUpdates);
       doJoin();
     }).catch(()=>doJoin());
@@ -3410,53 +3449,124 @@ function toggleProfileMenu(){
 /* ══ ADMIN PANEL ══════════════════════════════════════════════ */
 function openAdminPanel(){
   if(!isAdmin()){showToast('ไม่มีสิทธิ์ Admin');return;}
-  $('adminPanelOverlay').style.display='';
-  $('adminPanelSheet').style.display='';
+  const ov=$('adminPanelOverlay'),sh=$('adminPanelSheet');
+  if(!ov||!sh)return;
+  ov.style.display='';sh.style.display='';
+  // force reflow ก่อนเปลี่ยน transform/opacity เพื่อให้ transition เล่น
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      ov.style.opacity='1';ov.style.background='rgba(0,0,0,0.6)';ov.style.backdropFilter='blur(4px)';
+      sh.style.transform='translateY(0)';
+    });
+  });
   renderAdminStats();
   renderAdminGames();
 }
 function closeAdminPanel(){
-  $('adminPanelOverlay').style.display='none';
-  $('adminPanelSheet').style.display='none';
+  const ov=$('adminPanelOverlay'),sh=$('adminPanelSheet');
+  if(!ov||!sh)return;
+  ov.style.opacity='0';ov.style.background='rgba(0,0,0,0)';ov.style.backdropFilter='blur(0px)';
+  sh.style.transform='translateY(100%)';
+  setTimeout(()=>{ov.style.display='none';sh.style.display='none';},320);
+  stopAdminStats();
+}
+/* ── ลากปิด Admin Panel (swipe down to dismiss เมื่ออยู่บนสุดแล้ว) ── */
+(function(){
+  let dragging=false,startY=0,curY=0,sheetH=0;
+  function onDown(e){
+    const sh=$('adminPanelSheet');if(!sh)return;
+    // อนุญาตให้ลากปิดเฉพาะตอนสกอลล์อยู่บนสุดแล้วเท่านั้น (ไม่งั้นจะไปแย่ง scroll)
+    if(sh.scrollTop>0)return;
+    dragging=true;startY=(e.touches?e.touches[0].clientY:e.clientY);curY=0;
+    sheetH=sh.offsetHeight;
+    sh.style.transition='none';
+  }
+  function onMove(e){
+    if(!dragging)return;
+    const sh=$('adminPanelSheet');if(!sh)return;
+    const y=(e.touches?e.touches[0].clientY:e.clientY);
+    const dy=y-startY;
+    // ถ้าลากขึ้น (ค่าลบ) ไม่ต้องทำอะไร ปล่อยให้ scroll ปกติทำงาน
+    if(dy<0){curY=0;sh.style.transform='translateY(0)';return;}
+    curY=dy;
+    sh.style.transform=`translateY(${curY}px)`;
+    e.preventDefault?.();
+  }
+  function onUp(){
+    if(!dragging)return;
+    dragging=false;
+    const sh=$('adminPanelSheet');if(!sh)return;
+    sh.style.transition='transform 0.32s var(--spring)';
+    if(curY>sheetH*0.22){
+      closeAdminPanel();
+    } else {
+      sh.style.transform='translateY(0)';
+    }
+  }
+  document.addEventListener('DOMContentLoaded',()=>{
+    const sh=$('adminPanelSheet');
+    if(!sh)return;
+    sh.addEventListener('pointerdown',onDown);
+    sh.addEventListener('touchstart',onDown,{passive:true});
+    window.addEventListener('pointermove',onMove,{passive:false});
+    window.addEventListener('touchmove',onMove,{passive:false});
+    window.addEventListener('pointerup',onUp);
+    window.addEventListener('touchend',onUp);
+  });
+})();
+let _adminStatsListening=false,_adminStatsDebounceT=null;
+function _adminStatsCompute(rooms){
+  rooms=rooms||{};
+  const roomKeys=Object.keys(rooms);
+  let activeRooms=0,totalPlayers=0;
+  const emptyRooms=[];
+  roomKeys.forEach(k=>{
+    const players=rooms[k].players||{};
+    // นับเฉพาะ player ที่มีข้อมูลครบและ online
+    const onlinePlayers=Object.values(players).filter(p=>p&&p.name&&p.online!==false);
+    if(onlinePlayers.length>0){
+      activeRooms++;
+      totalPlayers+=onlinePlayers.length;
+    } else {
+      emptyRooms.push(k);
+    }
+  });
+  // ยุบห้องว่างอัตโนมัติ
+  if(emptyRooms.length){
+    const updates={};
+    emptyRooms.forEach(k=>updates['rooms/'+k]=null);
+    db.ref().update(updates).then(()=>{
+      console.log('Auto-cleaned',emptyRooms.length,'empty rooms');
+    });
+  }
+  const el=$('adminStats');
+  if(!el)return;
+  el.innerHTML=`
+    <div style="background:var(--card2);border-radius:var(--r);padding:12px 14px;border:1px solid var(--line)">
+      <div style="font-size:24px;font-weight:900;color:var(--ac)">${activeRooms}</div>
+      <div style="font-size:12px;color:var(--t2);margin-top:2px">ห้องที่เปิดอยู่</div>
+    </div>
+    <div style="background:var(--card2);border-radius:var(--r);padding:12px 14px;border:1px solid var(--line)">
+      <div style="font-size:24px;font-weight:900;color:var(--ok)">${totalPlayers}</div>
+      <div style="font-size:12px;color:var(--t2);margin-top:2px">ผู้เล่น online</div>
+    </div>`;
 }
 function renderAdminStats(){
   if(!db||!isAdmin())return;
-  db.ref('rooms').once('value').then(snap=>{
-    const rooms=snap.val()||{};
-    const roomKeys=Object.keys(rooms);
-    let activeRooms=0,totalPlayers=0;
-    const emptyRooms=[];
-    roomKeys.forEach(k=>{
-      const players=rooms[k].players||{};
-      // นับเฉพาะ player ที่มีข้อมูลครบและ online
-      const onlinePlayers=Object.values(players).filter(p=>p&&p.name&&p.online!==false);
-      if(onlinePlayers.length>0){
-        activeRooms++;
-        totalPlayers+=onlinePlayers.length;
-      } else {
-        emptyRooms.push(k);
-      }
-    });
-    // ยุบห้องว่างอัตโนมัติ
-    if(emptyRooms.length){
-      const updates={};
-      emptyRooms.forEach(k=>updates['rooms/'+k]=null);
-      db.ref().update(updates).then(()=>{
-        if(emptyRooms.length>0)console.log('Auto-cleaned',emptyRooms.length,'empty rooms');
-      });
-    }
-    const el=$('adminStats');
-    if(!el)return;
-    el.innerHTML=`
-      <div style="background:var(--card2);border-radius:var(--r);padding:12px 14px;border:1px solid var(--line)">
-        <div style="font-size:24px;font-weight:900;color:var(--ac)">${activeRooms}</div>
-        <div style="font-size:12px;color:var(--t2);margin-top:2px">ห้องที่เปิดอยู่</div>
-      </div>
-      <div style="background:var(--card2);border-radius:var(--r);padding:12px 14px;border:1px solid var(--line)">
-        <div style="font-size:24px;font-weight:900;color:var(--ok)">${totalPlayers}</div>
-        <div style="font-size:12px;color:var(--t2);margin-top:2px">ผู้เล่น online</div>
-      </div>`;
+  // เริ่ม listener realtime แค่ครั้งเดียวตอนเปิดพาเนล (กันโหลดซ้ำซ้อน/หนักเครื่อง)
+  if(_adminStatsListening)return;
+  _adminStatsListening=true;
+  db.ref('rooms').on('value',snap=>{
+    // debounce กันอัปเดตถี่เกินไปตอนมีหลายห้องขยับพร้อมกัน
+    clearTimeout(_adminStatsDebounceT);
+    _adminStatsDebounceT=setTimeout(()=>_adminStatsCompute(snap.val()),400);
   });
+}
+function stopAdminStats(){
+  if(!db||!_adminStatsListening)return;
+  db.ref('rooms').off('value');
+  _adminStatsListening=false;
+  clearTimeout(_adminStatsDebounceT);
 }
 function renderAdminGames(){
   const el=$('adminGamesList');if(!el)return;
@@ -3471,8 +3581,8 @@ function renderAdminGames(){
         <div style="font-size:11px;color:var(--t3)">${isHidden?'🙈 ซ่อนอยู่':'👁️ แสดงอยู่'}</div>
       </div>
       <div id="${toggleId}" onclick="adminToggleGame('${g.id}',${isHidden})"
-        style="position:relative;width:46px;height:26px;flex-shrink:0;cursor:pointer;border-radius:13px;background:${isHidden?'rgba(255,255,255,0.1)':'var(--ac)'};border:1px solid ${isHidden?'var(--line)':'var(--ac)'};transition:all 0.25s">
-        <div style="position:absolute;top:3px;left:${isHidden?'3':'23'}px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left 0.25s;box-shadow:0 1px 4px rgba(0,0,0,0.3)"></div>
+        style="display:flex;align-items:center;width:46px;height:26px;flex-shrink:0;padding:2px;cursor:pointer;border-radius:13px;background:${isHidden?'rgba(255,255,255,0.1)':'var(--ac)'};border:1px solid ${isHidden?'var(--line)':'var(--ac)'};transition:background-color 0.25s,border-color 0.25s;box-sizing:border-box">
+        <div style="width:20px;height:20px;flex-shrink:0;border-radius:50%;background:#fff;transition:transform 0.25s var(--spring);transform:translateX(${isHidden?'0':'20px'});box-shadow:0 1px 4px rgba(0,0,0,0.3)"></div>
       </div>
     </div>`;
   }).join('');
@@ -3557,6 +3667,17 @@ const THEMES={
   cream:{e:'🍵',label:'Cream'},
   ocean:{e:'🌊',label:'Ocean'},
 };
+const THEME_NAMES_TH={dark:'มืด',cream:'ครีม',ocean:'ทะเล'};
+function _refreshThemeIndicator(t){
+  const lbl=$('themeActiveLabel');
+  if(lbl)lbl.textContent=(THEMES[t]?.e||'')+' '+(THEME_NAMES_TH[t]||t);
+  ['dark','cream','ocean'].forEach(k=>{
+    const b=$('themeDotBtn-'+k);
+    if(!b)return;
+    if(k===t){b.style.borderColor='var(--ac)';b.style.boxShadow='0 0 0 2px var(--ac-dim)';}
+    else{b.style.borderColor='var(--line)';b.style.boxShadow='none';}
+  });
+}
 function setTheme(t){
   document.documentElement.setAttribute('data-theme',t);
   localStorage.setItem('ghTeng_theme',t);
@@ -3564,6 +3685,7 @@ function setTheme(t){
   document.querySelectorAll('.theme-option').forEach(el=>{
     el.classList.toggle('active',el.textContent.includes(THEMES[t]?.label||t));
   });
+  _refreshThemeIndicator(t);
   // อัปเดตไอคอนปุ่ม
   const iconEl=$('themeBtnIcon');
   if(iconEl){
@@ -5441,6 +5563,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   const _st=localStorage.getItem('ghTeng_theme')||'dark';
   document.documentElement.setAttribute('data-theme',_st);
   document.querySelectorAll('.theme-option').forEach(el=>el.classList.toggle('active',el.textContent.includes(THEMES[_st]?.label||_st)));
+  _refreshThemeIndicator(_st);
   // Global button click sound + haptic
   document.addEventListener('pointerdown',e=>{
     const t=e.target.closest('button,.btn,.game-card,.game-select-card,.btn-icon,.ww-c-btn2,.btn-spin,.btn-draw');
