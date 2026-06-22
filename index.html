@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!-- ════════════════════════════════════════════════════════════════
-     GAME HUB TENG  —  v11.9
+     GAME HUB TENG  —  v12.1
      ────────────────────────────────────────────────────────────
      AI HANDOFF NOTE (สำหรับ AI ที่รับงานต่อ):
-     - เวอร์ชันปัจจุบัน: v11.9
+     - เวอร์ชันปัจจุบัน: v12.1
      - เพิ่มเวอร์ชัน +0.1 ทุกครั้งที่แก้ไข (v11 → v11.1 → v11.2 ...)
      - อัปเดต label มุมบนซ้าย id="versionLabel" ด้วยทุกครั้ง
      ════════════════════════════════════════════════════════════════ -->
@@ -624,7 +624,7 @@ body::before{
 </style>
 </head>
 <body>
-<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v11.9</div>
+<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v12.1</div>
 
 <div class="toast" id="toast"></div>
 
@@ -1304,10 +1304,20 @@ function confirmSessionKicked(){
    (ไม่ต้องกรอก nick ใหม่ เพราะใช้ชื่อเดิมจาก Firebase)           */
 function checkRejoinRoom(uid){
   if(!db||!uid||!firebaseReady)return;
-  // สแกนทันทีโดยไม่รอ — เจอห้องปุ๊บแสดง overlay แล้วเข้าเลย
+  if(!currentUser||currentUser.uid!==uid)return;
+  const ov=$('connectingOverlay');
+  const rn=$('connectingRoomName');
+  const _done=(found)=>{
+    if(!found){
+      _rejoinInProgress=false;
+      if(ov)ov.style.display='none';
+    }
+    // ถ้าเจอห้อง → enterLobby → showScreen('screen-lobby') จะ clear เอง
+  };
+  // scan ก่อน แล้วค่อยแสดง overlay เมื่อเจอห้องจริงๆ
   db.ref('rooms').once('value').then(snap=>{
-    if(!snap.exists())return;
-    if(!currentUser||currentUser.uid!==uid)return;
+    if(!snap.exists()){_done(false);return;}
+    if(!currentUser||currentUser.uid!==uid){_done(false);return;}
     let foundRoom=null,foundPlayer=null;
     snap.forEach(roomSnap=>{
       if(foundRoom)return;
@@ -1320,13 +1330,12 @@ function checkRejoinRoom(uid){
         }
       });
     });
-    if(!foundRoom||!foundPlayer)return;
+    if(!foundRoom||!foundPlayer){_done(false);return;}
     const cur=document.querySelector('.screen.active');
-    if(cur&&!['screen-home','screen-login'].includes(cur.id))return;
-    // แสดง overlay กลางจอทันที
-    const ov=$('connectingOverlay');
-    const rn=$('connectingRoomName');
-    if(ov){ov.style.display='flex';}
+    if(cur&&!['screen-home','screen-login'].includes(cur.id)){_done(false);return;}
+    // เจอห้อง — แสดง overlay แล้ว lock ไม่ให้ showScreen ซ่อน
+    _rejoinInProgress=true;
+    if(ov)ov.style.display='flex';
     if(rn){
       db.ref('rooms/'+foundRoom+'/roomName').once('value').then(ns=>{
         rn.textContent='ห้อง: '+(ns.val()||foundRoom);
@@ -1337,9 +1346,8 @@ function checkRejoinRoom(uid){
     S.nickname=foundPlayer.name||currentUser?.displayName?.split(' ')[0]||'ผู้เล่น';
     S.isHost=!!foundPlayer.isHost;
     S.roomName=null;
-    // enterLobby จะซ่อน overlay เมื่อได้ข้อมูลจาก Firebase แล้ว showScreen lobby
     enterLobby();
-  }).catch(()=>{});
+  }).catch(()=>{_done(false);});
 }
 
 function signInWithGoogle(){
@@ -1414,9 +1422,11 @@ const S={
 /* ══ UTILS ═══════════════════════════════ */
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let _rejoinInProgress=false;
 function showScreen(id){
-  // ซ่อน connecting overlay เมื่อเข้าหน้าใดก็ตาม
-  const ov=$('connectingOverlay');if(ov)ov.style.display='none';
+  // ซ่อน connecting overlay เฉพาะเมื่อไม่ได้อยู่ใน rejoin flow
+  if(!_rejoinInProgress){const ov=$('connectingOverlay');if(ov)ov.style.display='none';}
+  if(id==='screen-lobby'){_rejoinInProgress=false;const ov=$('connectingOverlay');if(ov)ov.style.display='none';}
   // แสดง/ซ่อนปุ่มธีมตาม screen
   const gameScreens=['screen-ww','screen-wheel','screen-cards','screen-spyfall','screen-king','screen-salem'];
   const btn=$('themeSwitcherBtn');const sheet=$('themeSheet');
@@ -1632,30 +1642,40 @@ function enterLobby(){
   }
   function setupLobbyListeners(playerRef){
 
-  // ── Resilient Presence: mark offline on disconnect แต่ไม่ลบ ──
-  // เมื่อ TCP หลุด Firebase จะ mark online:false แต่ข้อมูลยังอยู่
-  playerRef.onDisconnect().update({online:false});
+  // ── Presence: onDisconnect เก็บ lastSeen แต่ไม่ซ่อน player ──
+  // ใช้ lastSeen แทน online:false เพื่อให้รายชื่อไม่หายตอนมือถือ background
+  function _setOnDisconnect(){
+    playerRef.onDisconnect().update({online:false,lastSeen:Date.now()});
+  }
+  _setOnDisconnect();
 
-  // ── Re-register presence เมื่อกลับมา (Page Visibility API) ──
+  // ── Re-register presence เมื่อกลับมา foreground ──
   function _reRegisterPresence(){
     if(!S.myPlayerId||!S.roomCode||!firebaseReady)return;
     const ref=db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}`);
     ref.update({online:true,lastSeen:Date.now()});
-    // ต่อ onDisconnect ใหม่ (ต้องทำหลัง reconnect เสมอ)
-    ref.onDisconnect().update({online:false});
+    ref.onDisconnect().update({online:false,lastSeen:Date.now()});
+    // ตรวจ game state — เผื่อหัวห้องเริ่มเกมระหว่างที่เรา background
+    if(gameRef)gameRef.once('value').then(gs=>{
+      const g=gs.val();
+      if(g&&g.started&&g.type){
+        const cur=document.querySelector('.screen.active');
+        if(cur&&cur.id==='screen-lobby'){selectGame(g.type,false);launchGame(g.type);}
+      }
+    });
   }
 
-  // visibilitychange: ทุกครั้งที่กลับมา foreground
+  // visibilitychange: กลับมา foreground
   const _visHandler=()=>{
     if(document.visibilityState==='visible')_reRegisterPresence();
   };
   document.removeEventListener('visibilitychange',_visHandler);
   document.addEventListener('visibilitychange',_visHandler);
 
-  // focus: กรณีสลับ tab บน desktop
+  // focus: desktop
   window.addEventListener('focus',_reRegisterPresence,{once:false});
 
-  // Firebase reconnect event: เมื่อ SDK reconnect หลัง offline
+  // Firebase reconnect หลัง offline
   db.ref('.info/connected').on('value',snap=>{
     if(snap.val()===true&&S.myPlayerId&&S.roomCode){
       _reRegisterPresence();
@@ -1771,16 +1791,17 @@ function enterLobby(){
 function renderPlayers(){
   const list=$('playersList'),cnt=$('playerCount');if(!list)return;
   // กรองเฉพาะคนที่ online หรือ Host (ไม่แสดงคน offline ที่ค้างใน db)
-  const visiblePlayers=S.players.filter(p=>p.online!==false||p.isHost);
+  const visiblePlayers=S.players.filter(p=>p&&p.name); // แสดงทุกคน ไม่ filter online
   if(cnt)cnt.textContent=visiblePlayers.length;
   list.innerHTML=visiblePlayers.map((p,i)=>{
     const canKick=S.isHost&&!p.isHost;
     const avatarHTML=p.photo
       ?`<img src="${esc(p.photo)}" style="width:36px;height:36px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid ${COLORS[i%COLORS.length]}44" />`
       :`<div class="p-avatar" style="background:${COLORS[i%COLORS.length]}28;color:${COLORS[i%COLORS.length]}">${esc(p.name.charAt(0).toUpperCase())}</div>`;
-    return `<div class="player-row">
+    const isOffline=p.online===false;
+    return `<div class="player-row" style="${isOffline?'opacity:0.45':''}">
       ${avatarHTML}
-      <div class="p-name">${esc(p.name)}</div>
+      <div class="p-name">${esc(p.name)}${isOffline?' <span style="font-size:11px;color:var(--t2)">(ออกไปชั่วคราว)</span>':''}</div>
       ${p.isHost?'<div class="p-badge">ผู้ดำเนินการเกม</div>':''}
       ${canKick?`<button class="kick-btn" onclick="openKickConfirm('${esc(p.id)}','${esc(p.name)}')" title="เตะออก">✕</button>`:''}
     </div>`;
@@ -1788,8 +1809,8 @@ function renderPlayers(){
 }
 function renderLobbyUI(){
   const grid=$('gameSelectGrid'),startBtn=$('btnStartGame'),hint=$('hostHint'),txBtn=$('transferHostBtn');
-  // นับเฉพาะคนที่ online จริงๆ (ไม่นับ offline node ที่ค้าง)
-  const onlinePlayers=S.players.filter(p=>p.online!==false||p.isHost);
+  // นับทุกคนในห้อง (ไม่ filter online เพราะมือถือ background ทำให้ online:false ชั่วคราว)
+  const onlinePlayers=S.players.filter(p=>p&&p.name);
   const nonHostOnline=onlinePlayers.filter(p=>!p.isHost);
 
   // render game cards กรอง hiddenGames
@@ -1829,7 +1850,7 @@ function copyRoomLink(){
   navigator.clipboard?.writeText(url).then(()=>showToast('📋 คัดลอกลิงก์แล้ว!'));
 }
 function updateLeaveTransferBtn(){
-  const others=S.players.filter(p=>!p.isHost&&p.online!==false&&p.name);
+  const others=S.players.filter(p=>!p.isHost&&p.name);
   const btn=$('leaveTransferBtn');
   if(btn)btn.style.display=others.length?'':'none';
 }
@@ -1873,7 +1894,7 @@ function leaveRoom(){
 /* ══ TRANSFER HOST ═══════════════════════ */
 function openTransferHost(){
   // เฉพาะคนที่ online และไม่ใช่ host
-  const others=S.players.filter(p=>!p.isHost&&p.online!==false&&p.name);
+  const others=S.players.filter(p=>!p.isHost&&p.name);
   if(!others.length){showToast('ไม่มีผู้เล่นอื่นในห้อง');return;}
   const list=$('transferPlayerList');
   if(list){
