@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!-- ════════════════════════════════════════════════════════════════
-     GAME HUB TENG  —  v11.7
+     GAME HUB TENG  —  v11.9
      ────────────────────────────────────────────────────────────
      AI HANDOFF NOTE (สำหรับ AI ที่รับงานต่อ):
-     - เวอร์ชันปัจจุบัน: v11.7
+     - เวอร์ชันปัจจุบัน: v11.9
      - เพิ่มเวอร์ชัน +0.1 ทุกครั้งที่แก้ไข (v11 → v11.1 → v11.2 ...)
      - อัปเดต label มุมบนซ้าย id="versionLabel" ด้วยทุกครั้ง
      ════════════════════════════════════════════════════════════════ -->
@@ -624,7 +624,7 @@ body::before{
 </style>
 </head>
 <body>
-<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v11.7</div>
+<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v11.9</div>
 
 <div class="toast" id="toast"></div>
 
@@ -1291,47 +1291,55 @@ function forceKickedBySameAccount(){
     }
   }catch(e){}
   S.roomCode=null;S.myPlayerId=null;S.selectedGame=null;S.players=[];
-  // แสดง toast ขณะยังอยู่หน้าเดิม แล้วรอ 1.8s ให้อ่านได้ก่อนค่อย signOut
+  // แสดง popup — รอให้กด ตกลง ก่อนค่อย signOut
+  $('sessionKickedOverlay')?.classList.add('show');
+}
+function confirmSessionKicked(){
+  $('sessionKickedOverlay')?.classList.remove('show');
+  auth&&auth.signOut();
   // onAuthStateChanged จะ redirect ไป screen-login เอง
-  showToast('📱 มีการเข้าสู่ระบบจากอุปกรณ์อื่น',3000);
-  setTimeout(()=>{ auth&&auth.signOut(); },1800);
 }
 /* ══ AUTO-REJOIN: เครื่องใหม่เข้ามาแทนที่ในห้องเดิม ══════════════
    สแกนหา room ที่ uid นี้อยู่ ถ้าเจอ → เข้าล็อบบี้อัตโนมัติ
    (ไม่ต้องกรอก nick ใหม่ เพราะใช้ชื่อเดิมจาก Firebase)           */
 function checkRejoinRoom(uid){
   if(!db||!uid||!firebaseReady)return;
-  // รอ 2.5s — ให้เครื่องเก่า signOut และลบตัวเองออกจากห้องก่อน
-  // แล้วค่อยสแกน room ที่ uid นี้ยังอยู่
-  setTimeout(()=>{
-    if(!currentUser||currentUser.uid!==uid)return; // ถูก signOut ไปก่อนแล้ว
-    db.ref('rooms').once('value').then(snap=>{
-      if(!snap.exists())return;
-      if(!currentUser||currentUser.uid!==uid)return;
-      let foundRoom=null,foundPlayer=null;
-      snap.forEach(roomSnap=>{
-        if(foundRoom)return;
-        const players=roomSnap.child('players');
-        players.forEach(pSnap=>{
-          const d=pSnap.val();
-          if(d&&d.uid===uid){
-            foundRoom=roomSnap.key;
-            foundPlayer={key:pSnap.key,...d};
-          }
-        });
+  // สแกนทันทีโดยไม่รอ — เจอห้องปุ๊บแสดง overlay แล้วเข้าเลย
+  db.ref('rooms').once('value').then(snap=>{
+    if(!snap.exists())return;
+    if(!currentUser||currentUser.uid!==uid)return;
+    let foundRoom=null,foundPlayer=null;
+    snap.forEach(roomSnap=>{
+      if(foundRoom)return;
+      const players=roomSnap.child('players');
+      players.forEach(pSnap=>{
+        const d=pSnap.val();
+        if(d&&d.uid===uid){
+          foundRoom=roomSnap.key;
+          foundPlayer={key:pSnap.key,...d};
+        }
       });
-      if(!foundRoom||!foundPlayer)return;
-      const cur=document.querySelector('.screen.active');
-      if(cur&&!['screen-home','screen-login'].includes(cur.id))return;
-      S.pendingRoomCode=foundRoom;
-      S.roomCode=foundRoom;
-      S.nickname=foundPlayer.name||currentUser?.displayName?.split(' ')[0]||'ผู้เล่น';
-      S.isHost=!!foundPlayer.isHost;
-      S.roomName=null;
-      showToast('🔄 กลับเข้าห้องเดิม...',2500);
-      enterLobby();
-    }).catch(()=>{});
-  },2500);
+    });
+    if(!foundRoom||!foundPlayer)return;
+    const cur=document.querySelector('.screen.active');
+    if(cur&&!['screen-home','screen-login'].includes(cur.id))return;
+    // แสดง overlay กลางจอทันที
+    const ov=$('connectingOverlay');
+    const rn=$('connectingRoomName');
+    if(ov){ov.style.display='flex';}
+    if(rn){
+      db.ref('rooms/'+foundRoom+'/roomName').once('value').then(ns=>{
+        rn.textContent='ห้อง: '+(ns.val()||foundRoom);
+      });
+    }
+    S.pendingRoomCode=foundRoom;
+    S.roomCode=foundRoom;
+    S.nickname=foundPlayer.name||currentUser?.displayName?.split(' ')[0]||'ผู้เล่น';
+    S.isHost=!!foundPlayer.isHost;
+    S.roomName=null;
+    // enterLobby จะซ่อน overlay เมื่อได้ข้อมูลจาก Firebase แล้ว showScreen lobby
+    enterLobby();
+  }).catch(()=>{});
 }
 
 function signInWithGoogle(){
@@ -1407,6 +1415,8 @@ const S={
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function showScreen(id){
+  // ซ่อน connecting overlay เมื่อเข้าหน้าใดก็ตาม
+  const ov=$('connectingOverlay');if(ov)ov.style.display='none';
   // แสดง/ซ่อนปุ่มธีมตาม screen
   const gameScreens=['screen-ww','screen-wheel','screen-cards','screen-spyfall','screen-king','screen-salem'];
   const btn=$('themeSwitcherBtn');const sheet=$('themeSheet');
@@ -5675,6 +5685,23 @@ document.addEventListener('DOMContentLoaded',()=>{
       <button class="btn btn-next" style="background:var(--danger);color:#fff" onclick="doKick()">เตะออก</button>
     </div>
   </div>
+</div>
+
+<!-- Session kicked popup -->
+<div class="confirm-overlay" id="sessionKickedOverlay">
+  <div class="confirm-box elevated" style="animation:popIn 0.35s var(--spring) both">
+    <span style="font-size:48px;display:block;margin-bottom:1rem">📱</span>
+    <div class="confirm-title">มีการเข้าสู่ระบบ<br>จากอุปกรณ์อื่น</div>
+    <div class="confirm-sub" style="margin-top:8px;font-size:14px">บัญชีนี้ถูกเข้าสู่ระบบจากอุปกรณ์หรือแท็บอื่น คุณจึงถูกออกจากระบบที่นี่</div>
+    <button class="btn btn-ac btn-full" style="margin-top:1.5rem;height:50px;border-radius:var(--r-l)" onclick="confirmSessionKicked()">ตกลง</button>
+  </div>
+</div>
+
+<!-- Connecting overlay (rejoin) -->
+<div id="connectingOverlay" style="display:none;position:fixed;inset:0;z-index:9000;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;gap:1rem">
+  <div style="font-size:48px;animation:splashFade 1s ease-in-out infinite">🎮</div>
+  <div style="font-size:18px;font-weight:700;color:var(--t0)">กำลังเชื่อมต่อ...</div>
+  <div style="font-size:14px;color:var(--t2)" id="connectingRoomName"></div>
 </div>
 </body>
 </html/* ── iPad / Large screens (768px+) ── */
