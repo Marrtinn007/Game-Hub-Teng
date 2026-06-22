@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!-- ════════════════════════════════════════════════════════════════
-     GAME HUB TENG  —  v12.5
+     GAME HUB TENG  —  v12.6
      ────────────────────────────────────────────────────────────
      AI HANDOFF NOTE (สำหรับ AI ที่รับงานต่อ):
-     - เวอร์ชันปัจจุบัน: v12.5
+     - เวอร์ชันปัจจุบัน: v12.6
      - เพิ่มเวอร์ชัน +0.1 ทุกครั้งที่แก้ไข (v11 → v11.1 → v11.2 ...)
      - อัปเดต label มุมบนซ้าย id="versionLabel" ด้วยทุกครั้ง
      ════════════════════════════════════════════════════════════════ -->
@@ -624,7 +624,7 @@ body::before{
 </style>
 </head>
 <body>
-<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v12.5</div>
+<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v12.6</div>
 
 <div class="toast" id="toast"></div>
 
@@ -1632,8 +1632,12 @@ function enterLobby(){
       });
       // เครื่อง/แท็บล่าสุดที่เข้ามาแทนที่ ควรได้สิทธิ์หัวห้องเหมือนของเดิมเสมอ
       if(inheritedHost)S.isHost=true;
-      if(Object.keys(delUpdates).length)db.ref().update(delUpdates);
-      doJoin();
+      // รอลบ node เก่าให้เสร็จก่อน แล้วค่อย doJoin()
+      // ป้องกัน race condition ที่ทำให้มี isHost:true 2 node พร้อมกัน
+      const doDelete=Object.keys(delUpdates).length
+        ?db.ref().update(delUpdates)
+        :Promise.resolve();
+      doDelete.then(()=>doJoin()).catch(()=>doJoin());
     }).catch(()=>doJoin());
   } else {
     doJoin();
