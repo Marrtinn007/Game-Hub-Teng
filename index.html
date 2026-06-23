@@ -1615,40 +1615,26 @@ function enterLobby(){
   };
   // ถ้ามี uid ให้ลบ node เก่า + เพิ่ม node ใหม่แบบ atomic ในคำสั่งเดียว
   // ป้องกัน race condition ที่ทำให้มี isHost:true 2 node พร้อมกัน
+  // ใช้ auth.uid เป็น playerKey โดยตรง — Rules เช็คได้ว่าใครแก้ node ของตัวเองเท่านั้น
   if(myUid){
-    db.ref(`rooms/${S.roomCode}/players`).once('value').then(snap=>{
-      const oldKeys=[];
-      let inheritedHost=false;
-      snap.forEach(c=>{
-        const d=c.val();
-        if(d&&d.uid===myUid){
-          if(d.isHost)inheritedHost=true;
-          oldKeys.push(c.key);
-        }
-      });
-      if(inheritedHost)S.isHost=true;
-      const playerKey=`${S.roomCode}_${Date.now()}_${Math.random().toString(36).slice(2,6)}`;
-      const playerData={name:S.nickname,isHost:S.isHost,joinedAt:Date.now(),online:true,photo:currentUser?.photoURL||'',uid:myUid||''};
-      const atomicUpdates={};
-      // ลบ node เก่าทั้งหมด + เพิ่ม node ใหม่ในคำสั่งเดียว → Firebase ไม่มีช่วงที่ host หาย
-      oldKeys.forEach(k=>{
-        atomicUpdates[`players/${k}`]=null;
-        atomicUpdates[`kicked/${k}`]=null;
-      });
-      atomicUpdates[`players/${playerKey}`]=playerData;
-      db.ref(`rooms/${S.roomCode}`).update(atomicUpdates)
+    const playerKey=myUid;
+    // อ่าน node เก่าของตัวเองก่อน เพื่อ inherit isHost
+    db.ref(`rooms/${S.roomCode}/players/${playerKey}`).once('value').then(snap=>{
+      const old=snap.val();
+      if(old&&old.isHost)S.isHost=true;
+      const playerData={name:S.nickname,isHost:S.isHost,joinedAt:old?.joinedAt||Date.now(),online:true,photo:currentUser?.photoURL||'',uid:myUid};
+      db.ref(`rooms/${S.roomCode}/players/${playerKey}`).update(playerData)
         .then(()=>doJoin(playerKey))
         .catch(()=>doJoin(playerKey));
     }).catch(()=>{
-      // fallback: ไม่มีข้อมูลเก่า สร้าง node ใหม่ตามปกติ
-      const playerKey=`${S.roomCode}_${Date.now()}_${Math.random().toString(36).slice(2,6)}`;
-      const playerData={name:S.nickname,isHost:S.isHost,joinedAt:Date.now(),online:true,photo:currentUser?.photoURL||'',uid:myUid||''};
+      const playerData={name:S.nickname,isHost:S.isHost,joinedAt:Date.now(),online:true,photo:currentUser?.photoURL||'',uid:myUid};
       db.ref(`rooms/${S.roomCode}/players/${playerKey}`).set(playerData);
       doJoin(playerKey);
     });
   } else {
-    const playerKey=`${S.roomCode}_${Date.now()}_${Math.random().toString(36).slice(2,6)}`;
-    const playerData={name:S.nickname,isHost:S.isHost,joinedAt:Date.now(),online:true,photo:currentUser?.photoURL||'',uid:myUid||''};
+    // ไม่มี Google Auth — ไม่ควรเกิดขึ้น แต่ fallback ไว้ก่อน
+    const playerKey='guest_'+Date.now();
+    const playerData={name:S.nickname,isHost:S.isHost,joinedAt:Date.now(),online:true,photo:'',uid:''};
     db.ref(`rooms/${S.roomCode}/players/${playerKey}`).set(playerData);
     doJoin(playerKey);
   }
@@ -1932,7 +1918,7 @@ function leaveRoom(){
       wipe['salem']=null;
       wipe['kicked']=null;
       wipe['roomName']=null;
-      db.ref(`rooms/${rc}`).update(wipe).catch(()=>{});
+      db.ref(`rooms/${rc}`).update(wipe).catch(e=>console.error('dissolve:',e.message));
     } else if(firebaseReady&&S.myPlayerId&&S.roomCode){
       db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}`).remove();
     }
@@ -3680,9 +3666,7 @@ function _adminStatsCompute(rooms){
   });
   // ยุบห้องว่างอัตโนมัติ
   if(emptyRooms.length){
-    emptyRooms.forEach(k=>{
-      db.ref('rooms/'+k).remove().catch(()=>{});
-    });
+    emptyRooms.forEach(k=>db.ref('rooms/'+k).remove().catch(()=>{}));
     console.log('Auto-cleaned',emptyRooms.length,'empty rooms');
   }
   const el=$('adminStats');
