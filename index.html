@@ -624,7 +624,7 @@ body::before{
 </style>
 </head>
 <body>
-<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v13.0</div>
+<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v13.2</div>
 
 <div class="toast" id="toast"></div>
 
@@ -1632,11 +1632,11 @@ function enterLobby(){
       const atomicUpdates={};
       // ลบ node เก่าทั้งหมด + เพิ่ม node ใหม่ในคำสั่งเดียว → Firebase ไม่มีช่วงที่ host หาย
       oldKeys.forEach(k=>{
-        atomicUpdates[`rooms/${S.roomCode}/players/${k}`]=null;
-        atomicUpdates[`rooms/${S.roomCode}/kicked/${k}`]=null;
+        atomicUpdates[`players/${k}`]=null;
+        atomicUpdates[`kicked/${k}`]=null;
       });
-      atomicUpdates[`rooms/${S.roomCode}/players/${playerKey}`]=playerData;
-      db.ref().update(atomicUpdates)
+      atomicUpdates[`players/${playerKey}`]=playerData;
+      db.ref(`rooms/${S.roomCode}`).update(atomicUpdates)
         .then(()=>doJoin(playerKey))
         .catch(()=>doJoin(playerKey));
     }).catch(()=>{
@@ -1923,16 +1923,16 @@ function leaveRoom(){
       // จากนั้นลบ sub-node อื่น (Rules ไม่ให้ set(null) ที่ root room โดยตรง)
       const rc=S.roomCode;
       const wipe={};
-      S.players.forEach(p=>{wipe[`rooms/${rc}/players/${p.id}`]=null;});
-      wipe[`rooms/${rc}/game`]=null;
-      wipe[`rooms/${rc}/ww`]=null;
-      wipe[`rooms/${rc}/wwTimer`]=null;
-      wipe[`rooms/${rc}/spy`]=null;
-      wipe[`rooms/${rc}/king`]=null;
-      wipe[`rooms/${rc}/salem`]=null;
-      wipe[`rooms/${rc}/kicked`]=null;
-      wipe[`rooms/${rc}/roomName`]=null;
-      db.ref().update(wipe).catch(()=>{});
+      S.players.forEach(p=>{wipe[`players/${p.id}`]=null;});
+      wipe['game']=null;
+      wipe['ww']=null;
+      wipe['wwTimer']=null;
+      wipe['spy']=null;
+      wipe['king']=null;
+      wipe['salem']=null;
+      wipe['kicked']=null;
+      wipe['roomName']=null;
+      db.ref(`rooms/${rc}`).update(wipe).catch(()=>{});
     } else if(firebaseReady&&S.myPlayerId&&S.roomCode){
       db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}`).remove();
     }
@@ -1977,9 +1977,9 @@ function confirmTransferHost(key){
   db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}/isHost`).once('value').then(snap=>{
     if(snap.val()!==true){showToast('คุณไม่ใช่หัวห้องแล้ว');return;}
     const updates={};
-    updates[`rooms/${S.roomCode}/players/${target.id}/isHost`]=true;
-    updates[`rooms/${S.roomCode}/players/${S.myPlayerId}/isHost`]=false;
-    db.ref().update(updates).then(()=>{
+    updates[`${target.id}/isHost`]=true;
+    updates[`${S.myPlayerId}/isHost`]=false;
+    db.ref(`rooms/${S.roomCode}/players`).update(updates).then(()=>{
       S.isHost=false;
       $('transferHostOverlay')?.classList.remove('show');
       $('leaveConfirmOverlay')?.classList.remove('show');
@@ -3680,11 +3680,10 @@ function _adminStatsCompute(rooms){
   });
   // ยุบห้องว่างอัตโนมัติ
   if(emptyRooms.length){
-    const updates={};
-    emptyRooms.forEach(k=>updates['rooms/'+k]=null);
-    db.ref().update(updates).then(()=>{
-      console.log('Auto-cleaned',emptyRooms.length,'empty rooms');
+    emptyRooms.forEach(k=>{
+      db.ref('rooms/'+k).remove().catch(()=>{});
     });
+    console.log('Auto-cleaned',emptyRooms.length,'empty rooms');
   }
   const el=$('adminStats');
   if(!el)return;
@@ -3766,9 +3765,7 @@ function cleanupRooms(){
       if(onlinePlayers.length===0)toDelete.push(k);
     });
     if(!toDelete.length){showToast('ไม่มีห้องที่ต้องล้าง ✅');return;}
-    const updates={};
-    toDelete.forEach(k=>updates['rooms/'+k]=null);
-    db.ref().update(updates).then(()=>{
+    Promise.all(toDelete.map(k=>db.ref('rooms/'+k).remove())).then(()=>{
       showToast('ลบ '+toDelete.length+' ห้องแล้ว 🗑️');
       renderAdminStats();
     }).catch(err=>showToast('ลบไม่ได้: '+err.message));
