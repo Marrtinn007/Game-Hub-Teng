@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!-- ════════════════════════════════════════════════════════════════
-     GAME HUB TENG  —  v12.5
+     GAME HUB TENG  —  v13.4
      ────────────────────────────────────────────────────────────
      AI HANDOFF NOTE (สำหรับ AI ที่รับงานต่อ):
-     - เวอร์ชันปัจจุบัน: v12.5
+     - เวอร์ชันปัจจุบัน: v13.4
      - เพิ่มเวอร์ชัน +0.1 ทุกครั้งที่แก้ไข (v11 → v11.1 → v11.2 ...)
      - อัปเดต label มุมบนซ้าย id="versionLabel" ด้วยทุกครั้ง
      ════════════════════════════════════════════════════════════════ -->
@@ -624,7 +624,7 @@ body::before{
 </style>
 </head>
 <body>
-<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v13.3</div>
+<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v13.4</div>
 
 <div class="toast" id="toast"></div>
 
@@ -1296,11 +1296,12 @@ function forceKickedBySameAccount(){
   roomRef=gameRef=wwRef=null;
   db.ref('.info/connected').off();
   Object.assign(S,{roomCode:null,myPlayerId:null,selectedGame:null,players:[],roomName:null,isHost:false,nickname:null});
-  // signOut ทันที ไม่ต้องรอกด ตกลง
-  auth&&auth.signOut();
+  // แสดง popup แจ้งเตือนก่อน แล้วค่อย signOut เมื่อกด ตกลง
+  $('sessionKickedOverlay')?.classList.add('show');
 }
 function confirmSessionKicked(){
   $('sessionKickedOverlay')?.classList.remove('show');
+  auth&&auth.signOut();
 }
 /* ══ AUTO-REJOIN: ปิดการ rejoin อัตโนมัติแล้ว ══════════════════
    เครื่องใหม่ที่ login เข้ามาจะต้องกรอก room code เองถ้าจะเข้าห้อง
