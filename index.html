@@ -624,7 +624,7 @@ body::before{
 </style>
 </head>
 <body>
-<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v13.2</div>
+<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v13.3</div>
 
 <div class="toast" id="toast"></div>
 
@@ -1285,58 +1285,29 @@ function stopSessionGuard(){
 }
 function forceKickedBySameAccount(){
   stopSessionGuard();
-  // ไม่ลบตัวเองออกจากห้อง — เครื่องใหม่จะ rejoin เข้ามาแทนที่แล้วลบ node เก่าเอง
-  // ถ้าลบตรงนี้และเป็น Host ห้องจะยุบก่อนที่เครื่องใหม่จะเข้ามาได้
-  // ปิด listeners ทั้งหมดก่อน — ไม่งั้น gameRef ยังยิง event แม้จะ signOut แล้ว
+  // ลบ node ตัวเองออกจากห้องทันที — เครื่องใหม่ไม่ต้อง rejoin เข้ามาแทนอีกต่อไป
+  // ถ้าเป็น host → auto-promote timer ของเครื่องอื่นจะทำงานเองใน 2.5s
+  if(firebaseReady&&S.roomCode&&S.myPlayerId){
+    db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}`).remove().catch(()=>{});
+    if(currentUser?.uid)db.ref('userSessions/'+currentUser.uid+'/activeRoom').remove().catch(()=>{});
+  }
+  // ปิด listeners ทั้งหมด
   [roomRef,gameRef,wwRef].forEach(r=>r?.off());
   roomRef=gameRef=wwRef=null;
   db.ref('.info/connected').off();
   Object.assign(S,{roomCode:null,myPlayerId:null,selectedGame:null,players:[],roomName:null,isHost:false,nickname:null});
-  // แสดง popup — รอให้กด ตกลง ก่อนค่อย signOut
-  $('sessionKickedOverlay')?.classList.add('show');
+  // signOut ทันที ไม่ต้องรอกด ตกลง
+  auth&&auth.signOut();
 }
 function confirmSessionKicked(){
   $('sessionKickedOverlay')?.classList.remove('show');
-  auth&&auth.signOut();
-  // onAuthStateChanged จะ redirect ไป screen-login เอง
 }
-/* ══ AUTO-REJOIN: เครื่องใหม่เข้ามาแทนที่ในห้องเดิม ══════════════
-   สแกนหา room ที่ uid นี้อยู่ ถ้าเจอ → เข้าล็อบบี้อัตโนมัติ
-   (ไม่ต้องกรอก nick ใหม่ เพราะใช้ชื่อเดิมจาก Firebase)           */
+/* ══ AUTO-REJOIN: ปิดการ rejoin อัตโนมัติแล้ว ══════════════════
+   เครื่องใหม่ที่ login เข้ามาจะต้องกรอก room code เองถ้าจะเข้าห้อง
+   เครื่องเก่าจะถูก signOut และลบออกจากห้องอัตโนมัติ              */
 function checkRejoinRoom(uid){
-  if(!db||!uid||!firebaseReady)return;
-  if(!currentUser||currentUser.uid!==uid)return;
-  const ov=$('connectingOverlay');
-  const rn=$('connectingRoomName');
-  const _fail=()=>{_rejoinInProgress=false;if(ov)ov.style.display='none';};
-  // อ่าน activeRoom จาก userSessions โดยตรง — เร็วและไม่ต้องสแกนทั้ง rooms
-  db.ref('userSessions/'+uid).once('value').then(snap=>{
-    const sess=snap.val();
-    if(!sess||!sess.activeRoom){_fail();return;}
-    if(!currentUser||currentUser.uid!==uid){_fail();return;}
-    const roomCode=sess.activeRoom;
-    // ตรวจว่าห้องยังมีอยู่จริง
-    db.ref('rooms/'+roomCode).once('value').then(roomSnap=>{
-      if(!roomSnap.exists()){
-        // ห้องหายแล้ว ลบ activeRoom ทิ้ง
-        db.ref('userSessions/'+uid+'/activeRoom').remove().catch(()=>{});
-        _fail();return;
-      }
-      const cur=document.querySelector('.screen.active');
-      if(cur&&!['screen-home','screen-login'].includes(cur.id)){_fail();return;}
-      // แสดง overlay ทันที
-      _rejoinInProgress=true;
-      if(ov)ov.style.display='flex';
-      const roomName=roomSnap.child('roomName').val()||roomCode;
-      if(rn)rn.textContent='ห้อง: '+roomName;
-      S.pendingRoomCode=roomCode;
-      S.roomCode=roomCode;
-      S.nickname=sess.activeNick||currentUser?.displayName?.split(' ')[0]||'ผู้เล่น';
-      S.isHost=!!sess.activeIsHost;
-      S.roomName=roomName;
-      enterLobby();
-    }).catch(_fail);
-  }).catch(_fail);
+  // ล้าง activeRoom ที่ค้างอยู่ออก เผื่อเครื่องเก่า crash ไม่ได้ลบ
+  if(db&&uid)db.ref('userSessions/'+uid+'/activeRoom').remove().catch(()=>{});
 }
 
 function signInWithGoogle(){
