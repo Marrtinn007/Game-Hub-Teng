@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!-- ════════════════════════════════════════════════════════════════
-     GAME HUB TENG  —  v13.4
+     GAME HUB TENG  —  v13.8
      ────────────────────────────────────────────────────────────
      AI HANDOFF NOTE (สำหรับ AI ที่รับงานต่อ):
-     - เวอร์ชันปัจจุบัน: v13.4
+     - เวอร์ชันปัจจุบัน: v13.8
      - เพิ่มเวอร์ชัน +0.1 ทุกครั้งที่แก้ไข (v11 → v11.1 → v11.2 ...)
      - อัปเดต label มุมบนซ้าย id="versionLabel" ด้วยทุกครั้ง
      ════════════════════════════════════════════════════════════════ -->
@@ -624,7 +624,7 @@ body::before{
 </style>
 </head>
 <body>
-<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v13.4</div>
+<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v13.8</div>
 
 <div class="toast" id="toast"></div>
 
@@ -741,6 +741,73 @@ MenuOverlay')">
   </div>
 </div>
 
+<!-- ══ MAINTENANCE MODE OVERLAY ══ -->
+<style>
+@keyframes maintPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.7;transform:scale(0.95)}}
+@keyframes maintFadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes maintGlow{0%,100%{box-shadow:0 0 40px rgba(255,180,50,0.3),0 0 80px rgba(255,120,0,0.15)}50%{box-shadow:0 0 60px rgba(255,180,50,0.5),0 0 120px rgba(255,120,0,0.25)}}
+@keyframes maintSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes maintDot{0%,80%,100%{transform:scale(0);opacity:0}40%{transform:scale(1);opacity:1}}
+.maint-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#f0a030;margin:0 3px;animation:maintDot 1.4s ease-in-out infinite}
+.maint-dot:nth-child(2){animation-delay:0.2s}
+.maint-dot:nth-child(3){animation-delay:0.4s}
+</style>
+<div id="maintenanceOverlay" style="display:none;position:fixed;inset:0;z-index:9999;pointer-events:all;touch-action:none;user-select:none;overflow:hidden;background:linear-gradient(135deg,#0a0a10 0%,#0f0c1a 40%,#0a0f18 100%)">
+  <!-- Orb BG -->
+  <div style="position:absolute;inset:0;pointer-events:none;overflow:hidden">
+    <div style="position:absolute;width:60vw;height:60vw;border-radius:50%;background:radial-gradient(circle,rgba(255,140,0,0.18),transparent 70%);top:-10%;left:-10%;filter:blur(40px);animation:orbDrift 8s ease-in-out infinite alternate"></div>
+    <div style="position:absolute;width:50vw;height:50vw;border-radius:50%;background:radial-gradient(circle,rgba(100,60,220,0.2),transparent 70%);bottom:-10%;right:-10%;filter:blur(40px);animation:orbDrift 11s ease-in-out infinite alternate-reverse"></div>
+    <div style="position:absolute;width:40vw;height:40vw;border-radius:50%;background:radial-gradient(circle,rgba(255,80,80,0.12),transparent 70%);top:40%;left:30%;filter:blur(50px);animation:orbDrift 14s ease-in-out infinite alternate"></div>
+  </div>
+  <!-- Card -->
+  <div style="position:relative;z-index:1;display:flex;align-items:center;justify-content:center;min-height:100dvh;padding:24px">
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,180,50,0.25);border-top:1px solid rgba(255,180,50,0.45);border-radius:28px;padding:2.5rem 2rem;max-width:340px;width:100%;text-align:center;box-shadow:0 0 60px rgba(255,140,0,0.15),0 24px 48px rgba(0,0,0,0.6);backdrop-filter:blur(20px);animation:maintFadeIn 0.6s cubic-bezier(0.34,1.56,0.64,1) both,maintGlow 3s ease-in-out infinite">
+      <!-- Icon Ring -->
+      <div style="position:relative;display:inline-flex;align-items:center;justify-content:center;width:90px;height:90px;margin-bottom:1.5rem">
+        <div style="position:absolute;inset:0;border-radius:50%;border:2px dashed rgba(255,180,50,0.4);animation:maintSpin 12s linear infinite"></div>
+        <div style="position:absolute;inset:6px;border-radius:50%;border:1px solid rgba(255,180,50,0.2)"></div>
+        <div style="width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,rgba(255,160,30,0.2),rgba(200,80,0,0.15));border:1px solid rgba(255,180,50,0.3);display:flex;align-items:center;justify-content:center;font-size:36px;animation:maintPulse 2.5s ease-in-out infinite">🛠️</div>
+      </div>
+      <!-- Title -->
+      <div style="font-size:22px;font-weight:900;color:#fff;margin-bottom:0.4rem;letter-spacing:-0.02em">ปิดปรับปรุงระบบ</div>
+      <div style="font-size:13px;font-weight:700;color:rgba(255,180,50,0.9);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:1.25rem">Maintenance Mode</div>
+      <!-- Divider -->
+      <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(255,180,50,0.3),transparent);margin-bottom:1.25rem"></div>
+      <!-- Message -->
+      <div id="maintenanceMsg" style="font-size:14px;color:rgba(232,234,240,0.75);line-height:1.75;margin-bottom:1.5rem">กำลังปรับปรุงระบบ กลับมาใหม่เร็วๆ นี้นะครับ</div>
+      <!-- Loading dots -->
+      <div style="display:flex;align-items:center;justify-content:center;gap:2px;margin-bottom:0.25rem">
+        <span class="maint-dot"></span><span class="maint-dot"></span><span class="maint-dot"></span>
+      </div>
+      <div style="font-size:11px;color:rgba(232,234,240,0.3);margin-top:0.5rem;font-weight:600;letter-spacing:0.05em">Game Hub Teng</div>
+    </div>
+  </div>
+</div>
+<!-- ══ GLOBAL ANNOUNCEMENT BANNER ══ -->
+<style>
+@keyframes annSlideDown{from{transform:translateY(-110%);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes annShimmer{0%{background-position:200% center}100%{background-position:-200% center}}
+#announceBanner{animation:annSlideDown 0.45s cubic-bezier(0.34,1.56,0.64,1) both}
+</style>
+<div id="announceBanner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9000;padding:0 0 env(safe-area-inset-top,0)">
+  <!-- gradient bar -->
+  <div style="background:linear-gradient(135deg,#1a0a2e 0%,#16213e 40%,#0f3460 100%);border-bottom:1px solid rgba(124,156,255,0.25);box-shadow:0 4px 24px rgba(0,0,0,0.5),0 1px 0 rgba(124,156,255,0.15) inset;padding:12px 16px 13px">
+    <!-- shimmer line -->
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(124,156,255,0.8),rgba(100,220,255,0.6),rgba(124,156,255,0.8),transparent);background-size:200% auto;animation:annShimmer 3s linear infinite"></div>
+    <div style="display:flex;align-items:flex-start;gap:10px">
+      <!-- icon pill -->
+      <div style="flex-shrink:0;width:32px;height:32px;border-radius:10px;background:rgba(124,156,255,0.15);border:1px solid rgba(124,156,255,0.3);display:flex;align-items:center;justify-content:center;font-size:16px;margin-top:1px">📢</div>
+      <!-- text -->
+      <div style="flex:1;min-width:0">
+        <div style="font-size:10px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:rgba(124,156,255,0.8);margin-bottom:3px">ประกาศจากทีมงาน</div>
+        <div id="announceText" style="font-size:14px;font-weight:600;color:#e8eaf0;line-height:1.55"></div>
+      </div>
+      <!-- close btn -->
+      <button onclick="closeAnnounceBanner()" style="flex-shrink:0;width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:rgba(232,234,240,0.5);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'Kanit',sans-serif;font-weight:700;transition:all 0.15s;margin-top:2px" onmouseover="this.style.background='rgba(255,255,255,0.12)';this.style.color='#e8eaf0'" onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(232,234,240,0.5)'">✕</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ SPLASH (กันกระพริบหน้า login ตอนเช็คสถานะล็อกอิน) ══ -->
 <div class="screen active" id="screen-splash" style="align-items:center;justify-content:center">
   <div style="font-size:40px;animation:splashFade 1.2s ease-in-out infinite">🎮</div>
@@ -773,6 +840,7 @@ MenuOverlay')">
         <div style="min-width:0">
           <div id="profileDropName" style="font-size:13px;font-weight:700;color:var(--t0);overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
           <div id="profileDropEmail" style="font-size:11px;color:var(--t3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+          <div id="profileDropPid" onclick="copyMyPid()" style="font-size:10px;color:var(--ac);font-weight:700;letter-spacing:0.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;margin-top:2px" title="แตะเพื่อคัดลอก Player ID"></div>
         </div>
       </div>
       <!-- Theme section -->
@@ -1214,8 +1282,17 @@ const COLORS=['#a78bfa','#60a5fa','#34d399','#f87171','#fbbf24','#c084fc','#38bd
 /* ══ FIREBASE ════════════════════════════ */
 let db=null,firebaseReady=false,roomRef=null,gameRef=null,wwRef=null;
 let auth=null,currentUser=null,hiddenGames={};
-const ADMIN_UIDS=['ovP5ZTz1Mbhg5x44R7K595GRYxN2'];
-function isAdmin(){return !!(currentUser&&ADMIN_UIDS.includes(currentUser.uid));}
+let _isAdminCached=false;
+function _loadAdminStatus(uid){
+  if(!db||!uid){_isAdminCached=false;return;}
+  db.ref('admins/'+uid).once('value').then(snap=>{
+    _isAdminCached=snap.exists()&&snap.val()===true;
+    const ab=$('adminMenuBtn');
+    if(ab)ab.style.display=_isAdminCached?'':'none';
+    if(_isAdminCached){const ov=$('maintenanceOverlay');if(ov)ov.style.display='none';}
+  }).catch(()=>{_isAdminCached=false;});
+}
+function isAdmin(){return _isAdminCached;}
 function initFirebase(){
   try{
     firebase.initializeApp(CONFIG.firebase);
@@ -1223,11 +1300,55 @@ function initFirebase(){
     auth=firebase.auth();
     firebaseReady=true;
     db.ref('config/hiddenGames').on('value',snap=>{hiddenGames=snap.val()||{};renderHomeGames();if($('screen-lobby')?.classList.contains('active'))renderLobbyUI();if($('adminPanelSheet')?.style.display!=='none')renderAdminGames();});
+    // ── Maintenance mode: บล็อกการใช้งานทั้งหมด ยกเว้น admin ──
+    db.ref('maintenance').on('value',snap=>{
+      const v=snap.val()||{};
+      const ov=$('maintenanceOverlay');
+      if(!ov)return;
+      if(v.enabled&&!isAdmin()){
+        const msgEl=$('maintenanceMsg');
+        if(msgEl)msgEl.textContent=v.msg||'กำลังปรับปรุงระบบ กลับมาใหม่เร็วๆ นี้นะครับ';
+        ov.style.display='block';
+        // บล็อก scroll และ interaction ทั้งหมด
+        document.body.style.overflow='hidden';
+      } else {
+        ov.style.display='none';
+        document.body.style.overflow='';
+        // restore profile button ถ้า user ล็อคอินอยู่
+        if(currentUser){
+          const av=$('homeUserAvatar');
+          if(av&&currentUser.photoURL&&av.style.display==='none'){
+            av.src=currentUser.photoURL;
+            av.style.display='';
+          }
+        }
+      }
+    });
+    // ── Global announcement: แจ้งเตือนล่าสุดจาก admin ──
+    db.ref('announcements/latest').on('value',snap=>{
+      const v=snap.val();
+      if(!v||!v.msg)return;
+      const seenKey='ann_seen_'+(v.id||v.ts||'');
+      if(localStorage.getItem(seenKey))return;
+      localStorage.setItem(seenKey,'1');
+      const banner=$('announceBanner'),txt=$('announceText');
+      if(banner&&txt){txt.textContent=v.msg;banner.style.display='block';}
+      else showToast('📢 '+v.msg,5000);
+    });
     auth.onAuthStateChanged(user=>{
       currentUser=user;
       $('screen-splash')?.classList.remove('active');
       if(user){
         startSessionGuard(user.uid);
+        // เช็คแบน — ถ้าถูกแบนให้เด้งออกทันที ห้ามเข้าระบบ
+        db.ref('banned/'+user.uid).once('value').then(bsnap=>{
+          if(bsnap.exists()&&bsnap.val()){
+            showToast('🚫 บัญชีนี้ถูกระงับการใช้งาน');
+            stopSessionGuard();
+            setTimeout(()=>auth.signOut(),300);
+          }
+        }).catch(()=>{});
+        ensurePlayerId(user.uid).then(()=>logEvent('login'));
         const av=$('homeUserAvatar'),nm=$('homeUserName');
         const dn=$('profileDropName'),de=$('profileDropEmail'),da=$('profileDropAvatar'),ab=$('adminMenuBtn');
         if(av&&user.photoURL){av.src=user.photoURL;av.style.display='';}
@@ -1236,6 +1357,7 @@ function initFirebase(){
         if(dn)dn.textContent=user.displayName||user.email||'';
         if(de)de.textContent=user.email||'';
         if(ab)ab.style.display=isAdmin()?'':'none';
+        _loadAdminStatus(user.uid);
         $('screen-login')?.classList.remove('active');
         const cur=document.querySelector('.screen.active');
         if(!cur||cur.id==='screen-login')showScreen('screen-home');
@@ -1262,6 +1384,7 @@ function initFirebase(){
    เครื่อง/แท็บที่ login ล่าสุดของบัญชีเดียวกันจะ "ทับ" session เก่าเสมอ
    เครื่องเก่าที่เห็น sid เปลี่ยนจะถูกบังคับออกจากระบบอัตโนมัติ           */
 let _sessionRef=null;
+let _banRef=null;
 let _sessionGuardActive=false;
 function startSessionGuard(uid){
   if(!db||!uid)return;
@@ -1269,19 +1392,32 @@ function startSessionGuard(uid){
   _sessionGuardActive=true;
   const ref=db.ref('userSessions/'+uid);
   _sessionRef=ref;
+  _banRef=db.ref('banned/'+uid);
+  _banRef.on('value',bsnap=>{
+    if(bsnap.exists()&&bsnap.val()){
+      showToast('🚫 บัญชีนี้ถูกระงับการใช้งาน');
+      stopSessionGuard();
+      setTimeout(()=>auth&&auth.signOut(),400);
+    }
+  });
   // ฟังก่อน แล้วเขียนทับ — ข้าม snapshot แรก (ของตัวเอง) ด้วย flag
   let _firstSnap=true;
   ref.on('value',snap=>{
     if(_firstSnap){_firstSnap=false;return;} // snapshot แรกคือของเราเอง ข้ามไป
     const v=snap.val();
     if(v&&v.sid&&v.sid!==S.sessionId)forceKickedBySameAccount();
+    if(v&&v.forceLogout&&v.forceLogout!==S._lastForceLogoutSeen){
+      S._lastForceLogoutSeen=v.forceLogout;
+      forceLogoutByAdmin();
+    }
   });
   // เขียนทับ sid — ใช้ update ไม่ใช่ set เพื่อรักษา activeRoom ไว้
-  ref.update({sid:S.sessionId,ts:Date.now()}).catch(()=>{});
+  const _u=firebase.auth().currentUser;ref.update({sid:S.sessionId,ts:Date.now(),displayName:_u?.displayName||null,email:_u?.email||null,photo:_u?.photoURL||null}).catch(()=>{});
 }
 function stopSessionGuard(){
   _sessionGuardActive=false;
   if(_sessionRef){_sessionRef.off();_sessionRef=null;}
+  if(_banRef){_banRef.off();_banRef=null;}
 }
 function forceKickedBySameAccount(){
   stopSessionGuard();
@@ -1302,6 +1438,19 @@ function forceKickedBySameAccount(){
 function confirmSessionKicked(){
   $('sessionKickedOverlay')?.classList.remove('show');
   auth&&auth.signOut();
+}
+function forceLogoutByAdmin(){
+  stopSessionGuard();
+  if(firebaseReady&&S.roomCode&&S.myPlayerId){
+    db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}`).remove().catch(()=>{});
+    if(currentUser?.uid)db.ref('userSessions/'+currentUser.uid+'/activeRoom').remove().catch(()=>{});
+  }
+  [roomRef,gameRef,wwRef].forEach(r=>r?.off());
+  roomRef=gameRef=wwRef=null;
+  db.ref('.info/connected').off();
+  Object.assign(S,{roomCode:null,myPlayerId:null,selectedGame:null,players:[],roomName:null,isHost:false,nickname:null});
+  showToast('🔒 ผู้ดูแลระบบบังคับออกจากระบบ');
+  setTimeout(()=>auth&&auth.signOut(),600);
 }
 /* ══ AUTO-REJOIN: ปิดการ rejoin อัตโนมัติแล้ว ══════════════════
    เครื่องใหม่ที่ login เข้ามาจะต้องกรอก room code เองถ้าจะเข้าห้อง
@@ -1327,6 +1476,7 @@ function signInWithGoogle(){
   });
 }
 function signOut(){
+  logEvent('logout');
   auth?.signOut().then(()=>{
     document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
     $('screen-login')?.classList.add('active');
@@ -1405,6 +1555,48 @@ function showScreen(id){
 function getPlayers(){return S.players.length?S.players:[{id:S.myPlayerId||'demo',name:S.nickname||'ผู้เล่น 1',isHost:true}]}
 function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=0|Math.random()*(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
 function genCode(){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<6;i++)s+=c[0|Math.random()*c.length];return s}
+/* ══ PLAYER ID (ถาวรต่อบัญชี, ใช้ใน log/admin search) ══ */
+function genPlayerId(){
+  const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const part=n=>{let s='';for(let i=0;i<n;i++)s+=c[0|Math.random()*c.length];return s};
+  return `${part(3)}-${part(3)}-${part(6)}`;
+}
+let myPid=null;
+function ensurePlayerId(uid){
+  if(!db||!uid)return Promise.resolve(null);
+  const ref=db.ref('userSessions/'+uid+'/pid');
+  return ref.once('value').then(snap=>{
+    if(snap.exists()&&snap.val()){myPid=snap.val();return myPid;}
+    const pid=genPlayerId();
+    return ref.set(pid).then(()=>{myPid=pid;return pid;}).catch(()=>{myPid=pid;return pid;});
+  }).then(pid=>{
+    renderProfilePid();
+    return pid;
+  }).catch(()=>null);
+}
+function renderProfilePid(){
+  const el=$('profileDropPid');
+  if(el)el.textContent=myPid?('ID: '+myPid):'';
+}
+function copyMyPid(){
+  if(!myPid)return;
+  navigator.clipboard?.writeText(myPid).then(()=>showToast('คัดลอก Player ID แล้ว')).catch(()=>{});
+}
+/* ══ LOG EVENTS (เขียนไป /logs สำหรับ admin) ══ */
+function logEvent(action,detail){
+  if(!db)return;
+  try{
+    db.ref('logs').push({
+      pid:myPid||null,
+      uid:currentUser?.uid||null,
+      nick:S.nickname||currentUser?.displayName||null,
+      action:action||'',
+      detail:detail||null,
+      room:S.roomCode||null,
+      ts:Date.now()
+    }).catch(()=>{});
+  }catch(e){}
+}
 function totalRoles(){return Object.values(S.wwRoleCounts).reduce((a,b)=>a+b,0)}
 function totalPts(){return Object.entries(S.wwRoleCounts).reduce((sum,[r,cnt])=>sum+(WW[r]?.pts||0)*cnt,0)}
 function ptsDisplay(){
@@ -1417,6 +1609,7 @@ function myId(){return S.myPlayerId||'demo'}
 function playerName_(pid){return getPlayers().find(p=>p.id===pid)?.name||''}
 let _t;
 function showToast(msg,dur=2600){const t=$('toast');if(!t)return;t.textContent=msg;t.classList.add('show');clearTimeout(_t);_t=setTimeout(()=>t.classList.remove('show'),dur)}
+function closeAnnounceBanner(){const b=$('announceBanner');if(b)b.style.display='none';}
 function openModal(id){$(id)?.classList.add('open')}
 function closeModal(id){$(id)?.classList.remove('open')}
 function closeModalOutside(e,id){if(e.target.id===id)closeModal(id)}
@@ -1487,6 +1680,7 @@ function showCreateRoomFromModal(){
   S.pendingRoomCode=genCode();S.isHost=true;
   const i=$('roomNameInput');if(i)i.value='';
   showScreen('screen-room');
+  logEvent('create_room_start',{code:S.pendingRoomCode});
 }
 function exitSoloGame(){
   // reset state แล้วกลับ home
@@ -1527,6 +1721,7 @@ function joinRoom(){
     }
     S.pendingRoomCode=code;S.isHost=false;
     closeModal('modal-join');
+    logEvent('join_room',{code});
     const lb=$('nickRoomLabel');if(lb)lb.textContent='ห้อง: '+code;
     const bb=$('nickBackBtn');if(bb)bb.setAttribute('onclick','openJoinModal(_joinModalGame||"ww")');
     const ni=$('nickInput');if(ni){ni.value='';setTimeout(()=>ni.focus(),300);}
@@ -1594,12 +1789,12 @@ function enterLobby(){
     db.ref(`rooms/${S.roomCode}/players/${playerKey}`).once('value').then(snap=>{
       const old=snap.val();
       if(old&&old.isHost)S.isHost=true;
-      const playerData={name:S.nickname,isHost:S.isHost,joinedAt:old?.joinedAt||Date.now(),online:true,photo:currentUser?.photoURL||'',uid:myUid};
+      const playerData={name:S.nickname,isHost:S.isHost,joinedAt:old?.joinedAt||Date.now(),online:true,photo:currentUser?.photoURL||'',uid:myUid,pid:myPid||''};
       db.ref(`rooms/${S.roomCode}/players/${playerKey}`).update(playerData)
         .then(()=>doJoin(playerKey))
         .catch(()=>doJoin(playerKey));
     }).catch(()=>{
-      const playerData={name:S.nickname,isHost:S.isHost,joinedAt:Date.now(),online:true,photo:currentUser?.photoURL||'',uid:myUid};
+      const playerData={name:S.nickname,isHost:S.isHost,joinedAt:Date.now(),online:true,photo:currentUser?.photoURL||'',uid:myUid,pid:myPid||''};
       db.ref(`rooms/${S.roomCode}/players/${playerKey}`).set(playerData);
       doJoin(playerKey);
     });
@@ -1876,6 +2071,7 @@ function leaveRoom(){
   if(location.search)history.replaceState(null,'',location.pathname);
   // ตรวจ isHost จริงๆ จาก Firebase ก่อนตัดสินใจยุบหรือออก
   const doLeave=(amHost)=>{
+    logEvent(amHost?'dissolve_room':'leave_room',{code:S.roomCode});
     if(amHost&&firebaseReady&&S.roomCode){
       // ลบ players ทุกคนก่อน → ทุก client detect ห้องว่างแล้ว redirect home
       // จากนั้นลบ sub-node อื่น (Rules ไม่ให้ set(null) ที่ root room โดยตรง)
@@ -1892,7 +2088,14 @@ function leaveRoom(){
       wipe['roomName']=null;
       db.ref(`rooms/${rc}`).update(wipe).catch(e=>console.error('dissolve:',e.message));
     } else if(firebaseReady&&S.myPlayerId&&S.roomCode){
-      db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}`).remove();
+      const _rc=S.roomCode,_pid=S.myPlayerId;
+      db.ref(`rooms/${_rc}/players/${_pid}`).remove().then(()=>{
+        // ถ้าหลังออกแล้วไม่มีใคร online เลย ให้ลบห้องทิ้ง
+        db.ref(`rooms/${_rc}/players`).once('value').then(ps=>{
+          const remaining=ps.exists()?Object.values(ps.val()).filter(p=>p&&p.online!==false):[];
+          if(remaining.length===0)db.ref(`rooms/${_rc}`).remove().catch(()=>{});
+        }).catch(()=>{});
+      }).catch(()=>{});
     }
     [roomRef,gameRef,wwRef].forEach(r=>r?.off());
     roomRef=gameRef=wwRef=null;
@@ -1959,6 +2162,7 @@ function cancelKick(){_kickTargetId=null;$('kickConfirmOverlay')?.classList.remo
 function doKick(){
   if(!_kickTargetId||!S.isHost){cancelKick();return;}
   if(firebaseReady&&S.roomCode){
+    logEvent('kick_player',{code:S.roomCode,targetId:_kickTargetId});
     db.ref(`rooms/${S.roomCode}/players/${_kickTargetId}`).remove();
     db.ref(`rooms/${S.roomCode}/kicked/${_kickTargetId}`).set(true);
   }
@@ -1977,6 +2181,7 @@ function selectGame(g,ui=true){
 function startGame(){
   if(!S.isHost){showToast('เฉพาะ Host เริ่มเกมได้');return}
   if(!S.selectedGame){showToast('เลือกเกมก่อนนะ');return}
+  logEvent('start_game',{code:S.roomCode,game:S.selectedGame});
   if(firebaseReady)db.ref(`rooms/${S.roomCode}/game`).set({type:S.selectedGame,started:true,startedAt:Date.now()});
   else launchGame(S.selectedGame);
 }
@@ -3623,16 +3828,18 @@ let _adminStatsListening=false,_adminStatsDebounceT=null;
 function _adminStatsCompute(rooms){
   rooms=rooms||{};
   const roomKeys=Object.keys(rooms);
+  console.log('[AdminStats] rooms snapshot keys:', roomKeys.length, rooms);
   let activeRooms=0,totalPlayers=0;
   const emptyRooms=[];
   roomKeys.forEach(k=>{
     const players=rooms[k].players||{};
-    // นับเฉพาะ player ที่มีข้อมูลครบและ online
-    const onlinePlayers=Object.values(players).filter(p=>p&&p.name&&p.online!==false);
+    const playerVals=Object.values(players).filter(p=>p&&p.name);
+    const onlinePlayers=playerVals.filter(p=>p.online!==false);
     if(onlinePlayers.length>0){
       activeRooms++;
       totalPlayers+=onlinePlayers.length;
     } else {
+      // ห้องว่าง: ไม่มี players เลย หรือทุกคน offline
       emptyRooms.push(k);
     }
   });
@@ -3642,6 +3849,7 @@ function _adminStatsCompute(rooms){
     console.log('Auto-cleaned',emptyRooms.length,'empty rooms');
   }
   const el=$('adminStats');
+  console.log('[AdminStats] el found:', !!el, 'activeRooms:', activeRooms, 'totalPlayers:', totalPlayers);
   if(!el)return;
   el.innerHTML=`
     <div style="background:var(--card2);border-radius:var(--r);padding:12px 14px;border:1px solid var(--line)">
@@ -3655,17 +3863,29 @@ function _adminStatsCompute(rooms){
 }
 function renderAdminStats(){
   if(!db||!isAdmin())return;
-  // เริ่ม listener realtime แค่ครั้งเดียวตอนเปิดพาเนล (กันโหลดซ้ำซ้อน/หนักเครื่อง)
+  // แสดง loading ก่อน
+  const el=$('adminStats');
+  if(el&&!_adminStatsListening){
+    el.innerHTML=`
+    <div style="background:var(--card2);border-radius:var(--r);padding:12px 14px;border:1px solid var(--line)">
+      <div style="font-size:24px;font-weight:900;color:var(--ac)">—</div>
+      <div style="font-size:12px;color:var(--t2);margin-top:2px">ห้องที่เปิดอยู่</div>
+    </div>
+    <div style="background:var(--card2);border-radius:var(--r);padding:12px 14px;border:1px solid var(--line)">
+      <div style="font-size:24px;font-weight:900;color:var(--ok)">—</div>
+      <div style="font-size:12px;color:var(--t2);margin-top:2px">ผู้เล่น online</div>
+    </div>`;
+  }
   if(_adminStatsListening)return;
   _adminStatsListening=true;
   db.ref('rooms').on('value',snap=>{
-    // debounce กันอัปเดตถี่เกินไปตอนมีหลายห้องขยับพร้อมกัน
+    console.log('[AdminStats] rooms listener fired, exists:', snap.exists());
     clearTimeout(_adminStatsDebounceT);
     _adminStatsDebounceT=setTimeout(()=>_adminStatsCompute(snap.val()),400);
   });
 }
 function stopAdminStats(){
-  if(!db||!_adminStatsListening)return;
+  if(!db)return;
   db.ref('rooms').off('value');
   _adminStatsListening=false;
   clearTimeout(_adminStatsDebounceT);
