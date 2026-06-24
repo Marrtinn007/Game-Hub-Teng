@@ -624,7 +624,7 @@ body::before{
 </style>
 </head>
 <body>
-<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v13.8</div>
+<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v14.0</div>
 
 <div class="toast" id="toast"></div>
 
@@ -785,25 +785,25 @@ MenuOverlay')">
 </div>
 <!-- ══ GLOBAL ANNOUNCEMENT BANNER ══ -->
 <style>
-@keyframes annSlideDown{from{transform:translateY(-110%);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes annPop{0%{opacity:0;transform:translateY(24px) scale(0.95)}100%{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes annShimmer{0%{background-position:200% center}100%{background-position:-200% center}}
-#announceBanner{animation:annSlideDown 0.45s cubic-bezier(0.34,1.56,0.64,1) both}
+@keyframes annPulse{0%,100%{box-shadow:0 0 0 0 rgba(124,156,255,0.4)}50%{box-shadow:0 0 0 6px rgba(124,156,255,0)}}
+#announceBanner{animation:annPop 0.4s cubic-bezier(0.34,1.56,0.64,1) both}
 </style>
-<div id="announceBanner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9000;padding:0 0 env(safe-area-inset-top,0)">
-  <!-- gradient bar -->
-  <div style="background:linear-gradient(135deg,#1a0a2e 0%,#16213e 40%,#0f3460 100%);border-bottom:1px solid rgba(124,156,255,0.25);box-shadow:0 4px 24px rgba(0,0,0,0.5),0 1px 0 rgba(124,156,255,0.15) inset;padding:12px 16px 13px">
-    <!-- shimmer line -->
-    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(124,156,255,0.8),rgba(100,220,255,0.6),rgba(124,156,255,0.8),transparent);background-size:200% auto;animation:annShimmer 3s linear infinite"></div>
-    <div style="display:flex;align-items:flex-start;gap:10px">
-      <!-- icon pill -->
-      <div style="flex-shrink:0;width:32px;height:32px;border-radius:10px;background:rgba(124,156,255,0.15);border:1px solid rgba(124,156,255,0.3);display:flex;align-items:center;justify-content:center;font-size:16px;margin-top:1px">📢</div>
+<div id="announceBanner" style="display:none;position:fixed;bottom:76px;left:10px;right:10px;z-index:9000;pointer-events:none">
+  <div style="pointer-events:all;background:linear-gradient(135deg,rgba(20,14,40,0.98),rgba(14,22,50,0.98));border:1px solid rgba(124,156,255,0.35);border-top:2px solid rgba(124,156,255,0.65);border-radius:24px;padding:18px 16px 18px 18px;box-shadow:0 12px 48px rgba(0,0,0,0.7),0 0 0 1px rgba(124,156,255,0.08) inset,0 0 60px rgba(80,100,255,0.08);backdrop-filter:blur(28px);overflow:hidden;max-width:480px;margin:0 auto">
+    <!-- shimmer -->
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent 0%,rgba(124,156,255,1) 30%,rgba(180,230,255,0.8) 50%,rgba(124,156,255,1) 70%,transparent 100%);background-size:200% auto;animation:annShimmer 2.5s linear infinite"></div>
+    <div style="display:flex;align-items:center;gap:14px">
+      <!-- icon -->
+      <div style="flex-shrink:0;width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,rgba(124,156,255,0.22),rgba(80,120,255,0.12));border:1px solid rgba(124,156,255,0.4);display:flex;align-items:center;justify-content:center;font-size:28px;animation:annPulse 2.5s ease-in-out infinite">📢</div>
       <!-- text -->
       <div style="flex:1;min-width:0">
-        <div style="font-size:10px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;color:rgba(124,156,255,0.8);margin-bottom:3px">ประกาศจากทีมงาน</div>
-        <div id="announceText" style="font-size:14px;font-weight:600;color:#e8eaf0;line-height:1.55"></div>
+        <div style="font-size:10.5px;font-weight:800;letter-spacing:0.15em;text-transform:uppercase;color:rgba(124,156,255,0.85);margin-bottom:5px">ประกาศจากทีมงาน</div>
+        <div id="announceText" style="font-size:15px;font-weight:600;color:#e8eaf0;line-height:1.65;word-break:break-word"></div>
       </div>
-      <!-- close btn -->
-      <button onclick="closeAnnounceBanner()" style="flex-shrink:0;width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:rgba(232,234,240,0.5);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'Kanit',sans-serif;font-weight:700;transition:all 0.15s;margin-top:2px" onmouseover="this.style.background='rgba(255,255,255,0.12)';this.style.color='#e8eaf0'" onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(232,234,240,0.5)'">✕</button>
+      <!-- close -->
+      <button onclick="closeAnnounceBanner()" style="flex-shrink:0;align-self:flex-start;width:30px;height:30px;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(232,234,240,0.45);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'Kanit',sans-serif;transition:all 0.15s" onmouseover="this.style.background='rgba(255,255,255,0.14)';this.style.color='#e8eaf0'" onmouseout="this.style.background='rgba(255,255,255,0.06)';this.style.color='rgba(232,234,240,0.45)'">✕</button>
     </div>
   </div>
 </div>
@@ -1291,7 +1291,7 @@ function _loadAdminStatus(uid){
     _isAdminCached=snap.exists()&&snap.val()===true;
     const ab=$('adminMenuBtn');
     if(ab)ab.style.display=_isAdminCached?'':'none';
-    if(_isAdminCached){const ov=$('maintenanceOverlay');if(ov)ov.style.display='none';}
+    if(typeof window._reapplyMaintenance==='function')window._reapplyMaintenance();
   }).catch(()=>{_isAdminCached=false;});
 }
 function isAdmin(){return _isAdminCached;}
@@ -1302,30 +1302,30 @@ function initFirebase(){
     auth=firebase.auth();
     firebaseReady=true;
     db.ref('config/hiddenGames').on('value',snap=>{hiddenGames=snap.val()||{};renderHomeGames();if($('screen-lobby')?.classList.contains('active'))renderLobbyUI();if($('adminPanelSheet')?.style.display!=='none')renderAdminGames();});
-    // ── Maintenance mode: บล็อกการใช้งานทั้งหมด ยกเว้น admin ──
-    db.ref('maintenance').on('value',snap=>{
-      const v=snap.val()||{};
-      const ov=$('maintenanceOverlay');
-      if(!ov)return;
-      if(v.enabled&&!isAdmin()){
-        const msgEl=$('maintenanceMsg');
-        if(msgEl)msgEl.textContent=v.msg||'กำลังปรับปรุงระบบ กลับมาใหม่เร็วๆ นี้นะครับ';
+    // ── Maintenance mode: ขึ้นก่อนเลย ไม่ว่าจะ login หรือไม่ — admin เท่านั้นที่เห็นเว็บ ──
+    let _maintEnabled=false;
+    function _applyMaintenance(){
+      const ov=$('maintenanceOverlay');if(!ov)return;
+      if(_maintEnabled&&!isAdmin()){
         ov.style.display='block';
-        // บล็อก scroll และ interaction ทั้งหมด
         document.body.style.overflow='hidden';
+        document.body.style.pointerEvents='none';
+        ov.style.pointerEvents='all';
       } else {
         ov.style.display='none';
         document.body.style.overflow='';
-        // restore profile button ถ้า user ล็อคอินอยู่
-        if(currentUser){
-          const av=$('homeUserAvatar');
-          if(av&&currentUser.photoURL&&av.style.display==='none'){
-            av.src=currentUser.photoURL;
-            av.style.display='';
-          }
-        }
+        document.body.style.pointerEvents='';
       }
+    }
+    db.ref('maintenance').on('value',snap=>{
+      const v=snap.val()||{};
+      _maintEnabled=!!(v&&v.enabled);
+      const msgEl=$('maintenanceMsg');
+      if(msgEl)msgEl.textContent=(v&&v.msg)||'กำลังปรับปรุงระบบ กลับมาใหม่เร็วๆ นี้นะครับ';
+      _applyMaintenance();
     });
+    // หลัง checkAdmin เสร็จ ให้ re-apply ด้วย เผื่อ admin login ทีหลัง
+    window._reapplyMaintenance=_applyMaintenance;
     // ── Global announcement: แจ้งเตือนล่าสุดจาก admin ──
     db.ref('announcements/latest').on('value',snap=>{
       const v=snap.val();
