@@ -1712,7 +1712,7 @@ function showCreateRoomFromModal(){
   S.pendingRoomCode=genCode();S.isHost=true;
   const i=$('roomNameInput');if(i)i.value='';
   showScreen('screen-room');
-  logEvent('create_room_start',{code:S.pendingRoomCode});
+  logEvent('create_room_start',{code:S.pendingRoomCode,roomName:S.roomName||''});
 }
 function exitSoloGame(){
   // reset state แล้วกลับ home
@@ -1753,7 +1753,7 @@ function joinRoom(){
     }
     S.pendingRoomCode=code;S.isHost=false;
     closeModal('modal-join');
-    logEvent('join_room',{code});
+    logEvent('join_room',{code,nick:S.nickname||''});
     const lb=$('nickRoomLabel');if(lb)lb.textContent='ห้อง: '+code;
     const bb=$('nickBackBtn');if(bb)bb.setAttribute('onclick','openJoinModal(_joinModalGame||"ww")');
     const ni=$('nickInput');if(ni){ni.value='';setTimeout(()=>ni.focus(),300);}
@@ -2103,7 +2103,7 @@ function leaveRoom(){
   if(location.search)history.replaceState(null,'',location.pathname);
   // ตรวจ isHost จริงๆ จาก Firebase ก่อนตัดสินใจยุบหรือออก
   const doLeave=(amHost)=>{
-    logEvent(amHost?'dissolve_room':'leave_room',{code:S.roomCode});
+    logEvent(amHost?'dissolve_room':'leave_room',{code:S.roomCode,roomName:S.roomName||''});
     if(amHost&&firebaseReady&&S.roomCode){
       // ลบ players ทุกคนก่อน → ทุก client detect ห้องว่างแล้ว redirect home
       // จากนั้นลบ sub-node อื่น (Rules ไม่ให้ set(null) ที่ root room โดยตรง)
@@ -2194,7 +2194,7 @@ function cancelKick(){_kickTargetId=null;$('kickConfirmOverlay')?.classList.remo
 function doKick(){
   if(!_kickTargetId||!S.isHost){cancelKick();return;}
   if(firebaseReady&&S.roomCode){
-    logEvent('kick_player',{code:S.roomCode,targetId:_kickTargetId});
+    const _kickTarget=S.players.find(p=>p.id===_kickTargetId);logEvent('kick_player',{code:S.roomCode,targetId:_kickTargetId,targetNick:_kickTarget?.name||_kickTarget?.nick||_kickTargetId});
     db.ref(`rooms/${S.roomCode}/players/${_kickTargetId}`).remove();
     db.ref(`rooms/${S.roomCode}/kicked/${_kickTargetId}`).set(true);
   }
@@ -2213,7 +2213,7 @@ function selectGame(g,ui=true){
 function startGame(){
   if(!S.isHost){showToast('เฉพาะ Host เริ่มเกมได้');return}
   if(!S.selectedGame){showToast('เลือกเกมก่อนนะ');return}
-  logEvent('start_game',{code:S.roomCode,game:S.selectedGame});
+  logEvent('start_game',{code:S.roomCode,roomName:S.roomName||'',game:S.selectedGame,playerCount:S.players.length});
   if(firebaseReady)db.ref(`rooms/${S.roomCode}/game`).set({type:S.selectedGame,started:true,startedAt:Date.now()});
   else launchGame(S.selectedGame);
 }
