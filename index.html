@@ -1143,7 +1143,9 @@ MenuOverlay')">
   var cdns=['https://www.gstatic.com/firebasejs/'+v+'/firebase-app-compat.js','https://cdn.jsdelivr.net/npm/firebase@'+v+'/firebase-app-compat.min.js'];
   var dbCdns=['https://www.gstatic.com/firebasejs/'+v+'/firebase-database-compat.js','https://cdn.jsdelivr.net/npm/firebase@'+v+'/firebase-database-compat.min.js'];
   function tryLoad(urls,idx,onDone){if(idx>=urls.length)return;loadScript(urls[idx],onDone,function(){tryLoad(urls,idx+1,onDone)})}
-  var authCdns=['https://www.gstatic.com/firebasejs/'+v+'/firebase-auth-compat.js','https://cdn.jsdelivr.net/npm/firebase@'+v+'/firebase-auth-compat.min.js'];tryLoad(cdns,0,function(){tryLoad(dbCdns,0,function(){tryLoad(authCdns,0,function(){if(typeof initFirebase==='function')initFirebase();})})});
+  var authCdns=['https://www.gstatic.com/firebasejs/'+v+'/firebase-auth-compat.js','https://cdn.jsdelivr.net/npm/firebase@'+v+'/firebase-auth-compat.min.js'];
+  var _fbTimeout=setTimeout(function(){var sp=document.getElementById('screen-splash'),lg=document.getElementById('screen-login');if(sp&&sp.classList.contains('active')){sp.classList.remove('active');if(lg)lg.classList.add('active');}},8000);
+  tryLoad(cdns,0,function(){tryLoad(dbCdns,0,function(){tryLoad(authCdns,0,function(){clearTimeout(_fbTimeout);if(typeof initFirebase==='function')initFirebase();});});});
 })();
 </script>
 <script>
@@ -1400,19 +1402,45 @@ function startSessionGuard(uid){
       setTimeout(()=>auth&&auth.signOut(),400);
     }
   });
-  // ฟังก่อน แล้วเขียนทับ — ข้าม snapshot แรก (ของตัวเอง) ด้วย flag
-  let _firstSnap=true;
-  ref.on('value',snap=>{
-    if(_firstSnap){_firstSnap=false;return;} // snapshot แรกคือของเราเอง ข้ามไป
-    const v=snap.val();
-    if(v&&v.sid&&v.sid!==S.sessionId)forceKickedBySameAccount();
-    if(v&&v.forceLogout&&v.forceLogout!==S._lastForceLogoutSeen){
-      S._lastForceLogoutSeen=v.forceLogout;
-      forceLogoutByAdmin();
-    }
+  // อ่านค่า forceLogout ที่ค้างอยู่ก่อน แล้วค่อย seed _lastForceLogoutSeen
+  // เพื่อป้องกัน forceLogout เก่าที่ยังอยู่ใน DB trigger โดยไม่ตั้งใจ
+  ref.once('value').then(initSnap=>{
+    if(!_sessionGuardActive)return;
+    const initVal=initSnap.val()||{};
+    // seed ค่า forceLogout เก่าออกไปก่อน — ไม่งั้นจะ trigger ทันทีที่ listen
+    if(initVal.forceLogout)S._lastForceLogoutSeen=initVal.forceLogout;
+    // เขียนทับ sid — ใช้ update ไม่ใช่ set เพื่อรักษา activeRoom ไว้
+    const _u=firebase.auth().currentUser;
+    ref.update({sid:S.sessionId,ts:Date.now(),displayName:_u?.displayName||null,email:_u?.email||null,photo:_u?.photoURL||null}).catch(()=>{});
+    // เริ่ม listen หลังจาก seed แล้ว + หลัง update sid แล้ว
+    // ข้าม snapshot แรก (เป็นผลของ update ข้างบน — ของตัวเอง)
+    let _firstSnap=true;
+    ref.on('value',snap=>{
+      if(_firstSnap){_firstSnap=false;return;}
+      if(!_sessionGuardActive)return;
+      const v=snap.val();
+      if(v&&v.sid&&v.sid!==S.sessionId)forceKickedBySameAccount();
+      if(v&&v.forceLogout&&v.forceLogout!==S._lastForceLogoutSeen){
+        S._lastForceLogoutSeen=v.forceLogout;
+        forceLogoutByAdmin();
+      }
+    });
+  }).catch(()=>{
+    // fallback: ถ้าอ่าน once ไม่ได้ ก็ listen ตรงๆ เลย
+    const _u=firebase.auth().currentUser;
+    ref.update({sid:S.sessionId,ts:Date.now(),displayName:_u?.displayName||null,email:_u?.email||null,photo:_u?.photoURL||null}).catch(()=>{});
+    let _firstSnap=true;
+    ref.on('value',snap=>{
+      if(_firstSnap){_firstSnap=false;return;}
+      if(!_sessionGuardActive)return;
+      const v=snap.val();
+      if(v&&v.sid&&v.sid!==S.sessionId)forceKickedBySameAccount();
+      if(v&&v.forceLogout&&v.forceLogout!==S._lastForceLogoutSeen){
+        S._lastForceLogoutSeen=v.forceLogout;
+        forceLogoutByAdmin();
+      }
+    });
   });
-  // เขียนทับ sid — ใช้ update ไม่ใช่ set เพื่อรักษา activeRoom ไว้
-  const _u=firebase.auth().currentUser;ref.update({sid:S.sessionId,ts:Date.now(),displayName:_u?.displayName||null,email:_u?.email||null,photo:_u?.photoURL||null}).catch(()=>{});
 }
 function stopSessionGuard(){
   _sessionGuardActive=false;
@@ -1460,12 +1488,16 @@ function checkRejoinRoom(uid){
   if(db&&uid)db.ref('userSessions/'+uid+'/activeRoom').remove().catch(()=>{});
 }
 
+let _signingIn=false;
 function signInWithGoogle(){
   if(!auth){showToast('กำลังเชื่อมต่อ...');return;}
+  if(_signingIn){showToast('กำลังเข้าสู่ระบบ...');return;}
+  _signingIn=true;
+  setTimeout(()=>{_signingIn=false;},10000);
   const provider=new firebase.auth.GoogleAuthProvider();
   provider.setCustomParameters({prompt:'select_account'});
-  // ลอง popup ก่อน (เร็วกว่า) — ถ้าไม่ได้ค่อย fallback redirect
-  auth.signInWithPopup(provider).catch(err=>{
+  auth.signInWithPopup(provider).then(()=>{_signingIn=false;}).catch(err=>{
+    _signingIn=false;
     console.warn('Popup failed, trying redirect:',err.code);
     const useRedirect=['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request','auth/operation-not-supported-in-this-environment'];
     if(useRedirect.includes(err.code)){
