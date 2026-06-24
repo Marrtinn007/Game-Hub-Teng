@@ -20,7 +20,11 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overscroll-behavior:none}
-*,*::before,*::after{transition:background-color 0.3s ease,border-color 0.3s ease,color 0.15s ease,box-shadow 0.3s ease}
+/* transition เฉพาะ element ที่ต้องการ แทน * selector เพื่อ performance */
+.btn,.btn-ac,.btn-start,.btn-spin,.btn-draw,.btn-icon,.game-card,.game-select-card,.theme-btn,.toggle,
+.modal-sheet,.toast,.ww-c-btn2,.salem-tbtn,.tab-btn{
+  transition:background-color 0.3s ease,border-color 0.3s ease,color 0.15s ease,box-shadow 0.3s ease;
+}
 body{
   font-family:'Kanit',-apple-system,sans-serif;
   background:var(--bg);
@@ -621,6 +625,40 @@ body::before{
 .kick-btn{width:30px;height:30px;border-radius:50%;background:rgba(240,110,122,0.12);border:1px solid rgba(240,110,122,0.25);color:var(--danger);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;flex-shrink:0;transition:all 0.14s;opacity:0.7}
 .kick-btn:hover{opacity:1;background:rgba(240,110,122,0.22)}
 .kick-btn:active{transform:scale(0.88)!important}
+
+/* ── iPad / Large screens (768px+) ── */
+@media(min-width:768px){
+  #screen-home{
+    min-height:100dvh;
+    justify-content:center;
+    align-items:center;
+  }
+  .home-hero{
+    width:100%;max-width:480px;
+    padding:2rem 2rem 1.25rem;
+  }
+  .games-section{
+    width:100%;max-width:480px;
+    padding:0 2rem 2rem;
+  }
+  .games-grid{gap:12px}
+}
+
+/* ── Desktop (1100px+) ── */
+@media(min-width:1100px){
+  .home-hero,.games-section{max-width:560px}
+  .game-card{padding:1.4rem 1.25rem}
+  .game-icon{width:52px;height:52px;font-size:27px}
+  .game-name{font-size:16px}
+  .game-desc{font-size:12px}
+  .games-grid{gap:14px}
+
+  #wheelCanvas{
+    width:min(640px,min(56vw,80vh)) !important;
+    max-width:640px;
+  }
+  .wheel-items,.wheel-add-row,.btn-spin{max-width:540px;width:100%}
+}
 </style>
 </head>
 <body>
@@ -5997,35 +6035,4 @@ document.addEventListener('DOMContentLoaded',()=>{
   <div style="font-size:14px;color:var(--t2)" id="connectingRoomName"></div>
 </div>
 </body>
-</html/* ── iPad / Large screens (768px+) ── */
-@media(min-width:768px){
-  #screen-home{
-    min-height:100dvh;
-    justify-content:center;
-    align-items:center;
-  }
-  .home-hero{
-    width:100%;max-width:480px;
-    padding:2rem 2rem 1.25rem;
-  }
-  .games-section{
-    width:100%;max-width:480px;
-    padding:0 2rem 2rem;
-  }
-  .games-grid{gap:12px}
-}
-
-/* ── Desktop (1100px+) ── */
-@media(min-width:1100px){
-  .home-hero,.games-section{max-width:560px}
-  .game-card{padding:1.4rem 1.25rem}
-  .game-icon{width:52px;height:52px;font-size:27px}
-  .game-name{font-size:16px}
-  .game-desc{font-size:12px}
-  .games-grid{gap:14px}
-
-  #wheelCanvas{
-    width:min(640px,min(56vw,80vh)) !important;
-    max-}
-  .wheel-items,.wheel-add-row,.btn-spin{max-width:540px;width:100%}
-}>
+</html>
