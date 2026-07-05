@@ -108,7 +108,7 @@ function renderSpySetup(){
         <button class="ww-c-btn2" style="width:40px;height:40px;font-size:22px" onclick="S.spyTimeMins=Math.min(20,S.spyTimeMins+1);renderSpySetup()">+</button>
       </div>
     </div>
-    <button class="btn btn-ac btn-next" onclick="startSpyfall()" style="height:56px;font-size:17px;font-weight:800" ${n<2?'disabled':''}>${n<2?'ต้องมีผู้เล่นอย่างน้อย 2 คน':'🕵️ เริ่มเกม Spyfall'}</button>`;
+    <button class="btn btn-ac btn-next" onclick="startSpyfall()" style="height:56px;font-size:17px;font-weight:800" ${n<2?'disabled':''}>${n<2?'ต้องมีผู้เล่นอย่างน้อย 2 คน':'🕵️ เริ่มเกมสายลับกลางวง'}</button>`;
 }
 
 function startSpyfall(){

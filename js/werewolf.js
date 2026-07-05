@@ -3,7 +3,7 @@ function showRoleInfo(r,event){
   event&&event.stopPropagation();
   const role=WW[r];if(!role)return;
   const teamColors={good:'var(--ok)',evil:'var(--danger)',solo:'var(--warn)'}[role.team]||'var(--ac)';
-  const teamLabel={good:'✅ ฝ่ายดี',evil:'🔴 หมาป่า',solo:'⚡ โดดเดี่ยว'}[role.team]||'🟡 พิเศษ';
+  const teamLabel={good:'🏡 ฝ่ายชาวบ้าน',evil:'🐯 ฝ่ายสมิง',solo:'⚖️ ฝ่ายอิสระ'}[role.team]||'🏡 ฝ่ายชาวบ้าน';
   const pts=role.pts||0;const ptsStr=pts>0?`+${pts}`:String(pts);
   const ptsColor=pts>0?'var(--ok)':pts<0?'var(--danger)':'var(--t2)';
   const box=$('roleInfoContent');if(!box)return;
@@ -50,9 +50,9 @@ function renderWWSetup(){
   const n=S.wwPlayerCount;
   const total=totalRoles(),over=total>n,under=total<n&&total>0;
   const WW_TEAMS=[
-    {id:'evil',label:'🔴 หมาป่า',roles:ROLE_ORDER.filter(r=>WW[r]?.team==='evil')},
-    {id:'good',label:'✅ ฝ่ายดี',roles:ROLE_ORDER.filter(r=>WW[r]?.team==='good')},
-    {id:'solo',label:'⚡ โดดเดี่ยว',roles:ROLE_ORDER.filter(r=>WW[r]?.team==='solo')},
+    {id:'evil',label:'🐯 ฝ่ายสมิง',roles:ROLE_ORDER.filter(r=>WW[r]?.team==='evil')},
+    {id:'good',label:'🏡 ฝ่ายชาวบ้าน',roles:ROLE_ORDER.filter(r=>WW[r]?.team==='good')},
+    {id:'solo',label:'⚖️ ฝ่ายอิสระ',roles:ROLE_ORDER.filter(r=>WW[r]?.team==='solo')},
   ];
   const teamCount=roles=>roles.reduce((sum,r)=>sum+(S.wwRoleCounts[r]||0),0);
   const canDeal = total>0 && total===n;
@@ -92,7 +92,7 @@ function renderWWSetup(){
 function renderRoleChip(r){
   const role=WW[r];if(!role)return'';
   const count=S.wwRoleCounts[r]||0;
-  const teamLabel={good:'ฝ่ายดี',evil:'หมาป่า',solo:'โดดเดี่ยว'}[role.team]||'พิเศษ';
+  const teamLabel={good:'ฝ่ายชาวบ้าน',evil:'ฝ่ายสมิง',solo:'ฝ่ายอิสระ'}[role.team]||'ฝ่ายชาวบ้าน';
   const pts=role.pts||0;const ptsStr=pts>0?`+${pts}`:String(pts);
   const ptsColor=pts>0?'var(--ok)':pts<0?'var(--danger)':'var(--t2)';
   return`<div class="ww-role-chip ${count>0?' has':''}">
@@ -168,7 +168,7 @@ function previewAndDeal(){
     </div>`;
   }).join('');
   const p=totalPts();const ptsColor=p>2?'var(--danger)':p<-2?'#60a5fa':p===0?'var(--ok)':'var(--warn)';
-  const ptsLabel=p>2?'ฝ่ายดีได้เปรียบ':p<-2?'หมาป่าได้เปรียบ':p===0?'⚖ สมดุลสมบูรณ์':'ใกล้สมดุล';
+  const ptsLabel=p>2?'ฝ่ายชาวบ้านได้เปรียบ':p<-2?'ฝ่ายสมิงได้เปรียบ':p===0?'⚖ สมดุลสมบูรณ์':'ใกล้สมดุล';
   const box=$('dealPreviewContent');if(!box)return;
   box.innerHTML=`
     <div style="margin-bottom:1.25rem">${rows}</div>
@@ -207,7 +207,7 @@ const STATUS_DEF={
   blessed:  {e:'🙏',label:'ได้รับพร'},
   dying:    {e:'☠️',label:'กำลังจะตาย'},
   targeted: {e:'🎯',label:'เป้า Hoodlum'},
-  werewolf: {e:'🐺',label:'กลายหมาป่า'},
+  werewolf: {e:'🐯',label:'กลายเป็นสมิง'},
 };
 // which roles unlock which statuses
 const STATUS_FOR_ROLE={
@@ -380,7 +380,7 @@ function renderWWHost(){
   initWWTimerState();
   const wwHidden=!!S.wwListHidden;
   body.innerHTML=`
-    ${wolfList.length?`<div style="background:rgba(255,59,48,0.1);border-left:3px solid var(--danger);border-radius:var(--r-s);padding:10px 14px;font-size:13px;color:var(--danger);margin-bottom:1rem;font-weight:700">🐺 ทีมหมาป่า · ${wolfList.map(n=>esc(n)).join(' · ')}</div>`:''}
+    ${wolfList.length?`<div style="background:rgba(255,59,48,0.1);border-left:3px solid var(--danger);border-radius:var(--r-s);padding:10px 14px;font-size:13px;color:var(--danger);margin-bottom:1rem;font-weight:700">🐯 ฝ่ายสมิง · ${wolfList.map(n=>esc(n)).join(' · ')}</div>`:''}
     ${cupPair.length===2?`<div style="background:rgba(244,114,182,0.1);border-left:3px solid #f472b6;border-radius:var(--r-s);padding:10px 14px;font-size:13px;color:#f472b6;margin-bottom:1rem;font-weight:700">💘 คู่รัก · ${cupPair.map(id=>esc(playerName_(id))).join(' & ')}</div>`:''}
     <div id="wwTimerWrap"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
@@ -558,7 +558,7 @@ function roleCardHTML(p){
   let alliesHtml='';
   if(isWolf&&S.wwWolfIds?.length>0){
     const allNames=getPlayers().filter(q=>S.wwWolfIds.includes(q.id)&&q.id!==p.id).map(q=>esc(q.name));
-    if(allNames.length>0)alliesHtml=`<div class="rpc-wolf-allies"><b>🐺 พวกหมาป่า:</b> ${allNames.join(', ')}</div>`;
+    if(allNames.length>0)alliesHtml=`<div class="rpc-wolf-allies"><b>🐯 พวกสมิง:</b> ${allNames.join(', ')}</div>`;
   }
   const shortDesc=role.short||'';
   return`<div class="role-playing-card${flipped?' flipped':''}" id="rpc-${esc(p.id)}" onclick="toggleRoleCard('${esc(p.id)}')">

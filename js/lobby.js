@@ -2,8 +2,8 @@
 function showCreateRoom(){S.pendingRoomCode=genCode();S.isHost=true;const i=$('roomNameInput');if(i)i.value='';showScreen('screen-room')}
 
 const _JOIN_MODAL_META={
-  ww:{icon:'🐺',title:'Werewolf',desc:'เล่นกับเพื่อน 4–18 คน'},
-  spyfall:{icon:'🕵️',title:'Spyfall',desc:'หาสายลับในกลุ่ม · 2+ คน'},
+  ww:{icon:'🐯',title:'คืนสมิง',desc:'เล่นกับเพื่อน 4–18 คน'},
+  spyfall:{icon:'🕵️',title:'สายลับกลางวง',desc:'หาสายลับในกลุ่ม · 2+ คน'},
   king:{icon:'👑',title:"King's Game",desc:'3+ คน · ราชาสั่ง ใครจะโดน?'},
   salem:{icon:'🧙',title:'Salem 1692',desc:'4–12 คน · เกมไพ่ชีวิต หาแม่มด'},
 };
@@ -565,7 +565,7 @@ function launchGame(type){
 function backToLobby(){$('gameoverOverlay')?.classList.remove('show');showScreen('screen-lobby')}
 function initGame(type){({ww:initWW,wheel:initWheel,cards:initCards,spyfall:initSpyfall,king:initKing,salem:initSalem})[type]?.()}
 function previewGame(type){
-  const info={ww:'<p><b>Werewolf</b></p><p>Host แจกไพ่บทบาท แต่ละคนกดดูบทบาทตัวเองในมือถือ</p>',wheel:'<p><b>Spin the Wheel</b></p><p>ใส่ชื่อหรือตัวเลือกได้เอง แล้วปั่น</p>',cards:'<p><b>ไพ่ปาร์ตี้</b></p><p>จั่วไพ่ทีละใบ แต่ละหน้ามีกฎ</p>',spyfall:'<p><b>Spyfall</b></p><p>ทุกคนรู้สถานที่ ยกเว้น Spy — ถามตอบเพื่อหาสายลับ</p>'};
+  const info={ww:'<p><b>คืนสมิง</b></p><p>Host แจกไพ่บทบาท แต่ละคนกดดูบทบาทตัวเองในมือถือ</p>',wheel:'<p><b>วงล้อ</b></p><p>ใส่ชื่อหรือตัวเลือกได้เอง แล้วปั่น</p>',cards:'<p><b>ไพ่เฮฮา</b></p><p>จั่วไพ่ทีละใบ แต่ละหน้ามีกฎ</p>',spyfall:'<p><b>สายลับกลางวง</b></p><p>ทุกคนรู้สถานที่ ยกเว้นสายลับ — ถามตอบเพื่อหาสายลับ</p>'};
   const b=$('modalInfoBody');if(b)b.innerHTML=info[type]||'';openModal('modal-info');
 }
 function toggleMenu(){if(!S.isHost)return;$('menuOverlay')?.classList.toggle('show')}

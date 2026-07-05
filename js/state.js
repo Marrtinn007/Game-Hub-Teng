@@ -86,7 +86,7 @@ function totalPts(){return Object.entries(S.wwRoleCounts).reduce((sum,[r,cnt])=>
 function ptsDisplay(){
   const p=totalPts();
   const col=p>2?'var(--danger)':p<-2?'#60a5fa':p===0?'var(--ok)':'var(--warn)';
-  const label=p>2?'ฝ่ายดีได้เปรียบ':p<-2?'หมาป่าได้เปรียบ':p===0?'⚖ สมดุล':'ใกล้สมดุล';
+  const label=p>2?'ฝ่ายชาวบ้านได้เปรียบ':p<-2?'ฝ่ายสมิงได้เปรียบ':p===0?'⚖ สมดุล':'ใกล้สมดุล';
   return`<span style="color:${col};font-weight:900">${p>0?'+':''}${p} ${label}</span>`;
 }
 function myId(){return S.myPlayerId||'demo'}
