@@ -227,12 +227,12 @@ function cleanupRooms(){
 const CHEVRON_SVG='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 5 16 12 9 19"/></svg>';
 const REFRESH_SVG='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>';
 const HOME_GAMES_CONFIG=[
-  {id:'ww',    label:'🎲 ต้องสร้างห้อง', icon:'🐯', bg:'linear-gradient(135deg,#7f1d1d,#450a0a)', name:'คืนสมิง',      desc:'4–18 คน · แจกไพ่บทบาท',     action:"openJoinModal('ww')",    solo:false},
-  {id:'spyfall',label:null,               icon:'🕵️', bg:'linear-gradient(135deg,#581c87,#3b0764)', name:'สายลับกลางวง',   desc:'3+ คน · หาสายลับ',           action:"openJoinModal('spyfall')",solo:false},
-  {id:'king',   label:null,               icon:'👑', bg:'linear-gradient(135deg,#78350f,#451a03)', name:"King's Game",    desc:'3+ คน · ราชาสั่ง',           action:"openJoinModal('king')",  solo:false},
-  {id:'salem',  label:null,               icon:'🧙', bg:'linear-gradient(135deg,#4c1d95,#2e1065)', name:'Salem 1692',      desc:'4–12 คน · ไพ่ชีวิต',        action:"openJoinModal('salem')", solo:false},
-  {id:'wheel',  label:'⚡ เริ่มได้เลย',   icon:'🎡', bg:'linear-gradient(135deg,#14532d,#052e16)',name:'วงล้อ',           desc:'ตัดสินใจแทนคุณได้เลย',      action:"launchSolo('wheel')",    solo:true},
-  {id:'cards',  label:null,               icon:'🃏', bg:'linear-gradient(135deg,#831843,#4c0519)',name:'ไพ่เฮฮา',        desc:'ชาเลนจ์สนุกๆ ในวงเพื่อน',  action:"launchSolo('cards')",    solo:true},
+  {id:'ww',    label:'🎲 ต้องสร้างห้อง', icon:'🐯', bg:'linear-gradient(135deg,#f87171,#b91c1c)', name:'คืนสมิง',      desc:'4–18 คน · แจกไพ่บทบาท',     action:"openJoinModal('ww')",    solo:false},
+  {id:'spyfall',label:null,               icon:'🕵️', bg:'linear-gradient(135deg,#c084fc,#9333ea)', name:'สายลับกลางวง',   desc:'3+ คน · หาสายลับ',           action:"openJoinModal('spyfall')",solo:false},
+  {id:'king',   label:null,               icon:'👑', bg:'linear-gradient(135deg,#fde047,#eab308)', name:"King's Game",    desc:'3+ คน · ราชาสั่ง',           action:"openJoinModal('king')",  solo:false},
+  {id:'salem',  label:null,               icon:'🧙', bg:'linear-gradient(135deg,#a78bfa,#7c3aed)', name:'Salem 1692',      desc:'4–12 คน · ไพ่ชีวิต',        action:"openJoinModal('salem')", solo:false},
+  {id:'wheel',  label:'⚡ เริ่มได้เลย',   icon:'🎡', bg:'linear-gradient(135deg,#4ade80,#16a34a)',name:'วงล้อ',           desc:'ตัดสินใจแทนคุณได้เลย',      action:"launchSolo('wheel')",    solo:true},
+  {id:'cards',  label:null,               icon:'🃏', bg:'linear-gradient(135deg,#fda4af,#e11d48)',name:'ไพ่เฮฮา',        desc:'ชาเลนจ์สนุกๆ ในวงเพื่อน',  action:"launchSolo('cards')",    solo:true},
 ];
 function renderHomeGames(){
   const multiList=$('homeMultiList'),soloList=$('homeSoloList');

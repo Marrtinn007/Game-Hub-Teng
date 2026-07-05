@@ -27,13 +27,13 @@
 .home-section-title{font-size:13px;font-weight:800;color:var(--t0)}
 .home-game-list{display:flex;flex-direction:column;gap:12px}
 .home-game-row{display:flex;align-items:center;gap:14px;padding:13px 14px;background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh)}
-.home-row-icon{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;box-shadow:0 4px 10px -2px rgba(0,0,0,0.35)}
+.home-row-icon{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;box-shadow:0 4px 10px -2px rgba(0,0,0,0.35);filter:drop-shadow(0 0 1.5px rgba(0,0,0,0.85)) drop-shadow(0 0 1.5px rgba(0,0,0,0.85)) drop-shadow(0 0 1.5px rgba(0,0,0,0.85))}
 .home-row-info{flex:1;min-width:0}
 .home-row-name{font-size:15.5px;font-weight:800;color:var(--t0)}
 .home-row-desc{font-size:12px;color:var(--t2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.home-row-cta{flex-shrink:0;display:flex;align-items:center;gap:4px;font-size:12.5px;font-weight:800;padding:10px 14px;border-radius:var(--r-pill);background:linear-gradient(rgba(0,0,0,0.32),rgba(0,0,0,0.32)),var(--ac);color:#fff;white-space:nowrap;box-shadow:var(--sh-btn);border:none;cursor:pointer;font-family:'Kanit',sans-serif;transition:transform 0.12s var(--spring),filter 0.12s}
+.home-row-cta{flex-shrink:0;display:flex;align-items:center;gap:4px;font-size:12.5px;font-weight:800;padding:10px 14px;border-radius:var(--r-pill);background:var(--ac);color:#fff;white-space:nowrap;box-shadow:var(--sh-btn);border:none;cursor:pointer;font-family:'Kanit',sans-serif;transition:transform 0.12s var(--spring),filter 0.12s}
 .home-row-cta:active{transform:scale(0.94);filter:brightness(0.94)}
-.home-row-cta.solo{background:linear-gradient(rgba(0,0,0,0.32),rgba(0,0,0,0.32)),var(--ok);color:#fff}
+.home-row-cta.solo{background:var(--ok);color:#fff}
 
 /* ── Enter screens ── */
 #screen-room,#screen-nick{align-items:center;justify-content:center;padding:2rem var(--pad)}
