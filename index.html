@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!-- ════════════════════════════════════════════════════════════════
-     GAME HUB TENG  —  v14.0
+     GAME HUB TENG  —  v14.7
      ────────────────────────────────────────────────────────────
      AI HANDOFF NOTE (สำหรับ AI ที่รับงานต่อ):
-     - เวอร์ชันปัจจุบัน: v14.0
+     - เวอร์ชันปัจจุบัน: v14.7
      - เพิ่มเวอร์ชัน +0.1 ทุกครั้งที่แก้ไข (v11 → v11.1 → v11.2 ...)
      - อัปเดต label มุมบนซ้าย id="versionLabel" ด้วยทุกครั้ง
      ════════════════════════════════════════════════════════════════ -->
@@ -15,6 +15,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <title>Game Hub Teng</title>
+<link rel="icon" href="img/logo2.png"/>
+<link rel="apple-touch-icon" href="img/logo2.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <style>
@@ -53,10 +55,10 @@ body{
   --spring:cubic-bezier(0.34,1.56,0.64,1);
   --smooth:cubic-bezier(0.25,0.46,0.45,0.94);
   --pad:clamp(1rem,4vw,1.5rem);
-  --sh: 0 1px 0 rgba(255,255,255,0.04) inset, 0 4px 12px rgba(0,0,0,0.45), 0 1px 3px rgba(0,0,0,0.3);
-  --sh2: 0 1px 0 rgba(255,255,255,0.05) inset, 0 8px 24px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.35);
-  --sh-btn: 0 4px 0 rgba(0,0,0,0.35), 0 6px 16px rgba(0,0,0,0.3);
-  --sh-btn-press: 0 1px 0 rgba(0,0,0,0.3), 0 2px 6px rgba(0,0,0,0.25);
+  --sh: 0 1px 2px rgba(0,0,0,0.14);
+  --sh2: 0 8px 24px rgba(0,0,0,0.22);
+  --sh-btn: 0 1px 2px rgba(0,0,0,0.18);
+  --sh-btn-press: 0 1px 1px rgba(0,0,0,0.12);
 }
 
 
@@ -76,9 +78,9 @@ body{
   --ac:#b5651d;--ac-dim:rgba(181,101,29,0.12);
   --line:rgba(0,0,0,0.09);
   --btn-ac-from:#d4843a;--btn-ac-to:#b5651d;--btn-ac-shadow:rgba(120,60,10,0.40);--btn-ac-glow:rgba(181,101,29,0.15);
-  --sh: 0 1px 0 rgba(255,255,255,0.85) inset, 0 4px 12px rgba(0,0,0,0.10), 0 1px 3px rgba(0,0,0,0.08);
-  --sh2: 0 1px 0 rgba(255,255,255,0.85) inset, 0 8px 24px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.08);
-  --sh-btn: 0 4px 0 rgba(0,0,0,0.15), 0 6px 16px rgba(0,0,0,0.08);
+  --sh: 0 1px 2px rgba(0,0,0,0.06);
+  --sh2: 0 8px 24px rgba(0,0,0,0.10);
+  --sh-btn: 0 1px 2px rgba(0,0,0,0.08);
 }
 [data-theme="ocean"]{
   --bg:#060e1a;--card:#0d1d30;--card2:#122540;
@@ -91,19 +93,17 @@ body{
 
 /* ── ปุ่ม accent ตามธีม ── */
 .btn-ac{
-  background:linear-gradient(180deg,var(--btn-ac-from,#8faeff) 0%,var(--btn-ac-to,#6278e8) 100%);
+  background:var(--ac);
   color:#fff;font-weight:700;
-  box-shadow:var(--sh-btn),0 0 16px var(--btn-ac-glow,rgba(124,156,255,0.20));
-  border-top:1px solid rgba(255,255,255,0.18);
+  box-shadow:var(--sh-btn);
 }
 .btn-ac:hover{filter:brightness(1.08)}
 .btn-start{
   margin:1.25rem var(--pad) 0;width:calc(100% - 2*var(--pad));
   font-size:17px;font-weight:700;height:58px;border-radius:var(--r-l);
-  background:linear-gradient(180deg,var(--btn-ac-from,#8faeff) 0%,var(--btn-ac-to,#6278e8) 100%);
+  background:var(--ac);
   color:#fff;
-  box-shadow:0 5px 0 var(--btn-ac-shadow,rgba(60,72,180,0.55)),0 8px 20px var(--btn-ac-glow,rgba(80,100,220,0.25));
-  border-top:1px solid rgba(255,255,255,0.2);
+  box-shadow:var(--sh-btn);
 }
 .btn-spin{
   width:100%;height:56px;font-size:17px;font-weight:700;cursor:pointer;
@@ -208,12 +208,9 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
 [data-theme="cream"] .lobby-room-code{color:var(--t2)}
 [data-theme="cream"] .home-sub{color:var(--t2)}
 [data-theme="cream"] .game-top-sub{color:var(--t2)}
-[data-theme="cream"] .card{background:var(--card);border-top:1px solid rgba(0,0,0,0.06)}
 [data-theme="cream"] .btn-sf{color:var(--t1)}
-[data-theme="cream"] .btn-icon{background:var(--card2);color:var(--t2);border-top:1px solid rgba(255,255,255,0.6)}
+[data-theme="cream"] .btn-icon{background:var(--card2);color:var(--t2)}
 [data-theme="cream"] .modal-handle{background:rgba(0,0,0,0.15)}
-[data-theme="cream"] .home-badge{background:var(--card2)}
-[data-theme="cream"] .game-card{border-top:1px solid rgba(255,255,255,0.7)}
 [data-theme="cream"] .ww-host-row{border-top:1px solid rgba(255,255,255,0.5)}
 [data-theme="cream"] #wheelCanvas{box-shadow:0 8px 32px rgba(0,0,0,0.15)}
 [data-theme="cream"] .wheel-result-text{-webkit-text-fill-color:var(--ac);background:none;color:var(--ac)}
@@ -225,24 +222,24 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
 @keyframes pgIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── Card surface ── */
-.card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);border-top:1px solid rgba(255,255,255,0.06)}
+.card{background:var(--card);border-radius:var(--r);border:1px solid var(--line)}
 .card2{background:var(--card2);border-radius:var(--r-s)}
 
 /* ── Buttons ── */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;cursor:pointer;font-family:'Kanit',sans-serif;font-weight:700;border-radius:var(--r-s);transition:transform 0.12s var(--spring),filter 0.12s,opacity 0.12s,background-color 0.3s,color 0.15s;-webkit-tap-highlight-color:transparent}
-.btn:active{transform:translateY(2px) scale(0.97)!important;filter:brightness(0.9)!important;box-shadow:var(--sh-btn-press)!important}
+.btn:active{transform:scale(0.97)!important;filter:brightness(0.94)!important}
 .btn:disabled{opacity:0.32;cursor:not-allowed;transform:none!important;filter:none!important}
 
 
-.btn-sf{background:linear-gradient(180deg,var(--card2) 0%,var(--card) 100%);color:var(--t1);border:1px solid var(--line);box-shadow:var(--sh-btn);border-top:1px solid rgba(255,255,255,0.07)}
+.btn-sf{background:var(--card2);color:var(--t1);border:1px solid var(--line)}
 .btn-sf:hover{color:var(--t0);border-color:rgba(255,255,255,0.14)}
 
 .btn-ghost{background:transparent;border:none;color:var(--t2);font-family:'Kanit',sans-serif}
 .btn-ghost:hover{color:var(--t0)}
 
-.btn-icon{width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:var(--r-s);flex-shrink:0;cursor:pointer;border:none;background:var(--card2);color:var(--t2);transition:all 0.14s;box-shadow:0 2px 0 rgba(0,0,0,0.3);border-top:1px solid rgba(255,255,255,0.06)}
+.btn-icon{width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:var(--r-s);flex-shrink:0;cursor:pointer;border:1px solid var(--line);background:var(--card2);color:var(--t2);transition:all 0.14s}
 .btn-icon:hover{color:var(--t0);background:var(--card2)}
-.btn-icon:active{transform:translateY(1px)!important;box-shadow:none!important}
+.btn-icon:active{transform:scale(0.93)!important}
 .btn-icon svg{display:block;pointer-events:none}
 
 .btn-full{width:100%;height:54px;font-size:17px}
@@ -307,49 +304,49 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
 /* ── Home ── */
 /* ══ HOME ══ */
 #screen-home{padding-bottom:3rem;position:relative}
-.home-hero{padding:3rem var(--pad) 1.5rem;text-align:center}
-.home-badge{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-pill);padding:6px 16px;margin-bottom:1.25rem;box-shadow:0 2px 0 rgba(0,0,0,0.2)}
-.home-badge-dot{width:7px;height:7px;border-radius:50%;background:var(--ok);animation:pulse 2s infinite;flex-shrink:0}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(78,202,139,0.5)}50%{box-shadow:0 0 0 5px rgba(78,202,139,0)}}
-.home-badge-text{font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--t2);text-transform:uppercase}
-.home-title{font-size:clamp(32px,8vw,48px);font-weight:900;letter-spacing:-0.02em;line-height:1.1;margin-bottom:0.4rem;color:var(--t0)}
+.home-topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px var(--pad) 0}
+.home-topbar-brand{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--t2);letter-spacing:0.01em}
+.home-topbar-brand b{color:var(--t0);font-weight:800}
+.brand-logo-icon{width:34px;height:34px;flex-shrink:0;border-radius:9px;background-color:#fff;background-image:url('img/logo2.png');background-size:cover;background-position:center;background-repeat:no-repeat;box-shadow:0 0 0 1px rgba(0,0,0,0.06)}
+.brand-logo-icon-lg{width:64px;height:64px;border-radius:18px;background-color:#fff;background-image:url('img/logo2.png');background-size:cover;background-position:center;background-repeat:no-repeat;box-shadow:0 0 0 1px rgba(0,0,0,0.06)}
+.brand-logo-lockup{width:96px;height:96px;margin:0 auto 1rem;border-radius:26px;background-color:#fff;background-image:url('img/logo2.png');background-size:cover;background-position:center;background-repeat:no-repeat;box-shadow:0 0 0 1px rgba(0,0,0,0.06)}
+.login-title{font-size:26px;font-weight:900;color:var(--t0);margin-bottom:6px}
+.home-hero{padding:1.5rem var(--pad) 1.25rem;text-align:center}
+.home-title{font-size:clamp(28px,7vw,40px);font-weight:900;letter-spacing:-0.02em;line-height:1.15;margin-bottom:0.4rem;color:var(--t0)}
 .home-title-accent{color:var(--ac)}
 .home-sub{font-size:14px;color:var(--t2);line-height:1.6;font-weight:400}
 /* Games grid */
 .games-section{padding:0 var(--pad) 0.5rem;margin-top:0.5rem}
 .games-section-label{
-  font-size:10px;font-weight:700;letter-spacing:0.10em;color:var(--t3);
-  text-transform:uppercase;padding:1rem 0 0.6rem;
+  font-size:10.5px;font-weight:600;letter-spacing:0.14em;color:var(--t3);
+  text-transform:uppercase;padding:1.5rem 0 0.85rem;
 }
 .games-grid{
   display:grid;grid-template-columns:1fr 1fr;
-  gap:10px;
+  gap:12px;
 }
 .game-card{
-  padding:1.1rem 1rem 1rem;
+  padding:1.35rem 1.15rem 1.15rem;
   cursor:pointer;
-  background:linear-gradient(145deg,var(--card2) 0%,var(--card) 100%);
-  border-radius:var(--r-l);
-  box-shadow:var(--sh);
+  background:var(--card);
+  border-radius:20px;
   border:1px solid var(--line);
-  border-top:1px solid rgba(255,255,255,0.07);
-  transition:transform 0.18s var(--spring),box-shadow 0.18s;
+  transition:transform 0.15s var(--spring),border-color 0.15s;
 }
-.game-card:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
-.game-card:active{transform:translateY(1px) scale(0.97)!important;box-shadow:none!important}
+.game-card:hover{border-color:rgba(124,156,255,0.4)}
+.game-card:active{transform:scale(0.97)!important}
 .game-icon{
-  width:46px;height:46px;border-radius:14px;
+  width:44px;height:44px;border-radius:13px;
   display:flex;align-items:center;justify-content:center;
-  font-size:24px;margin-bottom:0.75rem;
-  box-shadow:0 3px 0 rgba(0,0,0,0.2);
+  font-size:22px;margin-bottom:0.9rem;
 }
-.game-name{font-size:15px;font-weight:800;color:var(--t0);line-height:1.25;margin-bottom:3px}
-.game-desc{font-size:11px;color:var(--t2);font-weight:400;line-height:1.4}
+.game-name{font-size:15px;font-weight:700;color:var(--t0);line-height:1.25;margin-bottom:4px}
+.game-desc{font-size:11.5px;color:var(--t2);font-weight:400;line-height:1.4}
 
 
 /* ── Enter screens ── */
 #screen-room,#screen-nick{align-items:center;justify-content:center;padding:2rem var(--pad)}
-.enter-box{width:100%;max-width:360px;padding:2.25rem 1.75rem;text-align:center;background:linear-gradient(160deg,var(--card2) 0%,var(--card) 100%);border-radius:var(--r-xl);box-shadow:var(--sh2);border:1px solid var(--line);border-top:1px solid rgba(255,255,255,0.08)}
+.enter-box{width:100%;max-width:360px;padding:2.25rem 1.75rem;text-align:center;background:var(--card);border-radius:var(--r-xl);border:1px solid var(--line)}
 .enter-emoji{font-size:52px;display:block;margin-bottom:1rem;animation:entryBounce 0.5s var(--spring) both 0.1s}
 @keyframes entryBounce{from{transform:scale(0.5);opacity:0}to{transform:scale(1);opacity:1}}
 .enter-title{font-size:22px;font-weight:900;color:var(--t0);margin-bottom:0.4rem}
@@ -364,7 +361,7 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
 .lobby-room-name{font-size:20px;font-weight:900;color:var(--t0);line-height:1.2}
 .lobby-sec{margin:1.25rem var(--pad) 0}
 .players-list{display:flex;flex-direction:column;gap:8px;margin-top:0.65rem}
-.player-row{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--card);border-radius:var(--r);border:1px solid var(--line);box-shadow:0 2px 0 rgba(0,0,0,0.25);border-top:1px solid rgba(255,255,255,0.05)}
+.player-row{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--card);border-radius:var(--r);border:1px solid var(--line)}
 .p-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0}
 .p-name{font-size:16px;font-weight:500;flex:1;color:var(--t0)}
 .p-badge{font-size:11px;padding:4px 12px;border-radius:var(--r-pill);background:var(--ac-dim);color:var(--ac);font-weight:700}
@@ -372,9 +369,9 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
 .share-lbl{font-size:11px;color:var(--t2);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;font-weight:700}
 .share-code{font-size:38px;font-weight:800;letter-spacing:0.12em;margin-bottom:12px;color:var(--ac);display:block}
 .game-select-grid{margin:0 var(--pad);display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.game-select-card{padding:1rem;cursor:pointer;text-align:center;user-select:none;background:linear-gradient(160deg,var(--card2) 0%,var(--card) 100%);border-radius:var(--r);border:1px solid var(--line);border-top:1px solid rgba(255,255,255,0.06);box-shadow:0 3px 0 rgba(0,0,0,0.3);transition:all 0.15s var(--spring)}
-.game-select-card:active{transform:translateY(2px)!important;box-shadow:none!important}
-.game-select-card.selected{border-color:var(--ac);background:rgba(124,156,255,0.1);box-shadow:0 3px 0 rgba(80,100,220,0.4),0 0 12px rgba(124,156,255,0.1)}
+.game-select-card{padding:1rem;cursor:pointer;text-align:center;user-select:none;background:var(--card);border-radius:var(--r);border:1px solid var(--line);transition:all 0.15s var(--spring)}
+.game-select-card:active{transform:scale(0.97)!important}
+.game-select-card.selected{border-color:var(--ac);background:rgba(124,156,255,0.1)}
 .game-select-card.selected .gs-name{color:var(--ac)}
 .gs-icon{font-size:28px;margin-bottom:6px}
 .gs-name{font-size:14px;font-weight:700;color:var(--t0)}
@@ -390,6 +387,16 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
 
 /* ── WW Setup ── */
 .ww-roles-list{display:flex;flex-direction:column;gap:8px;margin-bottom:0.875rem}
+.ww-team-group{margin-top:1rem}
+.ww-team-header{width:100%;display:flex;align-items:center;gap:12px;height:66px;padding:0 20px;border-radius:var(--r-l);background:var(--card);border:1.5px solid var(--line);color:var(--t0);font-family:'Kanit',sans-serif;font-size:19px;font-weight:800;cursor:pointer;transition:all 0.15s}
+.ww-team-header.open{border-color:var(--ac);background:var(--ac-dim);color:var(--ac)}
+.ww-team-header-label{flex:1;text-align:left}
+.ww-team-tab-count{font-size:14px;font-weight:800;color:var(--t2);background:var(--card2);border-radius:var(--r-pill);padding:3px 12px;min-width:30px;text-align:center}
+.ww-team-header.open .ww-team-tab-count{color:var(--ac);background:rgba(124,156,255,0.16)}
+.ww-team-chevron{font-size:16px;color:var(--t2);transition:transform 0.2s}
+.ww-team-header.open .ww-team-chevron{transform:rotate(180deg);color:var(--ac)}
+.ww-team-group .ww-roles-list{margin-top:8px;animation:wwGroupOpen 0.2s ease both}
+@keyframes wwGroupOpen{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 .ww-role-chip{padding:12px 14px;border-radius:var(--r-s);display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-top:1px solid rgba(255,255,255,0.05);box-shadow:0 2px 0 rgba(0,0,0,0.25);transition:all 0.15s var(--spring)}
 .ww-role-chip.has{border-color:var(--ac);background:var(--ac-dim)}
 .ww-role-chip-icon{font-size:22px;flex-shrink:0;cursor:pointer}
@@ -555,6 +562,10 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
     justify-content:flex-start;
     padding-top:3rem;
   }
+  .home-topbar{
+    width:100%;max-width:520px;
+    padding:1rem 2rem 0;
+  }
   .home-hero{
     width:100%;max-width:520px;
     padding:1rem 2rem;
@@ -576,7 +587,7 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
 
 /* ── Desktop (1100px+) ── */
 @media(min-width:1100px){
-  .home-hero,.games-section{max-width:600px}
+  .home-topbar,.home-hero,.games-section{max-width:600px}
   .games-grid{gap:14px}
   .game-card{padding:1.4rem}
   .game-icon{width:52px;height:52px;font-size:27px}
@@ -591,9 +602,9 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
 
 
 /* ═══ ORB BACKGROUND ══════════════════════════════════════════ */
-[data-theme="dark"]   { --ob1:rgba(100,80,240,.38); --ob2:rgba(40,120,255,.28); --ob3:rgba(0,200,180,.22); --ob4:rgba(140,40,220,.28); --ob5:rgba(60,100,220,.18) }
-[data-theme="cream"]  { --ob1:rgba(255,130,60,.40);  --ob2:rgba(255,210,60,.34); --ob3:rgba(220,80,140,.28);  --ob4:rgba(120,200,80,.28);  --ob5:rgba(60,180,230,.24) }
-[data-theme="ocean"]  { --ob1:rgba(0,160,240,.40);   --ob2:rgba(0,80,210,.32);   --ob3:rgba(0,220,200,.28);   --ob4:rgba(60,40,200,.30);   --ob5:rgba(0,200,160,.22) }
+[data-theme="dark"]   { --ob1:rgba(100,80,240,.16); --ob2:rgba(40,120,255,.12); --ob3:rgba(0,200,180,.10); --ob4:rgba(140,40,220,.12); --ob5:rgba(60,100,220,.08) }
+[data-theme="cream"]  { --ob1:rgba(255,130,60,.14);  --ob2:rgba(255,210,60,.12); --ob3:rgba(220,80,140,.10);  --ob4:rgba(120,200,80,.10);  --ob5:rgba(60,180,230,.08) }
+[data-theme="ocean"]  { --ob1:rgba(0,160,240,.16);   --ob2:rgba(0,80,210,.12);   --ob3:rgba(0,220,200,.10);   --ob4:rgba(60,40,200,.12);   --ob5:rgba(0,200,160,.08) }
 
 body::before{
   content:'';
@@ -616,14 +627,11 @@ body::before{
 /* ═══════════════════════════════════════════════════════════════ */
 
 /* ── Login Screen ── */
-.login-box{display:flex;flex-direction:column;align-items:center;text-align:center;padding:2.5rem 2rem;margin:auto;width:calc(100% - 3rem);max-width:360px;position:relative;z-index:1}
-.login-logo{font-size:64px;margin-bottom:1rem;line-height:1}
-.login-title{font-size:28px;font-weight:900;color:var(--t0);margin-bottom:6px}
-.login-sub{font-size:15px;color:var(--t2);margin-bottom:2rem;font-weight:400}
+.login-box{display:flex;flex-direction:column;align-items:center;text-align:center;padding:2.5rem 2rem;margin:auto;width:calc(100% - 3rem);max-width:360px;position:relative;z-index:1;background:var(--card);border:1px solid var(--line);border-radius:var(--r-xl)}
+.login-sub{font-size:14px;color:var(--t2);margin-bottom:2rem;font-weight:400}
 .login-note{font-size:12px;color:var(--t3);margin-top:1rem}
-.btn-google{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;height:54px;border-radius:var(--r-l);background:#fff;color:#3c4043;font-size:16px;font-weight:700;border:none;cursor:pointer;font-family:'Kanit',sans-serif;box-shadow:0 4px 0 rgba(0,0,0,0.2),0 6px 16px rgba(0,0,0,0.15);transition:transform 0.12s var(--spring),box-shadow 0.12s}
-.btn-google:active{transform:translateY(3px)!important;box-shadow:0 1px 0 rgba(0,0,0,0.15)!important}
-[data-theme="cream"] .btn-google{box-shadow:0 4px 0 rgba(0,0,0,0.12),0 6px 16px rgba(0,0,0,0.08)}
+.btn-google{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;height:52px;border-radius:var(--r-l);background:#fff;color:#3c4043;font-size:15px;font-weight:700;border:1px solid rgba(0,0,0,0.1);cursor:pointer;font-family:'Kanit',sans-serif;box-shadow:var(--sh-btn);transition:transform 0.12s var(--spring),filter 0.12s}
+.btn-google:active{transform:scale(0.97)!important;filter:brightness(0.96)!important}
 
 /* ── Kick button in player row ── */
 .kick-btn{width:30px;height:30px;border-radius:50%;background:rgba(240,110,122,0.12);border:1px solid rgba(240,110,122,0.25);color:var(--danger);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;flex-shrink:0;transition:all 0.14s;opacity:0.7}
@@ -636,6 +644,10 @@ body::before{
     min-height:100dvh;
     justify-content:center;
     align-items:center;
+  }
+  .home-topbar{
+    width:100%;max-width:480px;
+    padding:1.25rem 2rem 0;
   }
   .home-hero{
     width:100%;max-width:480px;
@@ -650,7 +662,7 @@ body::before{
 
 /* ── Desktop (1100px+) ── */
 @media(min-width:1100px){
-  .home-hero,.games-section{max-width:560px}
+  .home-topbar,.home-hero,.games-section{max-width:560px}
   .game-card{padding:1.4rem 1.25rem}
   .game-icon{width:52px;height:52px;font-size:27px}
   .game-name{font-size:16px}
@@ -666,7 +678,7 @@ body::before{
 </style>
 </head>
 <body>
-<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v14.0</div>
+<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v14.7</div>
 
 <div class="toast" id="toast"></div>
 
@@ -852,14 +864,14 @@ MenuOverlay')">
 
 <!-- ══ SPLASH (กันกระพริบหน้า login ตอนเช็คสถานะล็อกอิน) ══ -->
 <div class="screen active" id="screen-splash" style="align-items:center;justify-content:center">
-  <div style="font-size:40px;animation:splashFade 1.2s ease-in-out infinite">🎮</div>
+  <div class="brand-logo-icon-lg" role="img" aria-label="Game Hub Teng" style="animation:splashFade 1.2s ease-in-out infinite"></div>
 </div>
 <style>@keyframes splashFade{0%,100%{opacity:0.4}50%{opacity:1}}</style>
 
 <!-- ══ LOGIN ══ -->
 <div class="screen" id="screen-login">
   <div class="login-box elevated anim-pop">
-    <div class="login-logo">🎮</div>
+    <div class="brand-logo-lockup" role="img" aria-label="Game Hub Teng"></div>
     <div class="login-title">Game Hub <span style="color:var(--ac)">Teng</span></div>
     <div class="login-sub">เข้าสู่ระบบเพื่อเริ่มเล่น</div>
     <button class="btn-google" onclick="signInWithGoogle()">
@@ -873,41 +885,40 @@ MenuOverlay')">
 <!-- ══ HOME ══ -->
 <div class="screen" id="screen-home">
   <!-- profile btn มุมขวาบน (แทนปุ่มธีมเดิม) -->
-  <div style="position:absolute;top:12px;right:14px;z-index:50" id="profileMenuWrap">
-    <img id="homeUserAvatar" src="" style="width:36px;height:36px;border-radius:50%;display:none;border:2px solid var(--ac);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3)" alt="" onclick="toggleProfileMenu()" title="บัญชีของฉัน"/>
-    <!-- Dropdown -->
-    <div id="profileDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:6px;min-width:190px;box-shadow:0 8px 24px rgba(0,0,0,0.35);z-index:200">
-      <div style="display:flex;align-items:center;gap:8px;padding:8px 10px 8px;border-bottom:1px solid var(--line);margin-bottom:4px">
-        <img id="profileDropAvatar" src="" style="width:32px;height:32px;border-radius:50%;flex-shrink:0" alt=""/>
-        <div style="min-width:0">
-          <div id="profileDropName" style="font-size:13px;font-weight:700;color:var(--t0);overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
-          <div id="profileDropEmail" style="font-size:11px;color:var(--t3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
-          <div id="profileDropPid" onclick="copyMyPid()" style="font-size:10px;color:var(--ac);font-weight:700;letter-spacing:0.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;margin-top:2px" title="แตะเพื่อคัดลอก Player ID"></div>
+  <div class="home-topbar">
+    <div class="home-topbar-brand"><span class="brand-logo-icon" role="img" aria-label="Game Hub Teng"></span> Game Hub <b>Teng</b></div>
+    <div style="position:relative;z-index:50" id="profileMenuWrap">
+      <img id="homeUserAvatar" src="" style="width:36px;height:36px;border-radius:50%;display:none;border:2px solid var(--ac);cursor:pointer" alt="" onclick="toggleProfileMenu()" title="บัญชีของฉัน"/>
+      <!-- Dropdown -->
+      <div id="profileDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:6px;min-width:190px;box-shadow:var(--sh2);z-index:200">
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 10px 8px;border-bottom:1px solid var(--line);margin-bottom:4px">
+          <img id="profileDropAvatar" src="" style="width:32px;height:32px;border-radius:50%;flex-shrink:0" alt=""/>
+          <div style="min-width:0">
+            <div id="profileDropName" style="font-size:13px;font-weight:700;color:var(--t0);overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+            <div id="profileDropEmail" style="font-size:11px;color:var(--t3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+            <div id="profileDropPid" onclick="copyMyPid()" style="font-size:10px;color:var(--ac);font-weight:700;letter-spacing:0.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;margin-top:2px" title="แตะเพื่อคัดลอก Player ID"></div>
+          </div>
         </div>
+        <!-- Theme section -->
+        <div style="padding:4px 6px 2px">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;padding:2px 4px 6px">
+            <span style="font-size:10px;font-weight:700;letter-spacing:0.08em;color:var(--t3);text-transform:uppercase">ธีม</span>
+            <span id="themeActiveLabel" style="font-size:11px;font-weight:700;color:var(--ac)"></span>
+          </div>
+          <div style="display:flex;gap:6px;padding-bottom:8px;border-bottom:1px solid var(--line)">
+            <button id="themeDotBtn-dark" onclick="setTheme('dark')" style="flex:1;height:32px;border-radius:8px;border:1.5px solid var(--line);background:#1c1f26;cursor:pointer;font-size:13px;transition:border-color 0.15s,box-shadow 0.15s" title="Dark">🌙</button>
+            <button id="themeDotBtn-cream" onclick="setTheme('cream')" style="flex:1;height:32px;border-radius:8px;border:1.5px solid var(--line);background:#fffdf8;cursor:pointer;font-size:13px;transition:border-color 0.15s,box-shadow 0.15s" title="Cream">🍵</button>
+            <button id="themeDotBtn-ocean" onclick="setTheme('ocean')" style="flex:1;height:32px;border-radius:8px;border:1.5px solid var(--line);background:#0d1d30;cursor:pointer;font-size:13px;transition:border-color 0.15s,box-shadow 0.15s" title="Ocean">🌊</button>
+          </div>
+        </div>
+        <button id="adminMenuBtn" style="display:none;width:100%;text-align:left;padding:8px 10px;background:none;border:none;color:var(--ac);font-family:'Kanit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;margin-top:2px" onclick="toggleProfileMenu();openAdminPanel()">🛡️ Admin Panel</button>
+        <button style="width:100%;text-align:left;padding:8px 10px;background:none;border:none;color:var(--danger);font-family:'Kanit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;margin-top:2px" onclick="toggleProfileMenu();signOut()">↩ ออกจากระบบ</button>
       </div>
-      <!-- Theme section -->
-      <div style="padding:4px 6px 2px">
-        <div style="display:flex;align-items:baseline;justify-content:space-between;padding:2px 4px 6px">
-          <span style="font-size:10px;font-weight:700;letter-spacing:0.08em;color:var(--t3);text-transform:uppercase">ธีม</span>
-          <span id="themeActiveLabel" style="font-size:11px;font-weight:700;color:var(--ac)"></span>
-        </div>
-        <div style="display:flex;gap:6px;padding-bottom:8px;border-bottom:1px solid var(--line)">
-          <button id="themeDotBtn-dark" onclick="setTheme('dark')" style="flex:1;height:32px;border-radius:8px;border:1.5px solid var(--line);background:#1c1f26;cursor:pointer;font-size:13px;transition:border-color 0.15s,box-shadow 0.15s" title="Dark">🌙</button>
-          <button id="themeDotBtn-cream" onclick="setTheme('cream')" style="flex:1;height:32px;border-radius:8px;border:1.5px solid var(--line);background:#fffdf8;cursor:pointer;font-size:13px;transition:border-color 0.15s,box-shadow 0.15s" title="Cream">🍵</button>
-          <button id="themeDotBtn-ocean" onclick="setTheme('ocean')" style="flex:1;height:32px;border-radius:8px;border:1.5px solid var(--line);background:#0d1d30;cursor:pointer;font-size:13px;transition:border-color 0.15s,box-shadow 0.15s" title="Ocean">🌊</button>
-        </div>
-      </div>
-      <button id="adminMenuBtn" style="display:none;width:100%;text-align:left;padding:8px 10px;background:none;border:none;color:var(--ac);font-family:'Kanit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;margin-top:2px" onclick="toggleProfileMenu();openAdminPanel()">🛡️ Admin Panel</button>
-      <button style="width:100%;text-align:left;padding:8px 10px;background:none;border:none;color:var(--danger);font-family:'Kanit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;margin-top:2px" onclick="toggleProfileMenu();signOut()">↩ ออกจากระบบ</button>
     </div>
   </div>
   <div class="home-hero">
-    <div class="home-badge"><span class="home-badge-dot"></span><span class="home-badge-text">เล่นได้เลย · ฟรีตลอด</span></div>
-    <div class="home-title">Game Hub <span class="home-title-accent">Teng</span></div>
-    <div class="home-sub">สนุกกับเพื่อน · เริ่มได้ทันที</div>
-  </div>
-  <div id="homeUserBar" style="padding:0 var(--pad) 0.5rem">
-    <span id="homeUserName" style="font-size:13px;color:var(--t2);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block"></span>
+    <div class="home-title" id="homeUserName">สวัสดี 👋</div>
+    <div class="home-sub">เลือกเกม แล้วเริ่มเล่นกับเพื่อนได้เลย</div>
   </div>
   <!-- Admin Panel Sheet -->
   <div id="adminPanelOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0);z-index:300;backdrop-filter:blur(0px);transition:background-color 0.28s,backdrop-filter 0.28s;opacity:0" onclick="closeAdminPanel()"></div>
@@ -926,21 +937,22 @@ MenuOverlay')">
   <div class="games-section" id="homeGamesSection"></div>
 </div>
 
-<!-- ══ ROOM NAME ══ -->
+<!-- ══ CREATE ROOM (host: room name + nickname in one step) ══ -->
 <div class="screen" id="screen-room">
-  <div class="enter-box  elevated anim-pop" style="margin:auto;position:relative;z-index:1">
+  <div class="enter-box anim-pop" style="margin:auto;position:relative;z-index:1">
     <span class="enter-emoji">🏠</span>
-    <div class="enter-title">ตั้งชื่อห้อง</div>
-    <div class="enter-sub">ชื่อที่เพื่อนๆ จะเห็นในล็อบบี้</div>
-    <input class="inp enter-inp" id="roomNameInput" placeholder="เช่น ปาร์ตี้คืนนี้ 🎉" maxlength="20" autocomplete="off"/>
-    <button class="btn btn-ac btn-full" onclick="confirmRoomName()">ถัดไป →</button>
+    <div class="enter-title">สร้างห้องใหม่</div>
+    <div class="enter-sub">ตั้งชื่อห้องและชื่อของคุณ</div>
+    <input class="inp enter-inp" id="roomNameInput" placeholder="ชื่อห้อง เช่น ปาร์ตี้คืนนี้ 🎉" maxlength="20" autocomplete="off" style="margin-bottom:10px"/>
+    <input class="inp enter-inp" id="hostNickInput" placeholder="ชื่อของคุณในเกม" maxlength="12" autocomplete="off"/>
+    <button class="btn btn-ac btn-full" onclick="confirmCreateRoom()">สร้างห้อง →</button>
     <button class="btn btn-ghost" style="width:100%;height:40px;margin-top:8px;font-size:14px" onclick="showScreen('screen-home')">← กลับ</button>
   </div>
 </div>
 
-<!-- ══ NICK ══ -->
+<!-- ══ NICK (joiner: entering an existing room by code) ══ -->
 <div class="screen" id="screen-nick">
-  <div class="enter-box  elevated anim-pop" style="margin:auto;position:relative;z-index:1">
+  <div class="enter-box anim-pop" style="margin:auto;position:relative;z-index:1">
     <span class="enter-emoji">🎮</span>
     <div class="enter-title">ตั้งชื่อของคุณ</div>
     <div class="enter-sub" id="nickRoomLabel">ห้อง: ------</div>
@@ -1607,7 +1619,7 @@ const S={
   players:[],selectedGame:null,pendingRoomCode:null,paused:false,
   wheelItems:[],wheelSpinning:false,wheelAngle:0,
   cardDeck:[],cardIdx:0,cardRound:0,_cardSpinning:false,
-  wwPlayerCount:0,
+  wwPlayerCount:0,wwExpandedTeams:{evil:false,good:false,solo:false},
   wwRoleCounts:{werewolf:0,wolfcub:0,lonewolf:0,minion:0,sorcerer:0,alphawolf:0,cursed:0,villager:0,seer:0,bodyguard:0,hunter:0,witch:0,prince:0,cupid:0,mason:0,spellcaster:0,auraseer:0,apprenticeseer:0,priest:0,troublemaker:0,pi:0,oldhag:0,toughguy:0,lycan:0,diseased:0,mystic:0,mentalist:0,huntress:0,tanner:0,vampire:0,cultleader:0,hoodlum:0,revealer:0,madbomber:0},
   wwAssigned:{},wwAlive:{},wwMyRole:null,wwFlipped:{},_lastDealId:null,
   wwStatus:{},wwCupidPair:[],wwWolfIds:[],
@@ -1763,8 +1775,9 @@ function joinRoomFromModal(){
 }
 function showCreateRoomFromModal(){
   closeModal('modal-join');
-  S.pendingRoomCode=genCode();S.isHost=true;
+  S.pendingRoomCode=genCode();S.isHost=true;S.selectedGame=_joinModalGame||null;
   const i=$('roomNameInput');if(i)i.value='';
+  const ni=$('hostNickInput');if(ni)ni.value=S.nickname||'';
   showScreen('screen-room');
   logEvent('create_room_start',{code:S.pendingRoomCode,roomName:S.roomName||''});
 }
@@ -1781,14 +1794,24 @@ function launchSolo(type){
   const map={wheel:'screen-wheel',cards:'screen-cards'};
   if(map[type])showScreen(map[type]);
 }
-function confirmRoomName(){
+function confirmCreateRoom(){
   const i=$('roomNameInput'),name=i?i.value.trim():'';
   if(!name){showToast('ตั้งชื่อห้องด้วยนะ');return}
-  S.roomName=name;
-  const lb=$('nickRoomLabel');if(lb)lb.textContent=`ห้องใหม่: ${S.pendingRoomCode}`;
-  const bb=$('nickBackBtn');if(bb)bb.setAttribute('onclick','showScreen("screen-room")');
-  const ni=$('nickInput');if(ni)ni.value='';
-  showScreen('screen-nick');
+  const ni=$('hostNickInput'),nick=ni?ni.value.trim():'';
+  if(!nick){showToast('ใส่ชื่อของคุณด้วยนะ');return}
+  if(nick.length>12){showToast('ชื่อยาวเกินไป');return}
+  S.roomName=name;S.nickname=nick;S.roomCode=S.pendingRoomCode;
+  if(firebaseReady){enterLobby();return}
+  // Firebase ยังไม่พร้อม — รอ retry หลายครั้ง
+  showToast('กำลังเชื่อมต่อ...',5000);
+  let attempts=0;
+  const tryEnter=()=>{
+    if(firebaseReady){enterLobby();return}
+    attempts++;
+    if(attempts<15){setTimeout(tryEnter,500);}
+    else{showToast('เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง');enterLobby();}
+  };
+  setTimeout(tryEnter,400);
 }
 function joinRoom(){
   const i=$('joinCodeInput');
@@ -2340,7 +2363,7 @@ function showRoleInfo(r,event){
 /* ══ WW SETUP ════════════════════════════ */
 function initWW(){
   S.wwAssigned={};S.wwAlive={};S.wwMyRole=null;S.wwFlipped={};S.wwListHidden=false;
-  S.wwStatus={};S.wwCupidPair=[];S.wwWolfIds=[];
+  S.wwStatus={};S.wwCupidPair=[];S.wwWolfIds=[];S.wwExpandedTeams={evil:false,good:false,solo:false};
   // reset counts — player sets manually
   S.wwPlayerCount=getPlayers().filter(p=>!p.isHost).length||0;
   Object.keys(S.wwRoleCounts).forEach(k=>S.wwRoleCounts[k]=0);
@@ -2359,14 +2382,12 @@ function renderWWSetup(){
   if(!S.wwPlayerCount) S.wwPlayerCount=0;
   const n=S.wwPlayerCount;
   const total=totalRoles(),over=total>n,under=total<n&&total>0;
-  const evilRoles=ROLE_ORDER.filter(r=>WW[r]?.team==='evil');
-  const goodRoles=ROLE_ORDER.filter(r=>WW[r]?.team==='good');
-  const soloRoles=ROLE_ORDER.filter(r=>WW[r]?.team==='solo');
-  const specialRoles=ROLE_ORDER.filter(r=>!['evil','good','solo'].includes(WW[r]?.team));
-  function sectionHtml(label,roles){
-    if(!roles.length)return'';
-    return`<div class="label" style="margin-top:0.875rem">${label}</div><div class="ww-roles-list">${roles.map(r=>renderRoleChip(r)).join('')}</div>`;
-  }
+  const WW_TEAMS=[
+    {id:'evil',label:'🔴 หมาป่า',roles:ROLE_ORDER.filter(r=>WW[r]?.team==='evil')},
+    {id:'good',label:'✅ ฝ่ายดี',roles:ROLE_ORDER.filter(r=>WW[r]?.team==='good')},
+    {id:'solo',label:'⚡ โดดเดี่ยว',roles:ROLE_ORDER.filter(r=>WW[r]?.team==='solo')},
+  ];
+  const teamCount=roles=>roles.reduce((sum,r)=>sum+(S.wwRoleCounts[r]||0),0);
   const canDeal = total>0 && total===n;
   body.innerHTML=`
     <div class="ww-score-bar">
@@ -2383,10 +2404,17 @@ function renderWWSetup(){
         </div>
       </div>
     </div>
-    ${sectionHtml('🔴 ฝ่ายหมาป่า',evilRoles)}
-    ${sectionHtml('✅ ฝ่ายดี',goodRoles)}
-    ${soloRoles.length?sectionHtml('⚡ โดดเดี่ยว',soloRoles):''}
-    ${specialRoles.length?sectionHtml('🟡 พิเศษ',specialRoles):''}
+    ${WW_TEAMS.map(t=>{
+      const open=!!S.wwExpandedTeams[t.id];
+      return`<div class="ww-team-group">
+        <button class="ww-team-header${open?' open':''}" onclick="toggleWWTeam('${t.id}')">
+          <span class="ww-team-header-label">${t.label}</span>
+          <span class="ww-team-tab-count" id="wwTabCount-${t.id}">${teamCount(t.roles)}</span>
+          <span class="ww-team-chevron">▾</span>
+        </button>
+        ${open?`<div class="ww-roles-list">${t.roles.map(r=>renderRoleChip(r)).join('')}</div>`:''}
+      </div>`;
+    }).join('')}
     <div style="margin-top:1.25rem">
       ${n===0?'<p style="font-size:14px;color:var(--t2);text-align:center;margin-bottom:10px">กดปุ่ม + ด้านบนเพื่อตั้งจำนวนผู้เล่น</p>':''}
       ${over?'<p style="font-size:14px;color:var(--danger);text-align:center;margin-bottom:10px">⚠ บทบาทเกินจำนวนผู้เล่น</p>':''}
@@ -2418,6 +2446,7 @@ function renderRoleChip(r){
     </div>
   </div>`;
 }
+function toggleWWTeam(team){S.wwExpandedTeams[team]=!S.wwExpandedTeams[team];renderWWSetup();}
 function adjustWWPlayerCount(d){
   const nonHostCount=getPlayers().filter(p=>!p.isHost).length;
   // if real players present, don't go below that
@@ -2440,6 +2469,9 @@ function changeRoleCount(r,d){
     const chip=el.closest('.ww-role-chip');
     if(chip)next>0?chip.classList.add('has'):chip.classList.remove('has');
   }
+  // update active tab's badge count
+  const tabCountEl=$(`wwTabCount-${role.team}`);
+  if(tabCountEl)tabCountEl.textContent=next-cur+parseInt(tabCountEl.textContent||'0',10);
   // update score bar
   const total=totalRoles();
   const over=total>n,under=total<n&&total>0;
@@ -6019,7 +6051,8 @@ document.addEventListener('DOMContentLoaded',()=>{
       if(jci.value!==cleaned){jci.value=cleaned;try{jci.setSelectionRange(pos,pos);}catch(e){}}
     });
   }
-  $('roomNameInput')?.addEventListener('keydown',e=>{if(e.key==='Enter')confirmRoomName()});
+  $('roomNameInput')?.addEventListener('keydown',e=>{if(e.key==='Enter')$('hostNickInput')?.focus()});
+  $('hostNickInput')?.addEventListener('keydown',e=>{if(e.key==='Enter')confirmCreateRoom()});
   $('nickInput')?.addEventListener('keydown',e=>{if(e.key==='Enter')confirmNick()});
   $('wheelAddInput')?.addEventListener('keydown',e=>{if(e.key==='Enter')addWheelItem()});
   $('menuOverlay')?.addEventListener('click',e=>{if(e.target.id==='menuOverlay')closeMenu()});
@@ -6078,7 +6111,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 <!-- Connecting overlay (rejoin) -->
 <div id="connectingOverlay" style="display:none;position:fixed;inset:0;z-index:9000;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;gap:1rem">
-  <div style="font-size:48px;animation:splashFade 1s ease-in-out infinite">🎮</div>
+  <div class="brand-logo-icon-lg" role="img" aria-label="Game Hub Teng" style="animation:splashFade 1s ease-in-out infinite"></div>
   <div style="font-size:18px;font-weight:700;color:var(--t0)">กำลังเชื่อมต่อ...</div>
   <div style="font-size:14px;color:var(--t2)" id="connectingRoomName"></div>
 </div>
