@@ -229,7 +229,7 @@ const REFRESH_SVG='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" s
 const HOME_GAMES_CONFIG=[
   {id:'ww',    label:'🎲 ต้องสร้างห้อง', icon:'🐯', bg:'linear-gradient(135deg,#f87171,#b91c1c)', name:'คืนสมิง',      desc:'4–18 คน · แจกไพ่บทบาท',     action:"openJoinModal('ww')",    solo:false},
   {id:'spyfall',label:null,               icon:'🕵️', bg:'linear-gradient(135deg,#c084fc,#9333ea)', name:'สายลับกลางวง',   desc:'3+ คน · หาสายลับ',           action:"openJoinModal('spyfall')",solo:false},
-  {id:'king',   label:null,               icon:'👑', bg:'linear-gradient(135deg,#fde047,#eab308)', name:"King's Game",    desc:'3+ คน · ราชาสั่ง',           action:"openJoinModal('king')",  solo:false},
+  {id:'king',   label:null,               icon:'👑', bg:'linear-gradient(135deg,#fb923c,#c2410c)', name:"King's Game",    desc:'3+ คน · ราชาสั่ง',           action:"openJoinModal('king')",  solo:false},
   {id:'salem',  label:null,               icon:'🧙', bg:'linear-gradient(135deg,#a78bfa,#7c3aed)', name:'Salem 1692',      desc:'4–12 คน · ไพ่ชีวิต',        action:"openJoinModal('salem')", solo:false},
   {id:'wheel',  label:'⚡ เริ่มได้เลย',   icon:'🎡', bg:'linear-gradient(135deg,#4ade80,#16a34a)',name:'วงล้อ',           desc:'ตัดสินใจแทนคุณได้เลย',      action:"launchSolo('wheel')",    solo:true},
   {id:'cards',  label:null,               icon:'🃏', bg:'linear-gradient(135deg,#fda4af,#e11d48)',name:'ไพ่เฮฮา',        desc:'ชาเลนจ์สนุกๆ ในวงเพื่อน',  action:"launchSolo('cards')",    solo:true},
