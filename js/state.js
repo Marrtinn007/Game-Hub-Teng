@@ -1,3 +1,14 @@
+/* ══ HOME GREETINGS ══════════════════════ */
+const HOME_GREETINGS=[
+  {text:'สวัสดี',e:'👋'},
+  {text:'หวัดดี',e:'😄'},
+  {text:'ยินดีต้อนรับ',e:'🎉'},
+  {text:'ดีใจที่เจอกัน',e:'💫'},
+  {text:'พร้อมลุยหรือยัง',e:'⚡'},
+  {text:'มาสนุกกัน',e:'🎮'},
+];
+function randomGreeting(){return HOME_GREETINGS[Math.floor(Math.random()*HOME_GREETINGS.length)]}
+
 /* ══ SETTINGS ════════════════════════════ */
 const DEFAULT_SETTINGS={voiceEnabled:true,voiceVolume:1.0,nightActionTime:20,discussTime:120,voteTime:60,voicePauseTime:3};
 let SETTINGS={...DEFAULT_SETTINGS};

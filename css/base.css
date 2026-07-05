@@ -48,7 +48,6 @@ body{
   --ac:#7c9cff;--ac-dim:rgba(124,156,255,0.14);
   --line:rgba(255,255,255,0.07);
   --btn-ac-from:#8faeff;--btn-ac-to:#6278e8;--btn-ac-shadow:rgba(60,72,180,0.55);--btn-ac-glow:rgba(124,156,255,0.20);
-  --hero-from:#a78bfa;--hero-to:#7c3aed;--hero-glow:rgba(124,58,237,0.35);
 }
 [data-theme="cream"]{
   --bg:#f5f0e8;--card:#fffdf8;--card2:#ede8df;
@@ -57,7 +56,6 @@ body{
   --ac:#b5651d;--ac-dim:rgba(181,101,29,0.12);
   --line:rgba(0,0,0,0.09);
   --btn-ac-from:#d4843a;--btn-ac-to:#b5651d;--btn-ac-shadow:rgba(120,60,10,0.40);--btn-ac-glow:rgba(181,101,29,0.15);
-  --hero-from:#2dd4bf;--hero-to:#0d9488;--hero-glow:rgba(13,148,136,0.25);
   --sh: 0 1px 2px rgba(0,0,0,0.06);
   --sh2: 0 8px 24px rgba(0,0,0,0.10);
   --sh-btn: 0 1px 2px rgba(0,0,0,0.08);
@@ -69,7 +67,6 @@ body{
   --ac:#38bdf8;--ac-dim:rgba(56,189,248,0.14);
   --line:rgba(56,189,248,0.10);
   --btn-ac-from:#5dd0fa;--btn-ac-to:#0ea5e9;--btn-ac-shadow:rgba(8,100,160,0.55);--btn-ac-glow:rgba(56,189,248,0.20);
-  --hero-from:#fbbf24;--hero-to:#d97706;--hero-glow:rgba(217,119,6,0.35);
 }
 
 /* ── ปุ่ม accent ตามธีม ── */

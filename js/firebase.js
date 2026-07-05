@@ -202,11 +202,13 @@ function initFirebase(){
     function _onLoginReady(user){
       startSessionGuard(user.uid);
       ensurePlayerId(user.uid).then(()=>logEvent('login'));
-      const av=$('homeUserAvatar'),nm=$('homeUserName');
+      const av=$('homeUserAvatar'),nm=$('homeUserName'),hb=$('homeHeroBadge');
       const dn=$('profileDropName'),de=$('profileDropEmail'),da=$('profileDropAvatar'),ab=$('adminMenuBtn');
       if(av&&user.photoURL){av.src=user.photoURL;av.style.display='';}
       if(da&&user.photoURL){da.src=user.photoURL;}
-      if(nm)nm.textContent='สวัสดี, '+(user.displayName?.split(' ')[0]||'ผู้เล่น')+' 👋';
+      const greet=randomGreeting();
+      if(nm)nm.textContent=greet.text+', '+(user.displayName?.split(' ')[0]||'ผู้เล่น');
+      if(hb)hb.textContent=greet.e;
       if(dn)dn.textContent=user.displayName||user.email||'';
       if(de)de.textContent=user.email||'';
       if(ab)ab.style.display=isAdmin()?'':'none';
