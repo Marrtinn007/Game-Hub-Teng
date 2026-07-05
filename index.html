@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!-- ════════════════════════════════════════════════════════════════
-     GAME HUB TENG  —  v14.7
+     GAME HUB TENG  —  v14.19
      ────────────────────────────────────────────────────────────
      AI HANDOFF NOTE (สำหรับ AI ที่รับงานต่อ):
-     - เวอร์ชันปัจจุบัน: v14.7
+     - เวอร์ชันปัจจุบัน: v14.19
      - เพิ่มเวอร์ชัน +0.1 ทุกครั้งที่แก้ไข (v11 → v11.1 → v11.2 ...)
      - อัปเดต label มุมบนซ้าย id="versionLabel" ด้วยทุกครั้ง
      ════════════════════════════════════════════════════════════════ -->
@@ -11,12 +11,12 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-<meta name="theme-color" content="#0c0c14"/>
+<meta name="theme-color" content="#060e1a"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <title>Game Hub Teng</title>
-<link rel="icon" href="img/logo2.png"/>
-<link rel="apple-touch-icon" href="img/logo2.png"/>
+<link rel="icon" href="img/img2.png"/>
+<link rel="apple-touch-icon" href="img/img2.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <style>
@@ -125,7 +125,6 @@ body{
 [data-theme="cream"] .share-code{color:var(--ac)}
 [data-theme="cream"] .p-badge{background:rgba(181,101,29,0.12);color:var(--ac)}
 [data-theme="cream"] .ww-role-chip.has{border-color:var(--ac);background:rgba(181,101,29,0.08)}
-[data-theme="cream"] .btn-next{background:linear-gradient(180deg,#ede8df 0%,#e0d9ce 100%)}
 /* Salem cream fixes */
 [data-theme="cream"] .salem-pcard.red{background:linear-gradient(160deg,#f5e0dc,#f0d0ca);border-color:rgba(192,57,43,0.4)}
 [data-theme="cream"] .salem-pcard.green{background:linear-gradient(160deg,#daf0e4,#cceadb);border-color:rgba(39,174,96,0.4)}
@@ -156,8 +155,6 @@ body{
 /* General cream text fixes */
 [data-theme="cream"] .label{color:var(--t2)}
 [data-theme="cream"] .gap-lbl{color:var(--t2)}
-[data-theme="cream"] .game-name{color:var(--t0)}
-[data-theme="cream"] .game-desc{color:var(--t1)}
 [data-theme="cream"] .toast{background:var(--card2);border-color:rgba(0,0,0,0.1);color:var(--t0)}
 [data-theme="cream"] .menu-item{color:var(--t0)}
 [data-theme="cream"] .confirm-title,[data-theme="cream"] .gameover-title{color:var(--t0)}
@@ -210,7 +207,6 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
 [data-theme="cream"] .game-top-sub{color:var(--t2)}
 [data-theme="cream"] .btn-sf{color:var(--t1)}
 [data-theme="cream"] .btn-icon{background:var(--card2);color:var(--t2)}
-[data-theme="cream"] .modal-handle{background:rgba(0,0,0,0.15)}
 [data-theme="cream"] .ww-host-row{border-top:1px solid rgba(255,255,255,0.5)}
 [data-theme="cream"] #wheelCanvas{box-shadow:0 8px 32px rgba(0,0,0,0.15)}
 [data-theme="cream"] .wheel-result-text{-webkit-text-fill-color:var(--ac);background:none;color:var(--ac)}
@@ -234,6 +230,9 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
 .btn-sf{background:var(--card2);color:var(--t1);border:1px solid var(--line)}
 .btn-sf:hover{color:var(--t0);border-color:rgba(255,255,255,0.14)}
 
+.btn-danger{background:var(--danger);color:#fff;box-shadow:var(--sh-btn)}
+.btn-danger:hover{filter:brightness(1.08)}
+
 .btn-ghost{background:transparent;border:none;color:var(--t2);font-family:'Kanit',sans-serif}
 .btn-ghost:hover{color:var(--t0)}
 
@@ -255,15 +254,14 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
 .toast{position:fixed;bottom:max(28px,env(safe-area-inset-bottom,28px));left:50%;transform:translateX(-50%) translateY(80px);background:var(--card2);border:1px solid rgba(255,255,255,0.1);border-top:1px solid rgba(255,255,255,0.08);box-shadow:0 4px 0 rgba(0,0,0,0.3),0 8px 24px rgba(0,0,0,0.5);border-radius:var(--r-pill);padding:12px 26px;font-size:15px;font-weight:600;color:var(--t0);z-index:9999;transition:transform 0.3s var(--spring);white-space:nowrap;pointer-events:none;max-width:calc(100vw - 2rem);text-align:center;box-shadow:none}
 .toast.show{transform:translateX(-50%) translateY(0)}
 
-/* ── Modal ── */
-.modal-overlay{position:fixed;inset:0;z-index:200;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,0.65)}
+/* ── Modal (floating centered dialog on every screen size) ── */
+.modal-overlay{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.65);padding:1.25rem}
 .modal-overlay.open{display:flex;animation:fadeIn 0.2s both}
-.modal-sheet{width:100%;max-width:520px;background:var(--card);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:1.25rem var(--pad) calc(2.5rem + env(safe-area-inset-bottom,0));max-height:92dvh;overflow-y:auto;animation:sheetUp 0.3s var(--spring) both;box-shadow:0 -6px 40px rgba(0,0,0,0.6);border-top:1px solid rgba(255,255,255,0.10)}
-.modal-handle{width:40px;height:4px;background:rgba(255,255,255,0.15);border-radius:2px;margin:0 auto 1.25rem}
+.modal-sheet{width:100%;max-width:440px;background:var(--card);border-radius:var(--r-xl);padding:1.5rem var(--pad) calc(1.5rem + env(safe-area-inset-bottom,0));max-height:88dvh;overflow-y:auto;animation:popIn 0.28s var(--spring) both;box-shadow:var(--sh2);border:1px solid var(--line)}
+.modal-handle{display:none}
 .modal-title{font-size:18px;font-weight:800;color:var(--t0);margin-bottom:1rem}
 .modal-body{font-size:15px;color:var(--t1);line-height:1.75}
 .modal-body p{margin-bottom:8px}.modal-body b{color:var(--t0)}
-@keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes dropdownIn{0%{opacity:0;transform:translateY(-8px) scale(0.96)}60%{transform:translateY(2px) scale(1.01)}100%{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes dropdownOut{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-6px) scale(0.96)}}
@@ -307,42 +305,37 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
 .home-topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px var(--pad) 0}
 .home-topbar-brand{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--t2);letter-spacing:0.01em}
 .home-topbar-brand b{color:var(--t0);font-weight:800}
-.brand-logo-icon{width:34px;height:34px;flex-shrink:0;border-radius:9px;background-color:#fff;background-image:url('img/logo2.png');background-size:cover;background-position:center;background-repeat:no-repeat;box-shadow:0 0 0 1px rgba(0,0,0,0.06)}
-.brand-logo-icon-lg{width:64px;height:64px;border-radius:18px;background-color:#fff;background-image:url('img/logo2.png');background-size:cover;background-position:center;background-repeat:no-repeat;box-shadow:0 0 0 1px rgba(0,0,0,0.06)}
-.brand-logo-lockup{width:96px;height:96px;margin:0 auto 1rem;border-radius:26px;background-color:#fff;background-image:url('img/logo2.png');background-size:cover;background-position:center;background-repeat:no-repeat;box-shadow:0 0 0 1px rgba(0,0,0,0.06)}
+.brand-logo-icon{width:34px;height:34px;flex-shrink:0;background-image:url('img/img2.png');background-size:contain;background-position:center;background-repeat:no-repeat}
+.brand-logo-icon-lg{width:64px;height:64px;background-image:url('img/img2.png');background-size:contain;background-position:center;background-repeat:no-repeat}
+.brand-logo-lockup{width:96px;height:96px;margin:0 auto 1rem;background-image:url('img/img2.png');background-size:contain;background-position:center;background-repeat:no-repeat}
 .login-title{font-size:26px;font-weight:900;color:var(--t0);margin-bottom:6px}
-.home-hero{padding:1.5rem var(--pad) 1.25rem;text-align:center}
-.home-title{font-size:clamp(28px,7vw,40px);font-weight:900;letter-spacing:-0.02em;line-height:1.15;margin-bottom:0.4rem;color:var(--t0)}
+.home-hero{padding:14px var(--pad) 1.5rem}
+.home-hero-card{
+  position:relative;overflow:hidden;
+  padding:1.75rem 1.5rem 1.6rem;
+  border-radius:26px;
+  background:linear-gradient(135deg,var(--btn-ac-from,#8faeff) 0%,var(--btn-ac-to,#6278e8) 100%);
+  box-shadow:0 14px 32px -8px var(--btn-ac-glow,rgba(56,189,248,0.35)),var(--sh2);
+}
+.home-hero-glow1{position:absolute;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,0.16);top:-70px;right:-40px;filter:blur(6px);pointer-events:none}
+.home-hero-glow2{position:absolute;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.10);bottom:-50px;left:-30px;filter:blur(6px);pointer-events:none}
+.home-title{position:relative;font-size:clamp(24px,6vw,30px);font-weight:900;letter-spacing:-0.02em;line-height:1.2;margin-bottom:0.3rem;color:#fff}
 .home-title-accent{color:var(--ac)}
-.home-sub{font-size:14px;color:var(--t2);line-height:1.6;font-weight:400}
-/* Games grid */
-.games-section{padding:0 var(--pad) 0.5rem;margin-top:0.5rem}
-.games-section-label{
-  font-size:10.5px;font-weight:600;letter-spacing:0.14em;color:var(--t3);
-  text-transform:uppercase;padding:1.5rem 0 0.85rem;
-}
-.games-grid{
-  display:grid;grid-template-columns:1fr 1fr;
-  gap:12px;
-}
-.game-card{
-  padding:1.35rem 1.15rem 1.15rem;
-  cursor:pointer;
-  background:var(--card);
-  border-radius:20px;
-  border:1px solid var(--line);
-  transition:transform 0.15s var(--spring),border-color 0.15s;
-}
-.game-card:hover{border-color:rgba(124,156,255,0.4)}
-.game-card:active{transform:scale(0.97)!important}
-.game-icon{
-  width:44px;height:44px;border-radius:13px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:22px;margin-bottom:0.9rem;
-}
-.game-name{font-size:15px;font-weight:700;color:var(--t0);line-height:1.25;margin-bottom:4px}
-.game-desc{font-size:11.5px;color:var(--t2);font-weight:400;line-height:1.4}
-
+.home-sub{position:relative;font-size:13.5px;color:rgba(255,255,255,0.85);line-height:1.6;font-weight:500}
+/* Game sections */
+.home-section{padding:0 var(--pad) 1.75rem}
+.home-section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:0.75rem}
+.home-section-title{font-size:13px;font-weight:800;color:var(--t0)}
+.home-section-hint{font-size:11px;color:var(--t3);font-weight:500}
+.home-game-list{display:flex;flex-direction:column;gap:12px}
+.home-game-row{display:flex;align-items:center;gap:14px;padding:13px 14px;background:var(--card);border:1px solid var(--line);border-radius:20px;cursor:pointer;transition:transform 0.15s var(--spring),box-shadow 0.15s;box-shadow:var(--sh)}
+.home-game-row:active{transform:scale(0.97)}
+.home-row-icon{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;box-shadow:0 4px 10px -2px rgba(0,0,0,0.35)}
+.home-row-info{flex:1;min-width:0}
+.home-row-name{font-size:15.5px;font-weight:800;color:var(--t0)}
+.home-row-desc{font-size:12px;color:var(--t2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.home-row-cta{flex-shrink:0;display:flex;align-items:center;gap:4px;font-size:12.5px;font-weight:800;padding:10px 14px;border-radius:var(--r-pill);background:var(--ac);color:#fff;white-space:nowrap;box-shadow:var(--sh-btn)}
+.home-row-cta.solo{background:var(--ok);color:#fff}
 
 /* ── Enter screens ── */
 #screen-room,#screen-nick{align-items:center;justify-content:center;padding:2rem var(--pad)}
@@ -538,9 +531,7 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
 @keyframes anim-pop{0%{transform:scale(0.8);opacity:0}70%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
 .anim-pop{animation:anim-pop 0.35s var(--spring) both}
 .z1{position:relative;z-index:1}
-.btn-next{width:100%;height:54px;font-size:16px;font-weight:700;font-family:'Kanit',sans-serif;margin-bottom:10px;cursor:pointer;border-radius:var(--r-s);background:linear-gradient(180deg,var(--card2) 0%,var(--card) 100%);border:1px solid var(--line);border-top:1px solid rgba(255,255,255,0.07);box-shadow:0 3px 0 rgba(0,0,0,0.3);color:var(--t0)}
-.btn-next:active{transform:translateY(2px)!important;box-shadow:none!important}
-.btn-next.secondary{border-color:rgba(255,77,109,0.35);color:var(--danger)}
+.btn-next{width:100%;height:54px;font-size:16px;font-weight:700;font-family:'Kanit',sans-serif;margin-bottom:10px;cursor:pointer;border-radius:var(--r-s)}
 ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
 
 @media(min-width:420px){
@@ -552,54 +543,8 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
   .ww-host-list,.ww-roles-list{padding:0}
 }
 @media(min-width:680px){
-  .games-grid,.game-select-grid{grid-template-columns:repeat(3,1fr)}
+  .game-select-grid{grid-template-columns:repeat(3,1fr)}
 }
-
-/* ── iPad / Desktop (768px+) ── */
-@media(min-width:768px){
-  #screen-home{
-    align-items:center;
-    justify-content:flex-start;
-    padding-top:3rem;
-  }
-  .home-topbar{
-    width:100%;max-width:520px;
-    padding:1rem 2rem 0;
-  }
-  .home-hero{
-    width:100%;max-width:520px;
-    padding:1rem 2rem;
-    text-align:center;
-  }
-  .games-section{
-    width:100%;max-width:520px;
-    margin:0;
-    padding:0 2rem 1.5rem;
-  }
-  .games-section .games-grid{
-    padding:0;
-    grid-template-columns:1fr 1fr;
-    gap:12px;
-  }
-  .games-section .games-section-label{padding:0}
-  .game-card{padding:1.25rem}
-}
-
-/* ── Desktop (1100px+) ── */
-@media(min-width:1100px){
-  .home-topbar,.home-hero,.games-section{max-width:600px}
-  .games-grid{gap:14px}
-  .game-card{padding:1.4rem}
-  .game-icon{width:52px;height:52px;font-size:27px}
-  .game-name{font-size:16px}
-
-  #wheelCanvas{
-    width:min(640px,min(56vw,80vh)) !important;
-    max-}
-  .wheel-items,.wheel-add-row,.btn-spin{max-width:540px;width:100%}
-}
-
-
 
 /* ═══ ORB BACKGROUND ══════════════════════════════════════════ */
 [data-theme="dark"]   { --ob1:rgba(100,80,240,.16); --ob2:rgba(40,120,255,.12); --ob3:rgba(0,200,180,.10); --ob4:rgba(140,40,220,.12); --ob5:rgba(60,100,220,.08) }
@@ -642,32 +587,23 @@ body::before{
 @media(min-width:768px){
   #screen-home{
     min-height:100dvh;
-    justify-content:center;
+    justify-content:flex-start;
     align-items:center;
+    padding-top:2.5rem;
   }
-  .home-topbar{
-    width:100%;max-width:480px;
-    padding:1.25rem 2rem 0;
+  .home-topbar,.home-hero,.home-section{
+    width:100%;max-width:520px;
+    margin-left:auto;margin-right:auto;
   }
-  .home-hero{
-    width:100%;max-width:480px;
-    padding:2rem 2rem 1.25rem;
-  }
-  .games-section{
-    width:100%;max-width:480px;
-    padding:0 2rem 2rem;
-  }
-  .games-grid{gap:12px}
+  .home-topbar{padding:0 0 1rem}
+  .home-hero{padding:0 0 1.25rem}
+  .home-section{padding-left:0;padding-right:0}
+  .modal-overlay{padding:2rem}
 }
 
 /* ── Desktop (1100px+) ── */
 @media(min-width:1100px){
-  .home-topbar,.home-hero,.games-section{max-width:560px}
-  .game-card{padding:1.4rem 1.25rem}
-  .game-icon{width:52px;height:52px;font-size:27px}
-  .game-name{font-size:16px}
-  .game-desc{font-size:12px}
-  .games-grid{gap:14px}
+  .home-topbar,.home-hero,.home-section{max-width:580px}
 
   #wheelCanvas{
     width:min(640px,min(56vw,80vh)) !important;
@@ -678,7 +614,7 @@ body::before{
 </style>
 </head>
 <body>
-<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v14.7</div>
+<div id="versionLabel" style="position:fixed;top:6px;left:8px;z-index:9999;font-size:10px;font-weight:700;color:rgba(255,255,255,0.25);pointer-events:none;font-family:Kanit,sans-serif;letter-spacing:0.5px">v14.19</div>
 
 <div class="toast" id="toast"></div>
 
@@ -695,7 +631,7 @@ body::before{
     <div class="confirm-sub">เกมจะจบและกลับไปที่ล็อบบี้</div>
     <div class="confirm-btns">
       <button class="btn btn-sf btn-next" onclick="cancelEnd()">ยกเลิก</button>
-      <button class="btn btn-next" style="background:var(--danger);color:#fff" onclick="doEndGame()">ยุติเกม</button>
+      <button class="btn btn-danger btn-next" onclick="doEndGame()">ยุติเกม</button>
     </div>
   </div>
 </div>
@@ -711,17 +647,7 @@ body::before{
 </div>
 
 <!-- Status menu sheet -->
-<div class="modal-overlay" id="statusMenuOverlay" onclick="closeModalOutside(event,'status
-/* ── Orb background — ทุกธีม ── */
-33% {transform:translate(2vw,3vh)  scale(1.04)}
-  66% {transform:translate(-2vw,2vh) scale(0.97)}
-  100%{transform:translate(1vw,-3vh) scale(1.03)}
-}
-
-/* Dark */
-/* Cream */
-/* Ocean */
-MenuOverlay')">
+<div class="modal-overlay" id="statusMenuOverlay" onclick="closeModalOutside(event,'statusMenuOverlay')">
   <div class="modal-sheet"><div class="modal-handle"></div>
     <div id="statusMenuContent" style="display:flex;flex-wrap:wrap;gap:10px;padding-bottom:0.5rem"></div>
     <button class="btn btn-sf" style="width:100%;height:48px;margin-top:14px;font-size:15px" onclick="closeStatusMenu()">ปิด</button>
@@ -733,7 +659,7 @@ MenuOverlay')">
   <div style="font-size:56px;margin-bottom:0.5rem">💪</div>
   <div style="font-size:22px;font-weight:900;color:var(--t0);margin-bottom:0.5rem">หนุ่มถึกถึงเวลาแล้ว!</div>
   <div style="font-size:15px;color:var(--t2);margin-bottom:1.75rem;text-align:center;line-height:1.6"><span id="toughguyName" style="color:var(--t0);font-weight:800"></span> โดนกัดคืนก่อน<br>ตอนนี้ถึงเวลาตายแล้ว</div>
-  <button class="btn btn-ac" style="width:210px;height:54px;font-size:16px;border-radius:var(--r-s)" onclick="confirmToughGuyDeath()">💀 ยืนยันเสียชีวิต</button>
+  <button class="btn btn-danger" style="width:210px;height:54px;font-size:16px;border-radius:var(--r-s)" onclick="confirmToughGuyDeath()">💀 ยืนยันเสียชีวิต</button>
   <button class="btn btn-ghost" style="margin-top:10px;font-size:14px" onclick="$('toughguyOverlay').classList.remove('show')">ยังไม่ตาย (ข้าม)</button>
 </div>
 
@@ -763,25 +689,26 @@ MenuOverlay')">
         <div id="modalJoinDesc" style="font-size:13px;color:var(--t2);margin-top:2px"></div>
       </div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:1rem">
-      <input class="inp inp-center" id="joinCodeInput" placeholder="รหัสห้อง" maxlength="6" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" inputmode="text" style="letter-spacing:0.12em;text-transform:uppercase;font-size:20px"/>
-      <button class="btn btn-ac btn-full" onclick="joinRoomFromModal()">เข้าร่วมห้อง</button>
-    </div>
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem">
-      <div style="flex:1;height:1px;background:var(--line)"></div>
-      <span style="font-size:12px;color:var(--t3);font-weight:600">หรือ</span>
-      <div style="flex:1;height:1px;background:var(--line)"></div>
-    </div>
-    <button class="btn btn-sf btn-full" onclick="showCreateRoomFromModal()" style="height:48px;font-size:15px">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    <button class="btn btn-ac btn-full" onclick="showCreateRoomFromModal()" style="height:52px;font-size:15.5px;gap:8px">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       สร้างห้องใหม่
     </button>
+    <div style="display:flex;align-items:center;gap:10px;margin:1.1rem 0">
+      <div style="flex:1;height:1px;background:var(--line)"></div>
+      <span style="font-size:12px;color:var(--t3);font-weight:600">หรือมีรหัสห้องอยู่แล้ว</span>
+      <div style="flex:1;height:1px;background:var(--line)"></div>
+    </div>
+    <div class="label" style="margin-bottom:8px">รหัสห้อง 6 หลัก</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <input class="inp inp-center" id="joinCodeInput" placeholder="เช่น AB12CD" maxlength="6" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" inputmode="text" style="letter-spacing:0.12em;text-transform:uppercase;font-size:20px"/>
+      <button class="btn btn-sf btn-full" onclick="joinRoomFromModal()">เข้าร่วมห้อง</button>
+    </div>
   </div>
 </div>
 <div class="modal-overlay" id="modal-role-info" onclick="closeModalOutside(event,'modal-role-info')">
   <div class="modal-sheet"><div class="modal-handle"></div>
     <div id="roleInfoContent"></div>
-    <button class="btn btn-ac btn-full" style="margin-top:1rem" onclick="closeModal('modal-role-info')">ปิด</button>
+    <button class="btn btn-sf btn-full" style="margin-top:1rem" onclick="closeModal('modal-role-info')">ปิด</button>
   </div>
 </div>
 <div class="modal-overlay" id="modal-deal-preview" onclick="closeModalOutside(event,'modal-deal-preview')">
@@ -789,7 +716,7 @@ MenuOverlay')">
     <div class="modal-title">📋 สรุปบทบาทที่เลือก</div>
     <div id="dealPreviewContent"></div>
     <div style="display:flex;gap:10px;margin-top:1rem">
-      <button class="btn btn-sf" style="flex:1;height:52px;font-size:15px" onclick="closeModal('modal-deal-preview')">← แก้ไข</button>
+      <button class="btn btn-sf" style="flex:1;height:52px;font-size:15px" onclick="closeModal('modal-deal-preview')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 5 8 12 15 19"/></svg>แก้ไข</button>
       <button class="btn btn-ac" style="flex:2;height:52px;font-size:16px;font-weight:800" onclick="confirmDeal()">🎴 ยืนยันแจกไพ่</button>
     </div>
   </div>
@@ -917,8 +844,26 @@ MenuOverlay')">
     </div>
   </div>
   <div class="home-hero">
-    <div class="home-title" id="homeUserName">สวัสดี 👋</div>
-    <div class="home-sub">เลือกเกม แล้วเริ่มเล่นกับเพื่อนได้เลย</div>
+    <div class="home-hero-card">
+      <div class="home-hero-glow1"></div>
+      <div class="home-hero-glow2"></div>
+      <div class="home-title" id="homeUserName">สวัสดี 👋</div>
+      <div class="home-sub">เลือกเกมด้านล่าง แล้วเริ่มเล่นได้เลย</div>
+    </div>
+  </div>
+  <div class="home-section" id="homeMultiSection">
+    <div class="home-section-head">
+      <span class="home-section-title">🎲 เล่นกับเพื่อน</span>
+      <span class="home-section-hint">กดแล้วสร้าง/เข้าร่วมห้อง</span>
+    </div>
+    <div class="home-game-list" id="homeMultiList"></div>
+  </div>
+  <div class="home-section" id="homeSoloSection">
+    <div class="home-section-head">
+      <span class="home-section-title">⚡ เล่นได้ทันที</span>
+      <span class="home-section-hint">กดแล้วเริ่มเล่นทันที</span>
+    </div>
+    <div class="home-game-list" id="homeSoloList"></div>
   </div>
   <!-- Admin Panel Sheet -->
   <div id="adminPanelOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0);z-index:300;backdrop-filter:blur(0px);transition:background-color 0.28s,backdrop-filter 0.28s;opacity:0" onclick="closeAdminPanel()"></div>
@@ -934,7 +879,6 @@ MenuOverlay')">
     <div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:var(--t3);text-transform:uppercase;margin:1.25rem 0 10px">ล้างข้อมูล</div>
     <button class="btn" style="width:100%;height:46px;background:rgba(240,110,122,0.1);color:var(--danger);border:1px solid rgba(240,110,122,0.2);font-size:14px;font-weight:700" onclick="cleanupRooms()">&#x1F5D1;&#xFE0F; ล้างห้องที่ค้างอยู่ทั้งหมด</button>
   </div>
-  <div class="games-section" id="homeGamesSection"></div>
 </div>
 
 <!-- ══ CREATE ROOM (host: room name + nickname in one step) ══ -->
@@ -943,10 +887,10 @@ MenuOverlay')">
     <span class="enter-emoji">🏠</span>
     <div class="enter-title">สร้างห้องใหม่</div>
     <div class="enter-sub">ตั้งชื่อห้องและชื่อของคุณ</div>
-    <input class="inp enter-inp" id="roomNameInput" placeholder="ชื่อห้อง เช่น ปาร์ตี้คืนนี้ 🎉" maxlength="20" autocomplete="off" style="margin-bottom:10px"/>
+    <input class="inp enter-inp" id="roomNameInput" placeholder="ชื่อห้อง" maxlength="20" autocomplete="off" style="margin-bottom:10px"/>
     <input class="inp enter-inp" id="hostNickInput" placeholder="ชื่อของคุณในเกม" maxlength="12" autocomplete="off"/>
-    <button class="btn btn-ac btn-full" onclick="confirmCreateRoom()">สร้างห้อง →</button>
-    <button class="btn btn-ghost" style="width:100%;height:40px;margin-top:8px;font-size:14px" onclick="showScreen('screen-home')">← กลับ</button>
+    <button class="btn btn-ac btn-full" onclick="confirmCreateRoom()">สร้างห้อง<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 5 16 12 9 19"/></svg></button>
+    <button class="btn btn-ghost" style="width:100%;height:40px;margin-top:8px;font-size:14px" onclick="showScreen('screen-home')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 5 8 12 15 19"/></svg>กลับ</button>
   </div>
 </div>
 
@@ -958,7 +902,7 @@ MenuOverlay')">
     <div class="enter-sub" id="nickRoomLabel">ห้อง: ------</div>
     <input class="inp enter-inp" id="nickInput" placeholder="ชื่อในเกม" maxlength="12" autocomplete="off"/>
     <button class="btn btn-ac btn-full" onclick="confirmNick()">เข้าร่วมเลย</button>
-    <button class="btn btn-ghost" id="nickBackBtn" style="width:100%;height:40px;margin-top:8px;font-size:14px" onclick="showScreen('screen-home')">← กลับ</button>
+    <button class="btn btn-ghost" id="nickBackBtn" style="width:100%;height:40px;margin-top:8px;font-size:14px" onclick="showScreen('screen-home')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 5 8 12 15 19"/></svg>กลับ</button>
   </div>
 </div>
 
@@ -1043,7 +987,7 @@ MenuOverlay')">
         </div>
       </div>
     </div>
-    <button class="btn btn-ac btn-next" id="btnDrawCard" style="background:linear-gradient(180deg,#8faeff 0%,#6278e8 100%);box-shadow:0 4px 0 rgba(60,72,180,0.5);border-top:1px solid rgba(255,255,255,0.18)"
+    <button class="btn btn-ac btn-next" id="btnDrawCard"
       onclick="toggleDraw()">
       🃏 สุ่มไพ่!
     </button>
@@ -1760,7 +1704,7 @@ const _JOIN_MODAL_META={
 let _joinModalGame=null;
 function openJoinModal(type){
   _joinModalGame=type;
-  const meta=_JOIN_MODAL_META[type]||{icon:'🎮',title:type,desc:''};
+  const meta=_JOIN_MODAL_META[type]||{icon:'🔑',title:'เข้าร่วมห้อง',desc:'ใส่รหัสห้องที่เพื่อนส่งมา'};
   const icon=$('modalJoinIcon'),title=$('modalJoinTitle'),desc=$('modalJoinDesc');
   if(icon)icon.textContent=meta.icon;
   if(title)title.textContent=meta.title;
@@ -2410,7 +2354,7 @@ function renderWWSetup(){
         <button class="ww-team-header${open?' open':''}" onclick="toggleWWTeam('${t.id}')">
           <span class="ww-team-header-label">${t.label}</span>
           <span class="ww-team-tab-count" id="wwTabCount-${t.id}">${teamCount(t.roles)}</span>
-          <span class="ww-team-chevron">▾</span>
+          <span class="ww-team-chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
         ${open?`<div class="ww-roles-list">${t.roles.map(r=>renderRoleChip(r)).join('')}</div>`:''}
       </div>`;
@@ -2420,7 +2364,7 @@ function renderWWSetup(){
       ${over?'<p style="font-size:14px;color:var(--danger);text-align:center;margin-bottom:10px">⚠ บทบาทเกินจำนวนผู้เล่น</p>':''}
       ${under?`<p style="font-size:14px;color:var(--warn);text-align:center;margin-bottom:10px">⚠ บทบาทยังไม่ครบ (ขาดอีก ${n-total} ใบ)</p>`:''}
     </div>
-    <button class="btn btn-ac btn-next" onclick="previewAndDeal()" ${(!canDeal||over)?'disabled':''}>${over?'⚠ เกินไป':!canDeal&&n===0?'ตั้งจำนวนผู้เล่นก่อน':!canDeal?'🎴 เพิ่มบทบาทให้ครบ':'🎴 ดูสรุปก่อนแจก →'}</button>`;
+    <button class="btn btn-ac btn-next" onclick="previewAndDeal()" ${(!canDeal||over)?'disabled':''}>${over?'⚠ เกินไป':!canDeal&&n===0?'ตั้งจำนวนผู้เล่นก่อน':!canDeal?'🎴 เพิ่มบทบาทให้ครบ':'🎴 ดูสรุปก่อนแจก'+CHEVRON_SVG}</button>`;
 }
 function renderRoleChip(r){
   const role=WW[r];if(!role)return'';
@@ -2482,7 +2426,7 @@ function changeRoleCount(r,d){
   // update deal button
   const canDeal=total>0&&total===n&&!over;
   const btn=$('wwBody')?.querySelector('.btn-next');
-  if(btn){btn.disabled=!canDeal;btn.textContent=over?'⚠ เกินไป':!canDeal?'🎴 เพิ่มบทบาทให้ครบ':'🎴 ดูสรุปก่อนแจก →';}
+  if(btn){btn.disabled=!canDeal;btn.innerHTML=over?'⚠ เกินไป':!canDeal?'🎴 เพิ่มบทบาทให้ครบ':'🎴 ดูสรุปก่อนแจก'+CHEVRON_SVG;}
 }
 
 /* ══ WW DEAL ═════════════════════════════ */
@@ -2682,7 +2626,7 @@ function renderWWTimerWidget(){
           <button class="btn btn-sf" style="flex:1;height:42px;font-size:15px;font-weight:700" id="wwTimerToggleBtn" onclick="wwTimerToggle()">
             ${running?'⏸ หยุด':'▶ เริ่ม'}
           </button>
-          <button class="btn btn-sf" style="width:42px;height:42px;font-size:16px" onclick="wwTimerReset()" title="รีเซต">↺</button>
+          <button class="btn btn-sf" style="width:42px;height:42px;font-size:16px" onclick="wwTimerReset()" title="รีเซต">${REFRESH_SVG}</button>
         </div>
       </div>`;
   } else {
@@ -3782,7 +3726,7 @@ function renderSpyHost(d){
           }).join('')}
         </div>`
     }
-    <button class="btn btn-sf btn-next" style="margin-bottom:8px" onclick="resetSpyfall()">↺ เล่นรอบใหม่</button>`;
+    <button class="btn btn-sf btn-next" style="margin-bottom:8px" onclick="resetSpyfall()">${REFRESH_SVG} เล่นรอบใหม่</button>`;
   _spyInterval=setInterval(()=>{
     left=Math.max(0,left-1);
     const el=$('spyTimerH');
@@ -4087,36 +4031,40 @@ function cleanupRooms(){
 }
 
 /* ══ HOME GAMES ══════════════════════════════════════════════ */
+const CHEVRON_SVG='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 5 16 12 9 19"/></svg>';
+const REFRESH_SVG='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>';
 const HOME_GAMES_CONFIG=[
-  {id:'ww',    label:'🎲 ต้องสร้างห้อง', icon:'🐺', bg:'rgba(249,168,212,0.14)', name:'Werewolf',      desc:'4–18 คน · แจกไพ่บทบาท',     action:"openJoinModal('ww')",    solo:false},
-  {id:'spyfall',label:null,               icon:'🕵️', bg:'rgba(192,132,252,0.14)', name:'Spyfall',        desc:'3+ คน · หาสายลับ',           action:"openJoinModal('spyfall')",solo:false},
-  {id:'king',   label:null,               icon:'👑', bg:'rgba(255,209,102,0.16)', name:"King's Game",    desc:'3+ คน · ราชาสั่ง',           action:"openJoinModal('king')",  solo:false},
-  {id:'salem',  label:null,               icon:'🧙', bg:'rgba(155,89,182,0.16)', name:'Salem 1692',      desc:'4–12 คน · ไพ่ชีวิต',        action:"openJoinModal('salem')", solo:false},
-  {id:'wheel',  label:'⚡ เริ่มได้เลย',   icon:'🎰', bg:'rgba(134,239,172,0.14)',name:'Spin the Wheel',  desc:'ตัดสินใจแทนคุณได้เลย',      action:"launchSolo('wheel')",    solo:true},
-  {id:'cards',  label:null,               icon:'🃏', bg:'rgba(253,164,175,0.14)',name:'ไพ่ปาร์ตี้',      desc:'ชาเลนจ์สนุกๆ ในวงเพื่อน',  action:"launchSolo('cards')",    solo:true},
+  {id:'ww',    label:'🎲 ต้องสร้างห้อง', icon:'🐺', bg:'linear-gradient(135deg,#fb7185,#e11d48)', name:'Werewolf',      desc:'4–18 คน · แจกไพ่บทบาท',     action:"openJoinModal('ww')",    solo:false},
+  {id:'spyfall',label:null,               icon:'🕵️', bg:'linear-gradient(135deg,#c084fc,#9333ea)', name:'Spyfall',        desc:'3+ คน · หาสายลับ',           action:"openJoinModal('spyfall')",solo:false},
+  {id:'king',   label:null,               icon:'👑', bg:'linear-gradient(135deg,#fbbf24,#f59e0b)', name:"King's Game",    desc:'3+ คน · ราชาสั่ง',           action:"openJoinModal('king')",  solo:false},
+  {id:'salem',  label:null,               icon:'🧙', bg:'linear-gradient(135deg,#a78bfa,#7c3aed)', name:'Salem 1692',      desc:'4–12 คน · ไพ่ชีวิต',        action:"openJoinModal('salem')", solo:false},
+  {id:'wheel',  label:'⚡ เริ่มได้เลย',   icon:'🎰', bg:'linear-gradient(135deg,#4ade80,#16a34a)',name:'Spin the Wheel',  desc:'ตัดสินใจแทนคุณได้เลย',      action:"launchSolo('wheel')",    solo:true},
+  {id:'cards',  label:null,               icon:'🃏', bg:'linear-gradient(135deg,#fda4af,#e11d48)',name:'ไพ่ปาร์ตี้',      desc:'ชาเลนจ์สนุกๆ ในวงเพื่อน',  action:"launchSolo('cards')",    solo:true},
 ];
 function renderHomeGames(){
-  const sec=$('homeGamesSection');if(!sec)return;
+  const multiList=$('homeMultiList'),soloList=$('homeSoloList');
+  const multiSection=$('homeMultiSection'),soloSection=$('homeSoloSection');
+  if(!multiList||!soloList)return;
   const visible=HOME_GAMES_CONFIG.filter(g=>!hiddenGames[g.id]);
   const multiRoom=visible.filter(g=>!g.solo);
   const soloGames=visible.filter(g=>g.solo);
-  let html='';
-  if(multiRoom.length){
-    html+=`<div class="games-section-label">🎲 ต้องสร้างห้อง</div><div class="games-grid">`;
-    multiRoom.forEach(g=>{
-      html+=`<div class="game-card" onclick="${g.action}"><div class="game-icon" style="background:${g.bg};font-size:24px">${g.icon}</div><div class="game-name">${g.name}</div><div class="game-desc">${g.desc}</div></div>`;
-    });
-    html+='</div>';
+  if(multiSection)multiSection.style.display=multiRoom.length?'':'none';
+  if(soloSection)soloSection.style.display=soloGames.length?'':'none';
+  const rowHtml=g=>`
+    <div class="home-game-row" onclick="${g.action}">
+      <div class="home-row-icon" style="background:${g.bg}">${g.icon}</div>
+      <div class="home-row-info">
+        <div class="home-row-name">${g.name}</div>
+        <div class="home-row-desc">${g.desc}</div>
+      </div>
+      <div class="home-row-cta${g.solo?' solo':''}">${g.solo?'เล่นเลย':'สร้าง/เข้าร่วม'}${CHEVRON_SVG}</div>
+    </div>`;
+  multiList.innerHTML=multiRoom.map(rowHtml).join('');
+  soloList.innerHTML=soloGames.map(rowHtml).join('');
+  if(!visible.length&&multiSection){
+    multiSection.style.display='';
+    multiList.innerHTML='<div style="text-align:center;padding:3rem 1rem;color:var(--t3);font-size:14px">ยังไม่มีเกมที่เปิดให้เล่น</div>';
   }
-  if(soloGames.length){
-    html+=`<div class="games-section-label" style="margin-top:1.5rem">⚡ เริ่มได้เลย</div><div class="games-grid">`;
-    soloGames.forEach(g=>{
-      html+=`<div class="game-card" onclick="${g.action}"><div class="game-icon" style="background:${g.bg};font-size:24px">${g.icon}</div><div class="game-name">${g.name}</div><div class="game-desc">${g.desc}</div></div>`;
-    });
-    html+='</div>';
-  }
-  if(!visible.length) html='<div style="text-align:center;padding:3rem 1rem;color:var(--t3);font-size:15px">ยังไม่มีเกมที่เปิดให้เล่น</div>';
-  sec.innerHTML=html;
 }
 
 /* ══ THEME SWITCHER ════════════════════════════════════════════ */
@@ -4166,7 +4114,7 @@ document.addEventListener('click',e=>{
 },{passive:true});
 // โหลดธีมจาก localStorage
 (function(){
-  const saved=localStorage.getItem('ghTeng_theme')||'dark';
+  const saved=localStorage.getItem('ghTeng_theme')||'ocean';
   document.documentElement.setAttribute('data-theme',saved);
 })();
 
@@ -6030,7 +5978,7 @@ function salemCheckWin(data){
 
 document.addEventListener('DOMContentLoaded',()=>{
   // โหลด active state ธีม
-  const _st=localStorage.getItem('ghTeng_theme')||'dark';
+  const _st=localStorage.getItem('ghTeng_theme')||'ocean';
   document.documentElement.setAttribute('data-theme',_st);
   document.querySelectorAll('.theme-option').forEach(el=>el.classList.toggle('active',el.textContent.includes(THEMES[_st]?.label||_st)));
   _refreshThemeIndicator(_st);
@@ -6068,8 +6016,8 @@ document.addEventListener('DOMContentLoaded',()=>{
     <div class="confirm-title">ออกจากห้อง?</div>
     <div class="confirm-sub">คุณเป็นหัวห้อง — ถ้าออกโดยไม่โอนสิทธิ์ ห้องจะยุบทันที</div>
     <div style="display:flex;flex-direction:column;gap:8px;margin-top:1rem">
-      <button id="leaveTransferBtn" class="btn btn-next" style="background:var(--ac);color:#fff;height:46px" onclick="$('leaveConfirmOverlay').classList.remove('show');openTransferHost()">👑 โอนหัวห้องก่อนออก</button>
-      <button class="btn btn-next" style="background:var(--danger);color:#fff;height:46px" onclick="leaveRoom()">🚪 ยุบห้องและออกเลย</button>
+      <button id="leaveTransferBtn" class="btn btn-ac btn-next" style="height:46px" onclick="$('leaveConfirmOverlay').classList.remove('show');openTransferHost()">👑 โอนหัวห้องก่อนออก</button>
+      <button class="btn btn-danger btn-next" style="height:46px" onclick="leaveRoom()">🚪 ยุบห้องและออกเลย</button>
       <button class="btn btn-sf btn-next" style="height:40px" onclick="$('leaveConfirmOverlay').classList.remove('show')">ยกเลิก</button>
     </div>
   </div>
@@ -6094,7 +6042,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     <div class="confirm-sub">ผู้เล่นคนนี้จะถูกเตะออกจากห้องทันที</div>
     <div class="confirm-btns">
       <button class="btn btn-sf btn-next" onclick="cancelKick()">ยกเลิก</button>
-      <button class="btn btn-next" style="background:var(--danger);color:#fff" onclick="doKick()">เตะออก</button>
+      <button class="btn btn-danger btn-next" onclick="doKick()">เตะออก</button>
     </div>
   </div>
 </div>
