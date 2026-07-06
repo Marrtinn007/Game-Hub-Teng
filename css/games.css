@@ -20,7 +20,8 @@
 @keyframes wwGroupOpen{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 .ww-role-chip{padding:12px 14px;border-radius:var(--r-s);display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-top:1px solid rgba(255,255,255,0.05);box-shadow:0 2px 0 rgba(0,0,0,0.25);transition:all 0.15s var(--spring)}
 .ww-role-chip.has{border-color:var(--ac);background:var(--ac-dim)}
-.ww-role-chip-icon{font-size:20px;flex-shrink:0;cursor:pointer;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.ww-role-chip-icon{font-size:26px;flex-shrink:0;cursor:pointer;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 0 0 2px currentColor inset}
+.ww-role-chip-icon img{width:100%;height:100%;object-fit:cover;object-position:top center}
 .ww-role-chip-info{flex:1;min-width:0;cursor:pointer}
 .ww-role-chip-name{font-size:16px;font-weight:700;color:var(--t0)}
 .ww-role-chip-sub{font-size:11px;color:var(--t2);margin-top:3px;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;font-weight:400}
@@ -33,7 +34,7 @@
 .ww-score-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-radius:var(--r-s);margin-bottom:1.25rem;background:var(--card);border:1px solid var(--line)}
 
 /* ── WW Role Card ── */
-.role-playing-card{cursor:pointer;width:min(290px,calc(100vw - 2.5rem));height:min(406px,calc((100vw - 2.5rem)*1.4));flex-shrink:0;perspective:1000px;-webkit-perspective:1000px}
+.role-playing-card{cursor:pointer;width:min(300px,calc(100vw - 2.5rem));height:min(440px,calc((100vw - 2.5rem)*1.48));flex-shrink:0;perspective:1000px;-webkit-perspective:1000px}
 .rpc-inner{position:relative;width:100%;height:100%;transition:transform 0.5s cubic-bezier(0.4,0,0.2,1);transform-style:preserve-3d;-webkit-transform-style:preserve-3d;will-change:transform}
 .role-playing-card.flipped .rpc-inner{-webkit-transform:rotateY(180deg);transform:rotateY(180deg)}
 .rpc-front,.rpc-back{position:absolute;inset:0;border-radius:var(--r-xl);-webkit-backface-visibility:hidden;backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;-webkit-font-smoothing:subpixel-antialiased;font-smooth:always;will-change:transform}
@@ -44,6 +45,8 @@
 .rpc-card-bg{position:absolute;font-size:120px;opacity:0.03;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
 .rpc-back-team-bar{width:100%;text-align:center;font-size:11px;font-weight:800;padding:6px 12px;border-radius:var(--r-s);margin-bottom:12px;letter-spacing:0.07em;text-transform:uppercase;flex-shrink:0}
 .rpc-back-emoji{font-size:56px;display:block;margin-bottom:8px;flex-shrink:0;text-align:center;width:100%;line-height:1}
+.rpc-portrait-frame{width:148px;height:148px;border-radius:20px;overflow:hidden;flex-shrink:0;margin-bottom:10px;position:relative;background:linear-gradient(160deg,rgba(255,255,255,0.08),rgba(0,0,0,0.28));display:flex;align-items:center;justify-content:center}
+.rpc-back-portrait{width:100%;height:100%;object-fit:cover;object-position:top center;display:block}
 .rpc-back-name{font-size:24px;font-weight:800;color:var(--t0);margin-bottom:4px;text-align:center;flex-shrink:0;line-height:1.2}
 .rpc-back-en{font-size:13px;color:var(--t2);text-align:center;margin-bottom:12px;flex-shrink:0;font-weight:400}
 .rpc-back-desc{font-size:15px;color:var(--t1);line-height:1.65;text-align:center;overflow-y:auto;flex:1;padding:0 4px;font-weight:400;-webkit-font-smoothing:antialiased}

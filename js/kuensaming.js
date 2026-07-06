@@ -12,7 +12,10 @@ function showRoleInfo(r,event){
   const box=$('roleInfoContent');if(!box)return;
   box.innerHTML=`
     <div style="text-align:center;margin-bottom:1.25rem">
-      <div style="display:inline-flex;align-items:center;justify-content:center;width:96px;height:96px;border-radius:50%;background:${hexAlpha(teamHex,0.14)};border:2px solid ${hexAlpha(teamHex,0.4)};font-size:52px;line-height:1;margin-bottom:8px">${role.e}</div>
+      <div style="display:inline-flex;align-items:center;justify-content:center;width:136px;height:136px;border-radius:28px;background:${hexAlpha(teamHex,0.14)};box-shadow:0 0 0 3px ${hexAlpha(teamHex,0.5)},0 8px 22px rgba(0,0,0,0.4);font-size:52px;line-height:1;margin-bottom:10px;overflow:hidden">
+        <img src="img/Ch/${r}.png" alt="" style="width:100%;height:100%;object-fit:cover;object-position:top center" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/>
+        <span style="display:none">${role.e}</span>
+      </div>
       <div style="font-size:24px;font-weight:900;color:var(--t0)">${role.name}</div>
       <div style="font-size:14px;color:var(--t2);margin-top:3px">${role.en}</div>
       <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px">
@@ -101,7 +104,7 @@ function renderRoleChip(r){
   const ptsHex=pts>0?'#4eca8b':pts<0?'#f06e7a':null;
   const tc=wwTeamHex(role.team);
   return`<div class="ww-role-chip${count>0?' has':''}" style="border-left:3px solid ${tc};${count>0?`background:${hexAlpha(tc,0.14)};border-color:${tc}`:''}">
-    <div class="ww-role-chip-icon" style="background:${hexAlpha(tc,0.14)}" onclick="showRoleInfo('${r}',event)">${role.e}</div>
+    <div class="ww-role-chip-icon" style="background:${hexAlpha(tc,0.14)};color:${tc}" onclick="showRoleInfo('${r}',event)"><img src="img/Ch/${r}.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span style="display:none">${role.e}</span></div>
     <div class="ww-role-chip-info" onclick="showRoleInfo('${r}',event)">
       <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
         <span class="ww-role-chip-name">${role.name}</span>
@@ -167,7 +170,7 @@ function previewAndDeal(){
     const role=WW[r];const pts=(role.pts||0)*cnt;const ptsStr=pts>0?`+${pts}`:String(pts);
     const ptsColor=pts>0?'var(--ok)':pts<0?'var(--danger)':'var(--t2)';
     return`<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--glass-border)">
-      <span style="font-size:26px">${role.e}</span>
+      <span style="display:inline-flex;width:36px;height:36px;border-radius:50%;overflow:hidden;flex-shrink:0;align-items:center;justify-content:center;font-size:20px"><img src="img/Ch/${r}.png" alt="" style="width:100%;height:100%;object-fit:cover;object-position:top center" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'"/><span style="display:none">${role.e}</span></span>
       <div style="flex:1"><div style="font-size:16px;font-weight:800">${role.name}</div><div style="font-size:12px;color:var(--t2)">${role.en}</div></div>
       <div style="text-align:right"><div style="font-size:18px;font-weight:900">${cnt} ใบ</div><div style="font-size:13px;font-weight:800;color:${ptsColor}">${ptsStr}</div></div>
     </div>`;
@@ -558,6 +561,7 @@ function roleCardHTML(p){
   const role=WW[roleKey]||WW.villager;
   const teamColor={good:'var(--ok)',evil:'var(--wolf)',solo:'var(--solo)'}[role.team]||'var(--ac)';
   const teamBg={good:'rgba(52,211,153,0.16)',evil:'rgba(255,92,92,0.16)',solo:'rgba(251,191,36,0.16)'}[role.team]||'rgba(124,159,255,0.16)';
+  const teamHex=wwTeamHex(role.team);
   const wolfTeamRoles=['werewolf','wolfcub','lonewolf','alphawolf','minion','sorcerer'];
   const isWolf=wolfTeamRoles.includes(roleKey)||roleKey==='cursed';
   let alliesHtml='';
@@ -575,7 +579,10 @@ function roleCardHTML(p){
       </div>
       <div class="rpc-back">
         <div class="rpc-back-team-bar" style="background:${teamBg};color:${teamColor}">${role.tl}</div>
-        <div class="rpc-back-emoji">${role.e}</div>
+        <div class="rpc-portrait-frame" style="box-shadow:0 0 0 3px ${hexAlpha(teamHex,0.5)},0 8px 22px rgba(0,0,0,0.45)">
+          <img class="rpc-back-portrait" src="img/Ch/${roleKey}.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/>
+          <div class="rpc-back-emoji" style="display:none">${role.e}</div>
+        </div>
         <div class="rpc-back-name">${role.name}</div>
         <div class="rpc-back-en">${role.en||''}</div>
         ${alliesHtml}
