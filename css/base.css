@@ -216,6 +216,13 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
 .btn-sf{background:var(--card2);color:var(--t1);border:1px solid var(--line)}
 .btn-sf:hover{color:var(--t0);border-color:rgba(255,255,255,0.14)}
 
+.btn-copy-link .copy-link-icons{display:inline-flex;align-items:center;justify-content:center;position:relative;width:14px;height:14px}
+.btn-copy-link .copy-link-icons svg{position:absolute;inset:0;transition:transform 0.22s var(--spring),opacity 0.18s}
+.btn-copy-link .icon-check{transform:scale(0.4);opacity:0}
+.btn-copy-link.copied{color:var(--ac);border-color:var(--ac)}
+.btn-copy-link.copied .icon-copy{transform:scale(0.4);opacity:0}
+.btn-copy-link.copied .icon-check{transform:scale(1);opacity:1}
+
 .btn-danger{background:var(--danger);color:#fff;box-shadow:var(--sh-btn)}
 .btn-danger:hover{filter:brightness(1.08)}
 
@@ -239,6 +246,10 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
 /* ── Toast ── */
 .toast{position:fixed;bottom:max(28px,env(safe-area-inset-bottom,28px));left:50%;transform:translateX(-50%) translateY(80px);background:var(--card2);border:1px solid rgba(255,255,255,0.1);border-top:1px solid rgba(255,255,255,0.08);box-shadow:0 4px 0 rgba(0,0,0,0.3),0 8px 24px rgba(0,0,0,0.5);border-radius:var(--r-pill);padding:12px 26px;font-size:15px;font-weight:600;color:var(--t0);z-index:9999;transition:transform 0.3s var(--spring);white-space:nowrap;pointer-events:none;max-width:calc(100vw - 2rem);text-align:center;box-shadow:none}
 .toast.show{transform:translateX(-50%) translateY(0)}
+
+.fb-retry-banner{position:fixed;bottom:max(28px,env(safe-area-inset-bottom,28px));left:50%;transform:translateX(-50%) translateY(80px) scale(0.96);opacity:0;display:flex;align-items:center;gap:12px;background:var(--card2);border:1px solid rgba(255,255,255,0.1);box-shadow:0 8px 24px rgba(0,0,0,0.5);border-radius:var(--r-pill);padding:10px 14px 10px 22px;font-size:14px;font-weight:600;color:var(--t0);z-index:9999;transition:transform 0.3s var(--spring),opacity 0.2s;pointer-events:none;max-width:calc(100vw - 2rem)}
+.fb-retry-banner.show{transform:translateX(-50%) translateY(0) scale(1);opacity:1;pointer-events:auto}
+.fb-retry-banner .btn{height:36px;padding:0 16px;font-size:13px;flex-shrink:0}
 
 /* ── Modal (floating centered dialog on every screen size) ── */
 .modal-overlay{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.65);padding:1.25rem}

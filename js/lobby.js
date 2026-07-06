@@ -44,6 +44,34 @@ function launchSolo(type){
   const map={wheel:'screen-wheel',cards:'screen-cards'};
   if(map[type])showScreen(map[type]);
 }
+/* ══ รอ Firebase พร้อมแล้วค่อยรัน callback (ใช้ร่วมกันตอนสร้าง/เข้าวง) ══ */
+let _fbWaitTimer=null;
+function waitForFirebaseThenRun(callback){
+  clearTimeout(_fbWaitTimer);
+  $('fbRetryBanner')?.classList.remove('show');
+  if(firebaseReady){callback();return}
+  let attempts=0,dots=1;
+  const tick=()=>{
+    if(firebaseReady){showToast('เชื่อมต่อสำเร็จ!',1200);callback();return}
+    attempts++;
+    if(attempts>=15){
+      showFirebaseRetryPrompt(callback);
+      return;
+    }
+    dots=dots%3+1;
+    const slow=attempts>=6;// ผ่านไปแล้วประมาณ 3 วิ
+    showToast((slow?'เน็ตช้ากว่าปกติ กำลังลองใหม่':'กำลังเชื่อมต่อ')+'.'.repeat(dots),900);
+    _fbWaitTimer=setTimeout(tick,500);
+  };
+  showToast('กำลังเชื่อมต่อ.',900);
+  _fbWaitTimer=setTimeout(tick,400);
+}
+function showFirebaseRetryPrompt(callback){
+  const banner=$('fbRetryBanner'),btn=$('fbRetryBtn');
+  if(!banner||!btn){showToast('เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง');return}
+  banner.classList.add('show');
+  btn.onclick=()=>{banner.classList.remove('show');waitForFirebaseThenRun(callback);};
+}
 function confirmCreateRoom(){
   const i=$('roomNameInput'),name=i?i.value.trim():'';
   if(!name){showToast('ตั้งชื่อวงด้วยนะ');return}
@@ -51,17 +79,7 @@ function confirmCreateRoom(){
   if(!nick){showToast('ใส่ชื่อของคุณด้วยนะ');return}
   if(nick.length>12){showToast('ชื่อยาวเกินไป');return}
   S.roomName=name;S.nickname=nick;S.roomCode=S.pendingRoomCode;
-  if(firebaseReady){enterLobby();return}
-  // Firebase ยังไม่พร้อม — รอ retry หลายครั้ง
-  showToast('กำลังเชื่อมต่อ...',5000);
-  let attempts=0;
-  const tryEnter=()=>{
-    if(firebaseReady){enterLobby();return}
-    attempts++;
-    if(attempts<15){setTimeout(tryEnter,500);}
-    else{showToast('เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง');enterLobby();}
-  };
-  setTimeout(tryEnter,400);
+  waitForFirebaseThenRun(enterLobby);
 }
 function joinRoom(){
   const i=$('joinCodeInput');
@@ -95,17 +113,7 @@ function confirmNick(){
   if(!nick){showToast('ใส่ชื่อด้วยนะ');return}
   if(nick.length>12){showToast('ชื่อยาวเกินไป');return}
   S.nickname=nick;S.roomCode=S.pendingRoomCode;
-  if(firebaseReady){enterLobby();return}
-  // Firebase ยังไม่พร้อม — รอ retry หลายครั้ง
-  showToast('กำลังเชื่อมต่อ...',5000);
-  let attempts=0;
-  const tryEnter=()=>{
-    if(firebaseReady){enterLobby();return}
-    attempts++;
-    if(attempts<15){setTimeout(tryEnter,500);}
-    else{showToast('เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง');enterLobby();}
-  };
-  setTimeout(tryEnter,400);
+  waitForFirebaseThenRun(enterLobby);
 }
 function enterLobby(){
   if(!firebaseReady){
@@ -449,9 +457,21 @@ function renderLobbyUI(){
     if(txBtn)txBtn.style.display='none';
   }
 }
+let _copyLinkTimer=null;
 function copyRoomLink(){
   const url=`${location.origin}${location.pathname}?room=${S.roomCode}`;
-  navigator.clipboard?.writeText(url).then(()=>showToast('📋 คัดลอกลิงก์แล้ว!'));
+  navigator.clipboard?.writeText(url).then(()=>{
+    showToast('📋 คัดลอกลิงก์แล้ว!');
+    const btn=$('copyLinkBtn'),txt=btn?.querySelector('.copy-link-text');
+    if(!btn||!txt)return;
+    clearTimeout(_copyLinkTimer);
+    btn.classList.add('copied');
+    txt.textContent='คัดลอกแล้ว';
+    _copyLinkTimer=setTimeout(()=>{
+      btn.classList.remove('copied');
+      txt.textContent='คัดลอกลิงก์';
+    },1500);
+  }).catch(()=>showToast('คัดลอกไม่สำเร็จ'));
 }
 function updateLeaveTransferBtn(){
   const others=S.players.filter(p=>!p.isHost&&p.name);
