@@ -355,7 +355,19 @@ function renderPlayers(){
   // Host อยู่บนสุดเสมอ
   players.sort((a,b)=>(b.isHost?1:0)-(a.isHost?1:0));
   if(cnt)cnt.textContent=players.length;
-  list.innerHTML=players.map((p,i)=>{
+
+  const newIds=new Set(players.map(p=>p.id));
+
+  // คนที่ออกจากวง — เล่น animation ออกก่อนค่อยลบ node จริง
+  [...list.children].forEach(row=>{
+    if(!newIds.has(row.dataset.pid)&&!row.classList.contains('row-leaving')){
+      row.classList.add('row-leaving');
+      row.addEventListener('animationend',()=>row.remove(),{once:true});
+    }
+  });
+
+  let prevEl=null;
+  players.forEach((p,i)=>{
     const isMe=p.id===S.myPlayerId;
     const canKick=S.isHost&&!p.isHost&&!isMe;
     const isOffline=p.online===false;
@@ -365,13 +377,30 @@ function renderPlayers(){
     // badge แถวเดียวกัน: ผู้ดำเนินการเกม | คุณ
     const hostBadge=p.isHost?'<div class="p-badge">ผู้ดำเนินการเกม</div>':'';
     const meBadge=isMe?'<div class="p-badge" style="background:rgba(124,156,255,0.15);color:var(--ac)">คุณ</div>':'';
-    return `<div class="player-row" style="${isOffline?'opacity:0.45':''}">
-      ${avatarHTML}
+    const rowHTML=`${avatarHTML}
       <div class="p-name" style="flex:1;min-width:0">${esc(p.name)}${isOffline?' <span style="font-size:11px;color:var(--t2)">(ออกไปชั่วคราว)</span>':''}</div>
       ${hostBadge}${meBadge}
-      ${canKick?`<button class="kick-btn" onclick="openKickConfirm('${esc(p.id)}','${esc(p.name)}')" title="เตะออก">✕</button>`:''}
-    </div>`;
-  }).join('');
+      ${canKick?`<button class="kick-btn" onclick="openKickConfirm('${esc(p.id)}','${esc(p.name)}')" title="เตะออก">✕</button>`:''}`;
+
+    let row=list.querySelector(`.player-row[data-pid="${CSS.escape(p.id)}"]`);
+    if(row){
+      // คนเดิม — อัปเดตเนื้อหาในที่เดิม ไม่ re-render ใหม่ (กัน animation กระตุก)
+      row.style.opacity=isOffline?'0.45':'';
+      if(row.innerHTML!==rowHTML)row.innerHTML=rowHTML;
+    }else{
+      // คนใหม่ — สร้าง node ใหม่พร้อม animation เข้า
+      row=document.createElement('div');
+      row.className='player-row row-entering';
+      row.dataset.pid=p.id;
+      row.style.opacity=isOffline?'0.45':'';
+      row.innerHTML=rowHTML;
+      row.addEventListener('animationend',()=>row.classList.remove('row-entering'),{once:true});
+    }
+    // จัดเรียงตำแหน่งให้ตรงลำดับ (host บนสุด) โดยไม่รบกวน node ที่มีอยู่แล้ว
+    if(prevEl){if(prevEl.nextSibling!==row)list.insertBefore(row,prevEl.nextSibling);}
+    else if(list.firstChild!==row)list.insertBefore(row,list.firstChild);
+    prevEl=row;
+  });
 }
 function renderLobbyUI(){
   const grid=$('gameSelectGrid'),startBtn=$('btnStartGame'),hint=$('hostHint'),txBtn=$('transferHostBtn');
@@ -398,9 +427,18 @@ function renderLobbyUI(){
   if(S.isHost){
     if(grid){grid.style.pointerEvents='auto';grid.style.opacity='1';}
     if(startBtn){
+      const wasDisabled=startBtn.disabled;
       startBtn.style.display='';
       startBtn.disabled=!S.selectedGame;
       startBtn.title='';
+      // เพิ่ง enabled ขึ้นมา (เลือกเกมเสร็จ) — pulse/glow ให้รู้ว่ากดได้แล้ว
+      if(wasDisabled&&!startBtn.disabled){
+        startBtn.classList.remove('btn-pulse');
+        void startBtn.offsetWidth;// force reflow เพื่อรีสตาร์ท animation
+        startBtn.classList.add('btn-pulse');
+      }else if(startBtn.disabled){
+        startBtn.classList.remove('btn-pulse');
+      }
     }
     if(hint)hint.style.display='none';
     if(txBtn)txBtn.style.display=nonHostOnline.length>0?'':'none';

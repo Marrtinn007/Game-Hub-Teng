@@ -83,6 +83,12 @@ body{
   color:#fff;
   box-shadow:var(--sh-btn);
 }
+.btn-start.btn-pulse{animation:btnPulseGlow 0.65s var(--smooth) 2}
+@keyframes btnPulseGlow{
+  0%{box-shadow:var(--sh-btn),0 0 0 0 rgba(124,156,255,0.55);transform:scale(1)}
+  40%{box-shadow:var(--sh-btn),0 0 0 12px rgba(124,156,255,0);transform:scale(1.035)}
+  100%{box-shadow:var(--sh-btn),0 0 0 0 rgba(124,156,255,0);transform:scale(1)}
+}
 .btn-spin{
   width:100%;height:56px;font-size:17px;font-weight:700;cursor:pointer;
   border-radius:var(--r-l);
@@ -193,7 +199,9 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
 /* ── Screens ── */
 .screen{display:none;min-height:100dvh;flex-direction:column;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;background:transparent}
 .screen.active{display:flex;animation:pgIn 0.28s var(--smooth) both}
+.screen.leaving{display:flex;position:fixed;inset:0;z-index:5;pointer-events:none;animation:pgOut 0.22s var(--smooth) both}
 @keyframes pgIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pgOut{from{opacity:1;transform:translateY(0) scale(1)}to{opacity:0;transform:translateY(-8px) scale(0.98)}}
 
 /* ── Card surface ── */
 .card{background:var(--card);border-radius:var(--r);border:1px solid var(--line)}

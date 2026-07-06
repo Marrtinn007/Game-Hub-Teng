@@ -53,9 +53,16 @@ function showScreen(id){
   if(btn){btn.style.display=gameScreens.includes(id)?'none':'';}
   if(sheet&&gameScreens.includes(id))sheet.classList.remove('open');
 
+  // เคลียร์ leaving เก่าที่ค้าง (กันกรณีสลับหน้าเร็วๆ ติดกัน)
+  document.querySelectorAll('.screen.leaving').forEach(s=>s.classList.remove('leaving'));
+  const prev=document.querySelector('.screen.active');
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const el=$(id);if(el){el.classList.add('active');el.scrollTop=0;}
-
+  // ให้หน้าเดิม fade/scale ออกทับซ้อนหน้าใหม่ช่วงสั้นๆ แทนที่จะหายวับไปทันที
+  if(prev&&prev!==el){
+    prev.classList.add('leaving');
+    prev.addEventListener('animationend',()=>prev.classList.remove('leaving'),{once:true});
+  }
 }
 function getPlayers(){return S.players.length?S.players:[{id:S.myPlayerId||'demo',name:S.nickname||'ผู้เล่น 1',isHost:true}]}
 function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=0|Math.random()*(i+1);[a[i],a[j]]=[a[j],a[i]]}return a}
