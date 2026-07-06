@@ -396,9 +396,9 @@ function checkDeepLink(){
 function _deepLinkJoin(code){
   // เช็คก่อนว่าห้องยังมีอยู่
   db.ref('rooms/'+code).once('value').then(snap=>{
-    if(!snap.exists()){showToast('❌ ห้อง "'+code+'" ไม่มีแล้ว');return;}
+    if(!snap.exists()){showToast('❌ วง "'+code+'" ไม่มีแล้ว');return;}
     S.pendingRoomCode=code;S.isHost=false;
-    const lb=$('nickRoomLabel');if(lb)lb.textContent='ห้อง: '+code;
+    const lb=$('nickRoomLabel');if(lb)lb.textContent='วง: '+code;
     const bb=$('nickBackBtn');if(bb)bb.setAttribute('onclick','showScreen("screen-home")');
     const ni=$('nickInput');if(ni)ni.value='';
     showScreen('screen-nick');

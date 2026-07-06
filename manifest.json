@@ -1,0 +1,13 @@
+{
+  "name": "WongPlay",
+  "short_name": "WongPlay",
+  "description": "ตั้งวง เล่นด้วยกัน — Party Game Platform สำหรับเล่นกับเพื่อน",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0c0c14",
+  "theme_color": "#0c0c14",
+  "icons": [
+    { "src": "img/img2.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "img/img2.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

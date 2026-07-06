@@ -1,0 +1,74 @@
+{
+  "rules": {
+    "admins": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('admins').child(auth.uid).exists()"
+    },
+    "config": {
+      ".read": true,
+      ".write": "auth != null && root.child('admins').child(auth.uid).exists()"
+    },
+    "rooms": {
+      ".read": "auth != null && root.child('admins').child(auth.uid).exists()",
+      "$roomCode": {
+        ".read": "auth != null",
+        ".write": "auth != null && root.child('admins').child(auth.uid).exists()",
+        "players": {
+          "$playerId": {
+            ".write": "auth != null && (auth.uid === $playerId || root.child('rooms').child($roomCode).child('players').child(auth.uid).child('isHost').val() === true)",
+            ".validate": "!newData.exists() || (newData.hasChildren(['name', 'isHost', 'joinedAt', 'uid']) && newData.child('name').isString() && newData.child('name').val().length >= 1 && newData.child('name').val().length <= 12 && newData.child('isHost').isBoolean() && newData.child('uid').isString() && (newData.child('isHost').val() === false || newData.child('isHost').val() === data.child('isHost').val() || !data.exists() || root.child('rooms').child($roomCode).child('players').child(auth.uid).child('isHost').val() === true))"
+          }
+        },
+        "kicked": {
+          "$playerId": {
+            ".write": "auth != null && root.child('rooms').child($roomCode).child('players').child(auth.uid).child('isHost').val() === true"
+          }
+        },
+        "roomName": {
+          ".write": "auth != null && root.child('rooms').child($roomCode).child('players').child(auth.uid).child('isHost').val() === true"
+        },
+        "game":    { ".write": "auth != null && root.child('rooms').child($roomCode).child('players').child(auth.uid).child('isHost').val() === true" },
+        "ww":      { ".write": "auth != null && root.child('rooms').child($roomCode).child('players').child(auth.uid).child('isHost').val() === true" },
+        "wwTimer": { ".write": "auth != null && root.child('rooms').child($roomCode).child('players').child(auth.uid).child('isHost').val() === true" },
+        "spy":     { ".write": "auth != null && root.child('rooms').child($roomCode).child('players').child(auth.uid).child('isHost').val() === true" },
+        "king":    { ".write": "auth != null && root.child('rooms').child($roomCode).child('players').child(auth.uid).child('isHost').val() === true" },
+        "salem":   { ".write": "auth != null && root.child('rooms').child($roomCode).child('players').child(auth.uid).child('isHost').val() === true" }
+      }
+    },
+    "userSessions": {
+      ".read": "auth != null && root.child('admins').child(auth.uid).exists()",
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || root.child('admins').child(auth.uid).exists())",
+        ".write": "auth != null && (auth.uid === $uid || root.child('admins').child(auth.uid).exists())"
+      }
+    },
+    "logs": {
+      ".read": "auth != null && root.child('admins').child(auth.uid).exists()",
+      ".write": false,
+      ".indexOn": ["ts", "pid", "uid"],
+      "$logId": {
+        ".write": "auth != null && !data.exists()",
+        ".validate": "newData.hasChildren(['ts', 'uid']) && newData.child('ts').isNumber() && newData.child('uid').isString()"
+      }
+    },
+    "announcements": {
+      ".read": true,
+      ".write": "auth != null && root.child('admins').child(auth.uid).exists()"
+    },
+    "maintenance": {
+      ".read": true,
+      ".write": "auth != null && root.child('admins').child(auth.uid).exists()"
+    },
+    "banned": {
+      ".read": "auth != null && root.child('admins').child(auth.uid).exists()",
+      ".write": "auth != null && root.child('admins').child(auth.uid).exists()",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid"
+      }
+    },
+    "$other": {
+      ".read": false,
+      ".write": false
+    }
+  }
+}

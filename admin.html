@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Admin · WongPlay</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0e13; --card:#131620; --card2:#191d27; --line:#22273a;
+  --t0:#dde2f0; --t1:#a8aec4; --t2:#6b718a; --t3:#40455c;
+  --ac:#7c9cff; --ac-dim:rgba(124,156,255,0.12); --ac-glow:rgba(124,156,255,0.18);
+  --ok:#4eca8b; --warn:#f0c060; --danger:#f06e7a;
+  --ok-dim:rgba(78,202,139,0.12); --warn-dim:rgba(240,192,96,0.12); --danger-dim:rgba(240,110,122,0.12);
+  --r:12px; --r-lg:16px;
+  font-size:15px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+body{background:var(--bg);color:var(--t0);font-family:'Kanit',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;font-size:15px}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;background:var(--card2);border:1px solid var(--line);color:var(--t0);border-radius:var(--r);padding:9px 13px;font-size:14px;outline:none;transition:border-color .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--ac)}
+input::placeholder,textarea::placeholder{color:var(--t3)}
+.mono{font-family:'JetBrains Mono',monospace}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px}
+
+/* ── Login ── */
+#loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(ellipse at 50% 0%,rgba(124,156,255,0.06) 0%,transparent 70%)}
+.login-box{width:100%;max-width:320px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:28px 24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
+.login-logo{font-size:32px;margin-bottom:8px;filter:drop-shadow(0 0 12px rgba(124,156,255,0.4))}
+.login-box h1{font-size:17px;font-weight:900;margin:0 0 4px;letter-spacing:.02em}
+.login-box p{font-size:11.5px;color:var(--t2);margin:0 0 20px}
+.login-box input{width:100%;margin-bottom:8px;padding:10px 12px}
+.login-submit{width:100%;background:var(--ac);color:#0a0c14;border:none;border-radius:var(--r);padding:11px;font-weight:700;font-size:14px;margin-top:6px;transition:filter .15s,transform .1s;box-shadow:0 4px 16px var(--ac-glow)}
+.login-submit:hover{filter:brightness(1.08)}
+.login-submit:active{transform:scale(0.98)}
+.login-err{color:var(--danger);font-size:11.5px;margin-top:8px;min-height:16px;text-align:left}
+.login-divider{display:flex;align-items:center;gap:10px;margin:14px 0 10px;color:var(--t3);font-size:11px;font-weight:600}
+.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--line)}
+.btn-google{width:100%;display:flex;align-items:center;justify-content:center;gap:9px;background:var(--card2);border:1px solid var(--line);color:var(--t1);border-radius:var(--r);padding:10px;font-size:13px;font-weight:700;cursor:pointer;transition:border-color .15s,color .15s,background .15s;font-family:'Kanit',sans-serif}
+.btn-google:hover{border-color:rgba(124,156,255,0.5);color:var(--t0);background:#1f2435}
+.btn-google:active{transform:scale(0.98)}
+.btn-google svg{flex-shrink:0}
+
+/* ── App shell ── */
+#app{display:none}
+header.top{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:10px;padding:0 18px;height:60px;background:rgba(12,14,19,0.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.admin-avatar{width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1.5px solid rgba(124,156,255,0.3)}
+.admin-avatar-fallback{width:34px;height:34px;border-radius:50%;background:var(--ac-dim);border:1.5px solid rgba(124,156,255,0.3);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.top-name{font-size:15px;font-weight:700;color:var(--t0);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+.top-icon{font-size:20px;opacity:.85}
+.top-ttl{font-weight:900;font-size:16px;flex:1;letter-spacing:.02em}
+.top-ttl span{color:var(--ac)}
+.top-who{font-size:12px;color:var(--t2);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top-who .uid-small{font-family:'JetBrains Mono',monospace;opacity:.7;font-size:11px}
+button.signout{background:none;border:1px solid var(--line);color:var(--t2);border-radius:8px;padding:5px 10px;font-size:11.5px;font-weight:600;transition:border-color .15s,color .15s}
+button.signout:hover{border-color:var(--danger);color:var(--danger)}
+
+/* ── Tabs ── */
+.tabs{display:flex;gap:4px;padding:8px 14px;overflow-x:auto;border-bottom:1px solid var(--line);position:sticky;top:56px;background:var(--bg);z-index:40;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;background:transparent;border:1px solid transparent;color:var(--t2);border-radius:9px;padding:7px 14px;font-size:13.5px;font-weight:600;white-space:nowrap;transition:all .15s}
+.tab-btn:hover{color:var(--t1);border-color:var(--line)}
+.tab-btn.active{background:var(--ac-dim);border-color:rgba(124,156,255,0.3);color:var(--ac)}
+
+main{padding:14px 18px 60px;max-width:1100px;margin:0 auto}
+.panel{display:none}
+.panel.active{display:block}
+
+/* ── Cards ── */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:12px}
+.card h3{font-size:14px;font-weight:700;color:var(--t1);margin:0 0 12px;display:flex;align-items:center;gap:6px;letter-spacing:.02em}
+.card-label{font-size:12.5px;color:var(--t2);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.grow{flex:1;min-width:120px}
+
+/* ── Stat grid ── */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:12px}
+.stat-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.stat-num{font-size:28px;font-weight:900;color:var(--ac);line-height:1}
+.stat-lbl{font-size:12.5px;color:var(--t2);margin-top:4px;letter-spacing:.03em}
+
+/* ── Buttons ── */
+.btn{border:1px solid var(--line);background:var(--card2);color:var(--t0);border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;transition:all .15s;white-space:nowrap}
+.btn:hover{border-color:var(--t2);color:#fff}
+.btn.primary{background:var(--ac);border-color:var(--ac);color:#0a0c14;box-shadow:0 2px 8px var(--ac-glow)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.danger{background:var(--danger-dim);border-color:rgba(240,110,122,0.35);color:var(--danger)}
+.btn.danger:hover{background:rgba(240,110,122,0.2)}
+.btn.warn{background:var(--warn-dim);border-color:rgba(240,192,96,0.35);color:var(--warn)}
+.btn.ok{background:var(--ok-dim);border-color:rgba(78,202,139,0.35);color:var(--ok)}
+.btn:disabled{opacity:0.35;cursor:not-allowed;pointer-events:none}
+.btn-sm{padding:5px 10px;font-size:12px;border-radius:6px}
+
+/* ── Toggle ── */
+.toggle{position:relative;width:40px;height:22px;border-radius:12px;background:var(--card2);border:1px solid var(--line);flex-shrink:0;cursor:pointer;transition:background .2s}
+.toggle.on{background:var(--ac);border-color:var(--ac)}
+.toggle .dot{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform 0.18s;box-shadow:0 1px 4px rgba(0,0,0,0.4)}
+.toggle.on .dot{transform:translateX(18px)}
+
+/* ── Rooms ── */
+.room-item{border:1px solid var(--line);border-radius:10px;margin-bottom:8px;overflow:hidden}
+.room-head{display:flex;align-items:center;gap:8px;padding:11px 14px;cursor:pointer;background:var(--card2);transition:background .15s}
+.room-head:hover{background:#1f2433}
+.room-head .code{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--ac);font-size:14px}
+.room-head .name{font-size:13.5px;color:var(--t1);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.room-head .meta{font-size:12px;color:var(--t3);white-space:nowrap}
+.room-body{display:none;padding:8px 12px;background:var(--card)}
+.room-body.open{display:block}
+.player-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
+.player-row:last-child{border-bottom:none}
+.pname{font-size:13.5px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ppid{font-size:11px;color:var(--t3);font-family:'JetBrains Mono',monospace}
+.dot-on{width:6px;height:6px;border-radius:50%;background:var(--ok);flex-shrink:0;box-shadow:0 0 6px rgba(78,202,139,0.5)}
+.dot-off{width:6px;height:6px;border-radius:50%;background:var(--t3);flex-shrink:0}
+
+/* ── Log table ── */
+.log-table{width:100%;border-collapse:collapse;font-size:13px}
+.log-table th{text-align:left;color:var(--t3);font-weight:700;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+.log-table td{padding:8px 10px;border-bottom:1px solid rgba(34,39,58,0.7);color:var(--t1);white-space:nowrap;vertical-align:middle}
+.log-table tr:hover td{background:rgba(124,156,255,0.04)}
+.table-wrap{overflow-x:auto;max-height:62vh;border-radius:8px;border:1px solid var(--line)}
+
+/* ── Badges ── */
+.badge{display:inline-block;padding:3px 8px;border-radius:5px;font-size:11.5px;font-weight:700;letter-spacing:.03em}
+.badge.login{background:rgba(78,202,139,0.14);color:var(--ok)}
+.badge.logout{background:rgba(107,113,138,0.14);color:var(--t2)}
+.badge.kick_player,.badge.dissolve_room,.badge.ban{background:rgba(240,110,122,0.14);color:var(--danger)}
+.badge.join_room,.badge.create_room_start{background:rgba(124,156,255,0.14);color:var(--ac)}
+.badge.start_game{background:rgba(240,192,96,0.14);color:var(--warn)}
+.badge.force_logout{background:rgba(240,110,122,0.10);color:var(--danger)}
+
+textarea{width:100%;background:var(--card2);border:1px solid var(--line);color:var(--t0);border-radius:var(--r);padding:10px 13px;font-size:14px;font-family:'Kanit',sans-serif;resize:vertical;min-height:70px}
+
+.empty{text-align:center;color:var(--t3);font-size:13.5px;padding:24px 0}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card);color:var(--t0);border:1px solid var(--line);padding:9px 16px;border-radius:10px;font-size:13px;font-weight:600;opacity:0;transition:all 0.22s;z-index:999;pointer-events:none;box-shadow:0 8px 28px rgba(0,0,0,0.5)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.maint-banner{background:rgba(240,192,96,0.1);border:1px solid rgba(240,192,96,0.3);color:var(--warn);border-radius:var(--r);padding:8px 12px;font-size:12px;font-weight:600;margin-bottom:10px;display:none}
+
+/* ── Members ── */
+.member-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.member-row:last-child{border-bottom:none}
+.member-avatar{width:36px;height:36px;border-radius:50%;background:var(--ac-dim);border:1px solid rgba(124,156,255,0.25);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.member-info{flex:1;min-width:0}
+.member-name{font-size:14px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.member-meta{font-size:11px;color:var(--t2);font-family:'JetBrains Mono',monospace;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.member-badges{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:700}
+.tag.admin{background:rgba(240,192,96,0.15);color:var(--warn)}
+.tag.banned{background:rgba(240,110,122,0.15);color:var(--danger)}
+.tag.online{background:rgba(78,202,139,0.15);color:var(--ok)}
+
+/* ── Banned list enhanced ── */
+.banned-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.banned-row:last-child{border-bottom:none}
+.banned-avatar{width:30px;height:30px;border-radius:50%;background:rgba(240,110,122,0.1);border:1px solid rgba(240,110,122,0.2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.banned-info{flex:1;min-width:0}
+.banned-name{font-size:12.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.banned-uid{font-size:10px;color:var(--t3);font-family:'JetBrains Mono',monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.banned-pid{font-size:10px;color:var(--danger);opacity:.7;font-family:'JetBrains Mono',monospace}
+
+/* ── Members pagination ── */
+.pager{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+.pager-info{font-size:11.5px;color:var(--t2);flex:1}
+
+/* ── Section divider ── */
+.sdiv{height:1px;background:var(--line);margin:10px 0}
+
+#chartWrap{overflow-x:auto}
+svg.chart{display:block}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">🛡️</div>
+    <h1>Admin Panel</h1>
+    <p>Wong<span style="color:var(--ac)">Play</span> · เข้าสู่ระบบผู้ดูแล</p>
+    <button class="btn-google" onclick="doAdminLoginGoogle()">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.08 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-3.59-13.46-8.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      เข้าสู่ระบบด้วย Google
+    </button>
+    <div class="login-divider">หรือใช้อีเมล</div>
+    <input id="loginEmail" type="email" placeholder="อีเมล" autocomplete="username"/>
+    <input id="loginPass" type="password" placeholder="รหัสผ่าน" autocomplete="current-password"/>
+    <button class="login-submit" onclick="doAdminLogin()">เข้าสู่ระบบ</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app">
+  <header class="top">
+    <div class="top-ttl" style="flex:0 0 auto">Admin <span>Panel</span></div>
+    <div style="flex:1"></div>
+    <div id="adminProfile" style="display:flex;align-items:center;gap:8px">
+      <div id="adminAvatarWrap"></div>
+    </div>
+    <button class="signout" onclick="adminSignOut()">ออกจากระบบ</button>
+  </header>
+
+  <div class="tabs" id="tabsBar">
+    <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">📊 ภาพรวม</button>
+    <button class="tab-btn" data-tab="rooms" onclick="switchTab('rooms')">🚪 วง</button>
+    <button class="tab-btn" data-tab="members" onclick="switchTab('members')">👥 สมาชิก</button>
+    <button class="tab-btn" data-tab="logs" onclick="switchTab('logs')">🧾 Log</button>
+    <button class="tab-btn" data-tab="broadcast" onclick="switchTab('broadcast')">📢 ประกาศ</button>
+    <button class="tab-btn" data-tab="admins" onclick="switchTab('admins')">👑 Admin</button>
+  </div>
+
+  <main>
+    <div class="maint-banner" id="maintBanner">🛠️ Maintenance mode กำลังเปิดอยู่ — ผู้เล่นทั่วไปจะเข้าเล่นไม่ได้</div>
+
+    <!-- OVERVIEW -->
+    <div class="panel active" id="panel-overview">
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-num" id="stRooms">–</div><div class="stat-lbl">วงที่เปิดอยู่</div></div>
+        <div class="stat-card"><div class="stat-num" id="stPlayers">–</div><div class="stat-lbl">ผู้เล่นออนไลน์</div></div>
+        <div class="stat-card"><div class="stat-num" id="stUsers">–</div><div class="stat-lbl">Session ที่ใช้งาน</div></div>
+        <div class="stat-card"><div class="stat-num" id="stLogsToday">–</div><div class="stat-lbl">Log วันนี้</div></div>
+      </div>
+      <div class="card">
+        <h3>📈 Activity ใน 24 ชม.ล่าสุด</h3>
+        <div id="chartWrap"><svg class="chart" id="usageChart" viewBox="0 0 700 160" width="100%" height="160"></svg></div>
+      </div>
+      <div class="card">
+        <h3>🎮 เปิด/ปิดเกม</h3>
+        <div id="gameToggleList"></div>
+      </div>
+    </div>
+
+    <!-- ROOMS -->
+    <div class="panel" id="panel-rooms">
+      <div class="card">
+        <div class="row" style="margin-bottom:8px">
+          <input class="grow" id="roomSearchInput" placeholder="ค้นหา: รหัสวง / ชื่อผู้เล่น / Player ID" oninput="renderRooms()"/>
+          <button class="btn" onclick="$('roomSearchInput').value='';renderRooms()">ล้าง</button>
+        </div>
+        <div id="roomsList"><div class="empty">กำลังโหลด...</div></div>
+      </div>
+    </div>
+
+    <!-- MEMBERS -->
+    <div class="panel" id="panel-members">
+      <div class="card">
+        <h3>👥 สมาชิก / บัญชีผู้ใช้</h3>
+        <div style="font-size:11.5px;color:var(--t2);margin-bottom:10px;line-height:1.5">
+          ข้อมูลสมาชิกโหลดจาก <span class="mono" style="color:var(--ac);font-size:11px">userSessions</span> และ <span class="mono" style="color:var(--ac);font-size:11px">users</span> — ต้องออนไลน์ถึงจะขึ้น
+        </div>
+        <div style="font-size:10.5px;color:var(--ok);margin-bottom:8px">🟢 Realtime · อัปเดตอัตโนมัติ</div>
+        <div class="row" style="margin-bottom:8px;gap:6px">
+          <input class="grow" id="memberSearch" placeholder="ค้นหา: ชื่อเล่น / UID / Player ID" oninput="renderMembers()"/>
+          <select id="memberFilter" onchange="renderMembers()" style="width:auto">
+            <option value="all">ทั้งหมด</option>
+            <option value="online">ออนไลน์</option>
+            <option value="banned">ถูกแบน</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div id="membersList"><div class="empty">กำลังเชื่อมต่อ...</div></div>
+        <div class="pager">
+          <div class="pager-info" id="memberPageInfo"></div>
+          <button class="btn btn-sm" id="memberPrevBtn" onclick="memberPageChange(-1)" disabled>← ก่อน</button>
+          <button class="btn btn-sm" id="memberNextBtn" onclick="memberPageChange(1)" disabled>ถัดไป →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOGS -->
+    <div class="panel" id="panel-logs">
+      <div class="card">
+        <div class="row" style="margin-bottom:8px;gap:6px">
+          <input class="grow" id="logSearchInput" placeholder="ค้นหา: UID / Player ID / ชื่อเล่น / action" oninput="renderLogs()"/>
+          <select id="logLimitSelect" onchange="reloadLogs()" style="width:auto">
+            <option value="200">ล่าสุด 200</option>
+            <option value="500">ล่าสุด 500</option>
+            <option value="1000">ล่าสุด 1000</option>
+          </select>
+          <button class="btn primary" onclick="exportLogsCSV()">⬇ CSV</button>
+        </div>
+        <div class="table-wrap">
+          <table class="log-table">
+            <thead><tr>
+              <th>วัน/เดือน/ปี</th>
+              <th>เวลา</th>
+              <th>ค.ศ.</th>
+              <th>Action</th>
+              <th>UID (Firebase)</th>
+              <th>ชื่อ Google</th>
+              <th>Player ID</th>
+              <th>วง</th>
+              <th>รายละเอียด</th>
+            </tr></thead>
+            <tbody id="logsTbody"><tr><td colspan="9" class="empty">กำลังโหลด...</td></tr></tbody>
+          </table>
+        </div>
+        <div style="font-size:10.5px;color:var(--t3);margin-top:8px">
+          💡 Log เก็บ 100 วัน · ล้าง log เก่าอัตโนมัติเมื่อ admin เข้าระบบ
+        </div>
+      </div>
+    </div>
+
+    <!-- BROADCAST / MAINTENANCE -->
+    <div class="panel" id="panel-broadcast">
+      <div class="card">
+        <h3>📢 ประกาศ Global</h3>
+        <textarea id="annInput" placeholder="ข้อความประกาศถึงผู้เล่นทุกคน..."></textarea>
+        <div class="row" style="margin-top:8px">
+          <button class="btn primary" onclick="sendAnnouncement()">ส่งประกาศ</button>
+          <button class="btn danger" onclick="clearAnnouncement()">ล้างประกาศล่าสุด</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>🛠️ Maintenance Mode</h3>
+        <div class="row" style="margin-bottom:8px">
+          <span style="font-size:13px;font-weight:600;flex:1">ปิดปรับปรุง (บล็อกผู้เล่นทั่วไป)</span>
+          <div class="toggle" id="maintToggle" onclick="toggleMaintenance()"><div class="dot"></div></div>
+        </div>
+        <textarea id="maintMsgInput" placeholder="ข้อความที่ผู้เล่นจะเห็นตอนปิดระบบ"></textarea>
+        <div class="row" style="margin-top:8px">
+          <button class="btn warn" onclick="saveMaintenanceMsg()">บันทึกข้อความ</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMINS -->
+    <div class="panel" id="panel-admins">
+      <div class="card">
+        <h3>👑 รายชื่อ Admin (UID)</h3>
+        <div id="adminsList"><div class="empty">กำลังโหลด...</div></div>
+        <div class="sdiv"></div>
+        <div class="row" style="margin-top:6px">
+          <input class="grow mono" id="newAdminUid" placeholder="Firebase UID ที่ต้องการเพิ่มเป็น admin" style="font-size:12px"/>
+          <button class="btn primary" onclick="addAdminByUid()">เพิ่ม Admin</button>
+        </div>
+        <div style="font-size:11px;color:var(--t3);margin-top:6px">
+          💡 หา UID ได้จากแท็บ "สมาชิก" หรือ "Log" (คอลัมน์ UID)
+        </div>
+      </div>
+      <div class="card">
+        <h3>🚫 บัญชีที่ถูกแบน</h3>
+        <div class="row" style="margin-bottom:8px">
+          <input class="grow" id="bannedSearch" placeholder="ค้นหา: ชื่อเล่น / UID / Player ID" oninput="renderBanned()"/>
+          <button class="btn" onclick="$('bannedSearch').value='';renderBanned()">ล้าง</button>
+        </div>
+        <div id="bannedList"><div class="empty">กำลังโหลด...</div></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ══ PASSWORD MODAL ══ -->
+<div id="passModal" style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:24px 22px;width:100%;max-width:300px;box-shadow:0 24px 64px rgba(0,0,0,0.6);text-align:center">
+    <div style="font-size:28px;margin-bottom:8px">🔐</div>
+    <div style="font-size:15px;font-weight:900;margin-bottom:4px">ยืนยันตัวตน</div>
+    <div id="passModalDesc" style="font-size:11.5px;color:var(--t2);margin-bottom:16px">กรุณาใส่รหัสผ่านผู้ดูแลระบบ</div>
+    <input id="passModalInput" type="password" placeholder="รหัสผ่าน" autocomplete="off"
+      style="width:100%;margin-bottom:4px;padding:10px 12px;letter-spacing:2px;font-size:15px;text-align:center"
+      onkeydown="if(event.key==='Enter')_passModalConfirm();if(event.key==='Escape')_passModalClose()"/>
+    <div id="passModalErr" style="color:var(--danger);font-size:11px;min-height:16px;margin-bottom:10px;text-align:left"></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn" style="flex:1" onclick="_passModalClose()">ยกเลิก</button>
+      <button class="btn primary" style="flex:1" onclick="_passModalConfirm()">ยืนยัน</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══ CONFIG ══ */
+const CONFIG={
+  firebase:{
+    apiKey:"AIzaSyC-VPN1bDT4_r-b9hNGpLxRAgayXuaHRTc",
+    authDomain:"game-hb-teng.firebaseapp.com",
+    databaseURL:"https://game-hb-teng-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId:"game-hb-teng",
+    storageBucket:"game-hb-teng.firebasestorage.app",
+    messagingSenderId:"243195546115",
+    appId:"1:243195546115:web:ae2bfec98846ad0b04dc36",
+  }
+};
+const GAMES_META=[
+  {id:'ww',name:'Werewolf',icon:'🐺'},
+  {id:'spyfall',name:'Spyfall',icon:'🕵️'},
+  {id:'king',name:"King's Game",icon:'👑'},
+  {id:'salem',name:'Salem 1692',icon:'🧙'},
+  {id:'wheel',name:'Spin the Wheel',icon:'🎰'},
+  {id:'cards',name:'ไพ่ปาร์ตี้',icon:'🃏'},
+];
+
+const $=id=>document.getElementById(id);
+let toastTimer;
+function showToast(msg,dur=2400){
+  const t=$('toast');if(!t)return;
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),dur);
+}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function copyText(t){
+  if(!t){showToast('ไม่มีข้อมูล');return;}
+  navigator.clipboard?.writeText(t).then(()=>showToast('คัดลอกแล้ว ✓')).catch(()=>{});
+}
+
+/* ══ FIREBASE SDK ══ */
+(function(){
+  const v='10.13.1';
+  function loadScript(src,onload,onerr){const s=document.createElement('script');s.src=src;s.onload=onload;s.onerror=onerr;document.head.appendChild(s);}
+  function tryLoad(urls,idx,onDone){if(idx>=urls.length)return;loadScript(urls[idx],onDone,()=>tryLoad(urls,idx+1,onDone));}
+  const appCdns=['https://www.gstatic.com/firebasejs/'+v+'/firebase-app-compat.js','https://cdn.jsdelivr.net/npm/firebase@'+v+'/firebase-app-compat.min.js'];
+  const dbCdns=['https://www.gstatic.com/firebasejs/'+v+'/firebase-database-compat.js','https://cdn.jsdelivr.net/npm/firebase@'+v+'/firebase-database-compat.min.js'];
+  const authCdns=['https://www.gstatic.com/firebasejs/'+v+'/firebase-auth-compat.js','https://cdn.jsdelivr.net/npm/firebase@'+v+'/firebase-auth-compat.min.js'];
+  tryLoad(appCdns,0,()=>tryLoad(dbCdns,0,()=>tryLoad(authCdns,0,()=>{ if(typeof initAdminFirebase==='function')initAdminFirebase(); })));
+})();
+
+let db=null,auth=null,currentAdmin=null;
+function initAdminFirebase(){
+  try{
+    firebase.initializeApp(CONFIG.firebase);
+    db=firebase.database();
+    auth=firebase.auth();
+    auth.onAuthStateChanged(user=>{
+      if(user){
+        db.ref('admins/'+user.uid).once('value').then(snap=>{
+          if(snap.exists()&&snap.val()===true){
+            currentAdmin=user;
+            enterAdminApp(user);
+          } else {
+            $('loginErr').textContent='บัญชีนี้ไม่มีสิทธิ์ admin';
+            auth.signOut();
+          }
+        }).catch(()=>{ $('loginErr').textContent='ตรวจสิทธิ์ไม่ได้ ลองใหม่'; auth.signOut(); });
+      } else {
+        $('app').style.display='none';
+        $('loginScreen').style.display='flex';
+      }
+    });
+  }catch(e){ $('loginErr').textContent='เชื่อมต่อ Firebase ไม่ได้: '+e.message; }
+}
+function doAdminLogin(){
+  if(!auth){showToast('กำลังเชื่อมต่อ...');return;}
+  const email=$('loginEmail').value.trim(),pass=$('loginPass').value;
+  $('loginErr').textContent='';
+  if(!email||!pass){$('loginErr').textContent='กรอกอีเมลและรหัสผ่านให้ครบ';return;}
+  auth.signInWithEmailAndPassword(email,pass).catch(err=>{
+    $('loginErr').textContent='เข้าสู่ระบบไม่ได้: '+(err.message||err.code);
+  });
+}
+let _adminGoogleSigningIn=false;
+function doAdminLoginGoogle(){
+  if(!auth){showToast('กำลังเชื่อมต่อ...');return;}
+  if(_adminGoogleSigningIn)return;
+  _adminGoogleSigningIn=true;
+  $('loginErr').textContent='';
+  setTimeout(()=>{_adminGoogleSigningIn=false;},10000);
+  const provider=new firebase.auth.GoogleAuthProvider();
+  provider.setCustomParameters({prompt:'select_account'});
+  auth.signInWithPopup(provider).then(()=>{_adminGoogleSigningIn=false;}).catch(err=>{
+    _adminGoogleSigningIn=false;
+    const useRedirect=['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request','auth/operation-not-supported-in-this-environment'];
+    if(useRedirect.includes(err.code)){
+      auth.signInWithRedirect(provider).catch(e=>{$('loginErr').textContent='เข้าสู่ระบบไม่ได้: '+e.message;});
+    } else if(err.code!=='auth/popup-closed-by-user'&&err.code!=='auth/cancelled-popup-request'){
+      $('loginErr').textContent='เข้าสู่ระบบไม่ได้: '+(err.message||err.code);
+    }
+  });
+}
+function adminSignOut(){
+  Object.values(_liveRefs).forEach(r=>r?.off&&r.off());
+  auth&&auth.signOut();
+}
+
+/* ══ APP ENTRY ══ */
+const _liveRefs={};
+function enterAdminApp(user){
+  $('loginScreen').style.display='none';
+  $('app').style.display='block';
+  const uid=user.uid||'';
+  // รูปและชื่อ Google
+  const wrap=$('adminAvatarWrap');
+  if(user.photoURL){
+    const img=document.createElement('img');
+    img.src=user.photoURL;img.className='admin-avatar';
+    img.onerror=()=>{img.replaceWith(makeAvatarFallback(user));};
+    wrap.innerHTML='';wrap.appendChild(img);
+  } else { wrap.innerHTML='';wrap.appendChild(makeAvatarFallback(user)); }
+  // Auto-register current Google account meta for display in admin list
+  if(user.uid&&(user.displayName||user.photoURL)){
+    KNOWN_ADMINS_META[user.uid]={name:user.displayName||'',photo:user.photoURL||''};
+  }
+  renderGameToggles();
+  listenRooms();
+  listenLogs();
+  listenUserSessionsCount();
+  listenMaintenance();
+  listenAdmins();
+  listenBanned();
+  listenMembers(); // realtime members
+  cleanOldLogs();
+}
+function makeAvatarFallback(user){
+  const d=document.createElement('div');
+  d.className='admin-avatar-fallback';
+  d.textContent=(user.displayName||user.email||'A')[0].toUpperCase();
+  return d;
+}
+function switchTab(tab){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+tab));
+}
+
+/* ══ LOG CLEANUP (100 วัน) ══ */
+function cleanOldLogs(){
+  const cutoff=Date.now()-(100*24*60*60*1000);
+  db.ref('logs').orderByChild('ts').endAt(cutoff).limitToFirst(200).once('value').then(snap=>{
+    if(!snap.exists())return;
+    const updates={};
+    snap.forEach(child=>{ updates[child.key]=null; });
+    if(Object.keys(updates).length>0){
+      db.ref('logs').update(updates);
+    }
+  }).catch(()=>{});
+}
+
+/* ══ GAME TOGGLES ══ */
+let hiddenGamesCache={};
+function renderGameToggles(){
+  _liveRefs.hiddenGames=db.ref('config/hiddenGames');
+  _liveRefs.hiddenGames.on('value',snap=>{
+    hiddenGamesCache=snap.val()||{};
+    const el=$('gameToggleList');
+    el.innerHTML=GAMES_META.map(g=>{
+      const on=!hiddenGamesCache[g.id];
+      return `<div class="row" style="justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line)">
+        <span style="font-size:13px;font-weight:600">${g.icon} ${g.name}</span>
+        <div class="toggle ${on?'on':''}" onclick="toggleGame('${g.id}')"><div class="dot"></div></div>
+      </div>`;
+    }).join('');
+  });
+}
+function toggleGame(id){
+  const curHidden=!!hiddenGamesCache[id];
+  db.ref('config/hiddenGames/'+id).set(curHidden?null:true).then(()=>{
+    showToast(curHidden?'เปิดเกมแล้ว ✅':'ปิดเกมแล้ว 🚫');
+  }).catch(e=>showToast('ทำไม่ได้: '+e.message));
+}
+
+/* ══ ROOMS ══ */
+let roomsCache={};
+let _openRooms={};
+
+function listenRooms(){
+  _liveRefs.rooms=db.ref('rooms');
+
+  // ใช้ child events แทน value ทั้ง tree → ไม่ rebuild ทั้งหมดทุกครั้ง
+  _liveRefs.rooms.on('child_added',(snap)=>{
+    const code=snap.key;
+    const r=snap.val()||{};
+    roomsCache[code]=r;
+    _updateStatsFromCache();
+    _upsertRoomDOM(code,r);
+  });
+  _liveRefs.rooms.on('child_changed',(snap)=>{
+    const code=snap.key;
+    const r=snap.val()||{};
+    roomsCache[code]=r;
+    _updateStatsFromCache();
+    _upsertRoomDOM(code,r); // อัปเดตเฉพาะห้องนั้น
+  });
+  _liveRefs.rooms.on('child_removed',(snap)=>{
+    const code=snap.key;
+    delete roomsCache[code];
+    delete _openRooms[code];
+    _updateStatsFromCache();
+    const el=document.querySelector(`[data-roomwrap="${code}"]`);
+    if(el)el.remove();
+    const list=$('roomsList');
+    if(list&&!list.querySelector('.room-item')){
+      list.innerHTML='<div class="empty">ไม่มีวงที่เปิดอยู่ตอนนี้</div>';
+    }
+  });
+}
+
+function _updateStatsFromCache(){
+  let onlineCount=0;
+  Object.values(roomsCache).forEach(r=>{
+    const players=Object.values(r.players||{}).filter(p=>p&&p.name);
+    onlineCount+=players.length;
+  });
+  $('stRooms').textContent=Object.keys(roomsCache).length;
+  $('stPlayers').textContent=onlineCount;
+}
+
+function _buildRoomHTML(code,r){
+  const players=Object.entries(r.players||{}).filter(([,p])=>p&&p.name);
+  const isOpen=!!_openRooms[code];
+  return `<div class="room-item" data-roomwrap="${esc(code)}">
+    <div class="room-head" data-roomcode="${esc(code)}">
+      <span class="code">${esc(code)}</span>
+      <span class="name">${esc(r.roomName||'')}</span>
+      <span class="meta">${players.length} คน · ${r.game?.type?esc(r.game.type):'ยังไม่เริ่ม'}</span>
+      <span class="room-arrow" style="transition:transform .2s;display:inline-block;margin-left:auto;color:var(--ac);font-weight:700;transform:${isOpen?'rotate(180deg)':'rotate(0deg)'}">▼</span>
+    </div>
+    <div class="room-body${isOpen?' open':''}" data-roombody="${esc(code)}">
+      ${players.length?players.map(([pkey,p])=>{
+        const uid=p.uid||'';
+        const nm=p.name||'';
+        const pd=p.pid||'';
+        return `<div class="player-row">
+          <div class="${p.online===true?'dot-on':'dot-off'}"></div>
+          <div style="flex:1;min-width:0">
+            <div class="pname">${esc(nm)}${p.isHost?' 👑':''}</div>
+            <div class="ppid">PID: ${esc(pd)||'-'} · UID: ${esc(uid.slice(0,12))}…</div>
+          </div>
+          <button class="btn-sm btn js-copy-uid" data-uid="${esc(uid)}">📋 UID</button>
+          <button class="btn-sm btn warn js-kick-player" data-code="${esc(code)}" data-pkey="${esc(pkey)}" data-name="${esc(nm)}">⚡ เตะ</button>
+          <button class="btn-sm btn danger js-force-logout" data-uid="${esc(uid)}" ${uid?'':'disabled'}>🔌 Logout</button>
+          <button class="btn-sm btn danger js-ban-player" data-uid="${esc(uid)}" data-name="${esc(nm)}" data-pid="${esc(pd)}" ${uid?'':'disabled'}>🚫 แบน</button>
+        </div>`;
+      }).join(''):'<div class="empty" style="padding:12px 0;color:var(--t3)">— ไม่มีผู้เล่น —</div>'}
+      <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--line)">
+        <button class="btn danger btn-sm js-close-room" data-code="${esc(code)}">🗑️ ลบวงนี้</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function _upsertRoomDOM(code,r){
+  const list=$('roomsList');
+  if(!list)return;
+  // ลบ empty placeholder ถ้ามี
+  const empty=list.querySelector('.empty');
+  if(empty)empty.remove();
+
+  const existing=list.querySelector(`[data-roomwrap="${code}"]`);
+  const html=_buildRoomHTML(code,r);
+  const tmp=document.createElement('div');
+  tmp.innerHTML=html;
+  const newEl=tmp.firstElementChild;
+
+  if(existing){
+    // preserve open state
+    if(_openRooms[code]){
+      const body=newEl.querySelector('[data-roombody]');
+      const arrow=newEl.querySelector('.room-arrow');
+      if(body)body.classList.add('open');
+      if(arrow)arrow.style.transform='rotate(180deg)';
+    }
+    existing.replaceWith(newEl);
+  } else {
+    list.appendChild(newEl);
+  }
+}
+
+// renderRooms ยังคงไว้สำหรับ search filter
+function renderRooms(){
+  const q=($('roomSearchInput')?.value||'').trim().toLowerCase();
+  const list=$('roomsList');
+  if(!list)return;
+  const codes=Object.keys(roomsCache);
+  // แสดง/ซ่อนตาม search
+  list.querySelectorAll('[data-roomwrap]').forEach(el=>{
+    const code=el.getAttribute('data-roomwrap');
+    if(!q){el.style.display='';return;}
+    const r=roomsCache[code]||{};
+    const players=Object.values(r.players||{});
+    const match=code.toLowerCase().includes(q)||
+      players.some(p=>(p.name||'').toLowerCase().includes(q)||(p.pid||'').toLowerCase().includes(q));
+    el.style.display=match?'':'none';
+  });
+  if(!codes.length)list.innerHTML='<div class="empty">ไม่มีวงที่เปิดอยู่ตอนนี้</div>';
+}
+
+// Event delegation — ปุ่มจัดการห้องทั้งหมด (แทน inline onclick)
+document.addEventListener('click',function(e){
+  // toggle room open/close (กดที่ room-head แต่ไม่ใช่ปุ่ม)
+  const head=e.target.closest('[data-roomcode]');
+  if(head&&!e.target.closest('button')){
+    const code=head.getAttribute('data-roomcode');
+    if(code){
+      const wrap=head.parentElement;
+      const body=wrap.querySelector('[data-roombody]');
+      const arrow=head.querySelector('.room-arrow');
+      const nowOpen=body&&body.classList.contains('open');
+      _openRooms[code]=!nowOpen;
+      if(body)body.classList.toggle('open',!nowOpen);
+      if(arrow)arrow.style.transform=nowOpen?'rotate(0deg)':'rotate(180deg)';
+    }
+    return;
+  }
+  // copy UID
+  if(e.target.closest('.js-copy-uid')){
+    const uid=e.target.closest('.js-copy-uid').dataset.uid;
+    if(uid)copyText(uid);
+    return;
+  }
+  // เตะผู้เล่น
+  if(e.target.closest('.js-kick-player')){
+    const btn=e.target.closest('.js-kick-player');
+    const name=btn.dataset.name||'ผู้เล่นนี้';
+    if(!confirm(`เตะ "${name}" ออกจากวงใช่ไหม?`))return;
+    adminKick(btn.dataset.code,btn.dataset.pkey);
+    return;
+  }
+  // force logout
+  if(e.target.closest('.js-force-logout')){
+    const uid=e.target.closest('.js-force-logout').dataset.uid;
+    if(uid)adminForceLogout(uid);
+    return;
+  }
+  // แบน
+  if(e.target.closest('.js-ban-player')){
+    const btn=e.target.closest('.js-ban-player');
+    const name=btn.dataset.name||'?';
+    if(!confirm(`แบน "${name}" ใช่ไหม? จะถูก force logout ด้วย`))return;
+    adminBan(btn.dataset.uid,btn.dataset.name,btn.dataset.pid);
+    return;
+  }
+  // ลบห้อง
+  if(e.target.closest('.js-close-room')){
+    const code=e.target.closest('.js-close-room').dataset.code;
+    if(!confirm(`ลบวง "${code}" ใช่ไหม? ผู้เล่นทุกคนจะถูกเตะออก`))return;
+    adminCloseRoom(code);
+    return;
+  }
+});
+
+function toggleRoomOpen(){ /* deprecated */ }
+function adminKick(code,pkey){
+  if(!code||!pkey){showToast('ข้อมูลไม่ครบ');return;}
+  Promise.all([
+    db.ref(`rooms/${code}/players/${pkey}`).remove(),
+    db.ref(`rooms/${code}/kicked/${pkey}`).set(true)
+  ]).then(()=>showToast('เตะออกแล้ว ✅')).catch(e=>showToast('ทำไม่ได้: '+e.message));
+}
+function adminForceLogout(uid){
+  if(!uid){showToast('ไม่มี UID');return;}
+  db.ref('userSessions/'+uid).update({forceLogout:Date.now()}).then(()=>showToast('Force logout แล้ว')).catch(e=>showToast('ทำไม่ได้: '+e.message));
+}
+function adminBan(uid,name,pid){
+  if(!uid){showToast('ไม่มี UID');return;}
+  const banData={banned:true,nick:name||'',pid:pid||'',ts:Date.now()};
+  db.ref('banned/'+uid).set(banData).then(()=>{
+    // force logout (trigger ฝั่ง client ถ้า online)
+    db.ref('userSessions/'+uid).update({forceLogout:Date.now()}).catch(()=>{});
+    // สแกนทุกห้อง — ลบ player node ของ uid ออก (fallback กรณี client offline/listener ไม่ทำงาน)
+    db.ref('rooms').once('value').then(snap=>{
+      const rooms=snap.val()||{};
+      const removes=[];
+      Object.entries(rooms).forEach(([code,room])=>{
+        const players=room.players||{};
+        Object.entries(players).forEach(([pkey,p])=>{
+          if(p&&p.uid===uid){
+            removes.push(db.ref(`rooms/${code}/players/${pkey}`).remove());
+          }
+        });
+      });
+      if(removes.length) Promise.all(removes).catch(()=>{});
+    }).catch(()=>{});
+    showToast('แบนแล้ว 🚫');
+  }).catch(e=>showToast('ทำไม่ได้: '+e.message));
+}
+function adminUnban(uid){
+  db.ref('banned/'+uid).remove().then(()=>showToast('ปลดแบนแล้ว ✅')).catch(e=>showToast('ทำไม่ได้: '+e.message));
+}
+function adminCloseRoom(code){
+  if(!code){showToast('ไม่มีรหัสวง');return;}
+  // remove() ลบทั้ง node แทน update null เพื่อให้แน่ใจว่าลบได้จริง
+  db.ref('rooms/'+code).remove()
+    .then(()=>showToast('ลบวงแล้ว ✅'))
+    .catch(e=>showToast('ทำไม่ได้: '+e.message));
+}
+
+/* ══ LOGS — แสดง UID Firebase ด้วย ══ */
+let logsCache=[];
+function reloadLogs(){ listenLogs(); }
+function listenLogs(){
+  if(_liveRefs.logs)_liveRefs.logs.off();
+  const lim=parseInt($('logLimitSelect')?.value||'200',10);
+  _liveRefs.logs=db.ref('logs').limitToLast(lim);
+  _liveRefs.logs.on('value',snap=>{
+    const v=snap.val()||{};
+    logsCache=Object.entries(v).map(([id,d])=>({id,...d})).sort((a,b)=>(b.ts||0)-(a.ts||0));
+    const todayStart=new Date();todayStart.setHours(0,0,0,0);
+    $('stLogsToday').textContent=logsCache.filter(l=>(l.ts||0)>=todayStart.getTime()).length;
+    renderLogs();
+    renderUsageChart();
+  });
+}
+function _fmtDetail(action, detail){
+  if(!detail)return'-';
+  const d=detail;
+  switch(action){
+    case'kick_player':return`เตะ: ${d.targetNick||d.targetId||'?'} จากวง ${d.code||'?'}`;
+    case'start_game':return`เกม: ${d.game||'?'} · ${d.playerCount||'?'} คน · วง ${d.roomName||d.code||'?'}`;
+    case'join_room':return`เข้าวง ${d.code||'?'}${d.nick?' ในชื่อ '+d.nick:''}`;
+    case'create_room_start':return`สร้างวง ${d.roomName||''} [${d.code||'?'}]`;
+    case'dissolve_room':return`ยุบวง ${d.roomName||''} [${d.code||'?'}]`;
+    case'leave_room':return`ออกจากวง ${d.roomName||''} [${d.code||'?'}]`;
+    case'ban':return`แบน: ${d.nick||d.uid||'?'}`;
+    case'force_logout':return`force logout UID: ${d.uid||'?'}`;
+    default:
+      // fallback: แสดง key=value ให้อ่านได้
+      return Object.entries(d).map(([k,v])=>`${k}: ${v}`).join(' · ');
+  }
+}
+function renderLogs(){
+  const q=($('logSearchInput')?.value||'').trim().toLowerCase();
+  const tbody=$('logsTbody');if(!tbody)return;
+  const filtered=logsCache.filter(l=>{
+    if(!q)return true;
+    const detailStr=l.detail?Object.values(l.detail).join(' ').toLowerCase():'';
+    const gname=(l.uid&&_mSessions[l.uid])?(_mSessions[l.uid].displayName||'').toLowerCase():'';
+    return (l.uid||'').toLowerCase().includes(q)||(l.pid||'').toLowerCase().includes(q)||(l.nick||'').toLowerCase().includes(q)||(l.action||'').toLowerCase().includes(q)||(l.room||'').toLowerCase().includes(q)||detailStr.includes(q)||gname.includes(q);
+  });
+  if(!filtered.length){tbody.innerHTML='<tr><td colspan="9" class="empty">ไม่พบข้อมูล</td></tr>';return;}
+  tbody.innerHTML=filtered.slice(0,500).map(l=>{
+    const d=l.ts?new Date(l.ts):null;
+    const dateStr=d?d.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'2-digit'}):'-';
+    const timeStr=d?d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'-';
+    const yearAD=d?d.getFullYear():'-';
+    const detailHtml=esc(_fmtDetail(l.action,l.detail));
+    // ชื่อ Google จาก userSessions ถ้ามี ไม่ใช้ชื่อเล่นในห้อง
+    const googleName=l.uid&&_mSessions[l.uid]?(_mSessions[l.uid].displayName||''):'';
+    const nameDisplay=googleName?esc(googleName):(l.nick?`<span style="color:var(--t3);font-size:11px">${esc(l.nick)}</span>`:'-');
+    const uidFull=l.uid?`<span style="cursor:pointer;font-size:11px" onclick="copyText('${esc(l.uid)}')" title="คลิกเพื่อคัดลอก">${esc(l.uid)}</span>`:'-';
+    return `<tr>
+      <td class="mono" style="color:var(--t2)">${dateStr}</td>
+      <td class="mono" style="color:var(--t2)">${timeStr}</td>
+      <td class="mono" style="color:var(--t3);font-size:11px">${yearAD}</td>
+      <td><span class="badge ${esc(l.action||'')}">${esc(l.action||'-')}</span></td>
+      <td class="mono">${uidFull}</td>
+      <td>${nameDisplay}</td>
+      <td class="mono" style="font-size:11px;color:var(--t2)">${esc(l.pid||'-')}</td>
+      <td class="mono" style="color:var(--ac)">${esc(l.room||'-')}</td>
+      <td style="font-size:12px;color:var(--t1);max-width:240px">${detailHtml}</td>
+    </tr>`;
+  }).join('');
+}
+function exportLogsCSV(){
+  if(!logsCache.length){showToast('ไม่มี log ให้ export');return;}
+  const headers=['เวลา','action','UID','Player ID','ชื่อเล่น','วง','รายละเอียด'];
+  const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+  const rows=logsCache.map(l=>[
+    l.ts?new Date(l.ts).toLocaleString('th-TH',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'}):'',
+    l.action||'',
+    l.uid||'',
+    l.pid||'',
+    l.nick||'',
+    l.room||'',
+    _fmtDetail(l.action,l.detail)
+  ]);
+  const csv='\uFEFF'+[headers,...rows].map(r=>r.map(q).join(',')).join('\r\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='gamehub_logs_'+new Date().toISOString().slice(0,10)+'.csv';
+  document.body.appendChild(a);a.click();a.remove();
+  URL.revokeObjectURL(url);
+  showToast('Export CSV แล้ว ⬇');
+}
+
+/* ══ USAGE CHART ══ */
+function renderUsageChart(){
+  const svg=$('usageChart');if(!svg)return;
+  const now=Date.now();
+  const buckets=new Array(24).fill(0);
+  logsCache.forEach(l=>{
+    const age=now-(l.ts||0);
+    const hoursAgo=Math.floor(age/3600000);
+    if(hoursAgo>=0&&hoursAgo<24)buckets[23-hoursAgo]++;
+  });
+  const max=Math.max(1,...buckets);
+  const W=700,H=160,padL=36,padB=28,padT=10,padR=10;
+  const chartW=W-padL-padR, chartH=H-padT-padB;
+  const barW=chartW/24;
+  // grid lines + y labels
+  const gridSteps=4;
+  let grid='';
+  for(let i=0;i<=gridSteps;i++){
+    const y=padT+chartH-(chartH/gridSteps)*i;
+    const val=Math.round((max/gridSteps)*i);
+    grid+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="var(--line)" stroke-width="1" opacity="${i===0?'0.8':'0.4'}"/>`;
+    if(i>0||val===0)grid+=`<text x="${padL-5}" y="${y+4}" font-size="9" fill="var(--t3)" font-family="JetBrains Mono" text-anchor="end">${val}</text>`;
+  }
+  // bars
+  let bars='';
+  const now_h=new Date().getHours();
+  buckets.forEach((v,i)=>{
+    const bh=Math.max(v>0?3:0,(v/max)*chartH);
+    const x=padL+i*barW+barW*0.15;
+    const y=padT+chartH-bh;
+    const bw=barW*0.7;
+    // ชั่วโมงจริง
+    const realHour=(now_h-(23-i)+24)%24;
+    const isNow=(23-i)===0;
+    const alpha=v?(isNow?1:0.55+0.45*(v/max)):0.1;
+    const color=isNow?'#a0b8ff':'#7c9cff';
+    bars+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${bh.toFixed(1)}" rx="3" fill="${color}" opacity="${alpha.toFixed(2)}">
+      <title>${realHour}:00 น. — ${v} events</title>
+    </rect>`;
+    // x-axis label ทุก 3 ชั่วโมง หรือ ชั่วโมงแรก/สุดท้าย
+    if(i%3===0||i===23){
+      bars+=`<text x="${(padL+i*barW+barW/2).toFixed(1)}" y="${H-8}" font-size="9" fill="${isNow?'var(--ac)':'var(--t3)'}" font-family="JetBrains Mono" text-anchor="middle">${realHour}:00</text>`;
+    }
+    // ตัวเลขบนแท่งถ้ามีค่า
+    if(v>0&&bh>14){
+      bars+=`<text x="${(x+bw/2).toFixed(1)}" y="${(y-3).toFixed(1)}" font-size="9" fill="var(--ac)" font-family="JetBrains Mono" text-anchor="middle">${v}</text>`;
+    }
+  });
+  // x-axis line
+  const xline=`<line x1="${padL}" y1="${padT+chartH}" x2="${W-padR}" y2="${padT+chartH}" stroke="var(--line)" stroke-width="1"/>`;
+  svg.innerHTML=grid+xline+bars;
+}
+
+/* ══ USER SESSIONS COUNT ══ */
+function listenUserSessionsCount(){
+  // stUsers ถูกอัปเดตจาก _rebuildMembers แล้ว — ฟัง count แยกต่างหาก
+  _liveRefs.userSessionsCount=db.ref('userSessions');
+  _liveRefs.userSessionsCount.on('value',snap=>{
+    const count=snap.exists()?Object.keys(snap.val()).length:0;
+    const el=$('stUsers');if(el)el.textContent=count;
+  });
+}
+
+/* ══ MEMBERS (realtime) ══ */
+let _membersAll=[];
+let _memberPage=0;
+const MEMBERS_PER_PAGE=30;
+// cache แยกเพื่อ merge
+let _mSessions={},_mAdmins={},_mBanned={};
+
+function listenMembers(){
+  // listen userSessions
+  if(_liveRefs.memberSessions)_liveRefs.memberSessions.off();
+  _liveRefs.memberSessions=db.ref('userSessions');
+  _liveRefs.memberSessions.on('value',snap=>{
+    _mSessions=snap.val()||{};
+    _rebuildMembers();
+  });
+  // listen admins (already listened but need copy for merge)
+  if(_liveRefs.memberAdmins)_liveRefs.memberAdmins.off();
+  _liveRefs.memberAdmins=db.ref('admins');
+  _liveRefs.memberAdmins.on('value',snap=>{
+    const v=snap.val()||{};
+    _mAdmins={};Object.keys(v).forEach(uid=>{if(v[uid]===true)_mAdmins[uid]=true;});
+    _rebuildMembers();
+  });
+  // listen banned
+  if(_liveRefs.memberBanned)_liveRefs.memberBanned.off();
+  _liveRefs.memberBanned=db.ref('banned');
+  _liveRefs.memberBanned.on('value',snap=>{
+    _mBanned=snap.val()||{};
+    _rebuildMembers();
+  });
+}
+
+function loadMembers(){ /* compat stub — realtime already running */ _rebuildMembers(); }
+
+function _rebuildMembers(){
+  const all=[];
+  // จาก userSessions
+  Object.entries(_mSessions).forEach(([uid,s])=>{
+    const bd=_mBanned[uid];
+    all.push({
+      uid,
+      nick:s.displayName||s.activeNick||s.nick||s.name||'',
+      email:s.email||'',
+      photo:s.photo||'',
+      pid:s.pid||s.activePlayerId||'',
+      lastSeen:s.lastSeen||s.ts||0,
+      online:!!s.online,
+      isAdmin:!!_mAdmins[uid],
+      isBanned:!!(bd&&(bd===true||bd?.banned)),
+    });
+  });
+  // บัญชีถูกแบนที่ไม่มี session
+  Object.entries(_mBanned).forEach(([uid,bdata])=>{
+    if(_mSessions[uid])return;
+    const bd=typeof bdata==='object'?bdata:{};
+    all.push({uid,nick:bd.nick||bd.displayName||'',email:bd.email||'',photo:bd.photo||'',pid:bd.pid||'',lastSeen:bd.ts||0,online:false,isAdmin:false,isBanned:true});
+  });
+  _membersAll=all;
+  renderMembers();
+  // อัปเดต stat
+  const stEl=$('stUsers');
+  if(stEl)stEl.textContent=Object.keys(_mSessions).length;
+}
+
+function renderMembers(){
+  const q=($('memberSearch')?.value||'').trim().toLowerCase();
+  const filter=$('memberFilter')?.value||'all';
+  let filtered=_membersAll.filter(m=>{
+    if(filter==='online'&&!m.online)return false;
+    if(filter==='banned'&&!m.isBanned)return false;
+    if(filter==='admin'&&!m.isAdmin)return false;
+    if(!q)return true;
+    return m.uid.toLowerCase().includes(q)||m.nick.toLowerCase().includes(q)||m.pid.toLowerCase().includes(q);
+  });
+  filtered.sort((a,b)=>(b.lastSeen||0)-(a.lastSeen||0));
+  const total=filtered.length;
+  const pages=Math.max(1,Math.ceil(total/MEMBERS_PER_PAGE));
+  if(_memberPage>=pages)_memberPage=pages-1;
+  const slice=filtered.slice(_memberPage*MEMBERS_PER_PAGE,(_memberPage+1)*MEMBERS_PER_PAGE);
+  const el=$('membersList');
+  const pi=$('memberPageInfo');
+  const prev=$('memberPrevBtn');
+  const next=$('memberNextBtn');
+  if(!el)return;
+  if(!total){el.innerHTML='<div class="empty">ไม่พบสมาชิก</div>';if(pi)pi.textContent='';if(prev)prev.disabled=true;if(next)next.disabled=true;return;}
+  el.innerHTML=slice.map(m=>{
+    const lastStr=m.lastSeen?new Date(m.lastSeen).toLocaleString('th-TH',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'-';
+    const initials=(m.nick||'?')[0].toUpperCase();
+    const tags=[];
+    if(m.online)tags.push('<span class="tag online">🟢 ออนไลน์</span>');
+    if(m.isAdmin)tags.push('<span class="tag admin">👑 Admin</span>');
+    if(m.isBanned)tags.push('<span class="tag banned">🚫 แบน</span>');
+    const avatarHtml=m.photo
+      ?`<img src="${esc(m.photo)}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'member-avatar',textContent:'${initials}'}))" />`
+      :`<div class="member-avatar">${esc(initials)}</div>`;
+    return `<div class="member-row">
+      ${avatarHtml}
+      <div class="member-info">
+        <div class="member-name">${esc(m.nick||'(ไม่มีชื่อ)')}</div>
+        ${m.email?`<div style="font-size:10.5px;color:var(--t2);margin-top:1px">${esc(m.email)}</div>`:''}
+        <div class="member-meta">UID: ${esc(m.uid.slice(0,12))}… · PID: ${esc(m.pid||'-')}</div>
+        ${tags.length?`<div class="member-badges">${tags.join('')}</div>`:''}
+        <div style="font-size:10px;color:var(--t3);margin-top:2px">เห็นล่าสุด: ${lastStr}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+        <button class="btn-sm btn member-copy-uid" data-uid="${esc(m.uid)}">📋 คัดลอก UID</button>
+        <div style="margin-top:8px;display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+        ${m.isBanned
+          ?`<button class="btn-sm btn ok member-unban-btn" data-uid="${esc(m.uid)}">ปลดแบน</button>`
+          :`<button class="btn-sm btn danger member-ban-btn" data-uid="${esc(m.uid)}" data-nick="${esc(m.nick)}" data-pid="${esc(m.pid)}" ${m.isAdmin?'disabled':''}>แบน</button>`}
+        ${!m.isBanned&&!m.isAdmin?`<button class="btn-sm btn warn member-forcelogout-btn" data-uid="${esc(m.uid)}">Force logout</button>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  if(pi)pi.textContent=`${_memberPage*MEMBERS_PER_PAGE+1}–${Math.min((_memberPage+1)*MEMBERS_PER_PAGE,total)} จาก ${total} คน`;
+  if(prev)prev.disabled=_memberPage<=0;
+  if(next)next.disabled=(_memberPage+1)>=pages;
+}
+function memberPageChange(dir){
+  _memberPage+=dir;
+  renderMembers();
+}
+
+/* ══ MAINTENANCE / ANNOUNCEMENT ══ */
+function listenMaintenance(){
+  _liveRefs.maintenance=db.ref('maintenance');
+  _liveRefs.maintenance.on('value',snap=>{
+    const v=snap.val()||{};
+    $('maintToggle').classList.toggle('on',!!v.enabled);
+    $('maintMsgInput').value=v.msg||'';
+    $('maintBanner').style.display=v.enabled?'block':'none';
+  });
+}
+function toggleMaintenance(){
+  db.ref('maintenance/enabled').once('value').then(snap=>{
+    const cur=!!snap.val();
+    db.ref('maintenance').update({enabled:!cur}).then(()=>{
+      showToast(!cur?'เปิด Maintenance mode 🛠️':'ปิด Maintenance mode ✅');
+    });
+  });
+}
+function saveMaintenanceMsg(){
+  db.ref('maintenance').update({msg:$('maintMsgInput').value.trim()}).then(()=>showToast('บันทึกแล้ว')).catch(e=>showToast('ทำไม่ได้: '+e.message));
+}
+function sendAnnouncement(){
+  const msg=$('annInput').value.trim();
+  if(!msg){showToast('พิมพ์ข้อความก่อนนะ');return;}
+  db.ref('announcements/latest').set({id:'ann_'+Date.now(),msg,ts:Date.now()}).then(()=>{
+    showToast('ส่งประกาศแล้ว 📢');
+    $('annInput').value='';
+  }).catch(e=>showToast('ทำไม่ได้: '+e.message));
+}
+function clearAnnouncement(){
+  if(!confirm('ล้างประกาศล่าสุด?'))return;
+  db.ref('announcements/latest').remove().then(()=>showToast('ล้างประกาศแล้ว')).catch(e=>showToast('ทำไม่ได้: '+e.message));
+}
+
+/* ══ ADMIN PANEL PASSWORD ══ */
+// รหัสผ่านเก็บในรูป SHA-256 hash — ไม่สามารถ reverse ได้แม้ inspect
+const _PASS_HASH='7b24c462ffd6f3b5223966ba89d2dcd73aa5c47317d73d330d9f7fa59dcf3eee';
+let _adminAuth=false;
+let _passModalCb=null;
+
+async function _hashStr(s){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+function _reqAdminPass(cb,desc=''){
+  if(_adminAuth){cb();return;}
+  _passModalCb=cb;
+  $('passModalDesc').textContent=desc||'กรุณาใส่รหัสผ่านผู้ดูแลระบบ';
+  $('passModalErr').textContent='';
+  $('passModalInput').value='';
+  const modal=$('passModal');
+  modal.style.display='flex';
+  setTimeout(()=>$('passModalInput').focus(),80);
+}
+async function _passModalConfirm(){
+  const val=$('passModalInput').value;
+  if(!val){
+    $('passModalErr').style.color='var(--warn)';
+    $('passModalErr').textContent='⚠️ กรอกรหัสผ่านด้วย';
+    return;
+  }
+  const h=await _hashStr(val);
+  if(h===_PASS_HASH){
+    _adminAuth=true;
+    $('passModalErr').style.color='var(--ok)';
+    $('passModalErr').textContent='✅ รหัสผ่านถูกต้อง';
+    setTimeout(()=>{
+      const cb=_passModalCb; // เก็บ callback ก่อน close (close จะ null มัน)
+      _passModalCb=null;
+      $('passModal').style.display='none'; // ปิด modal โดยไม่ผ่าน _passModalClose
+      _adminAuth=false;
+      if(cb)cb();
+    },600);
+  } else {
+    $('passModalErr').style.color='var(--danger)';
+    $('passModalErr').textContent='❌ รหัสผ่านไม่ถูกต้อง';
+    // เขย่า input
+    const inp=$('passModalInput');
+    inp.style.borderColor='var(--danger)';
+    inp.value='';
+    setTimeout(()=>{inp.style.borderColor='';inp.focus();},300);
+  }
+}
+function _passModalClose(){
+  $('passModal').style.display='none';
+  _passModalCb=null;
+}
+
+// Known Google accounts to display in admin list
+const KNOWN_ADMINS_META={
+  // เพิ่ม UID Firebase ของ Google account ที่นี่ → {name, photo}
+  // ตัวอย่าง: 'FIREBASE_UID_HERE':{name:'ชื่อ',photo:'https://...'}
+};
+
+/* ══ ADMINS ══ */
+// Event delegation สำหรับปุ่มลบ admin — ป้องกัน XSS จาก inline onclick
+document.addEventListener('click',e=>{
+  const btn=e.target.closest('.js-remove-admin');
+  if(!btn)return;
+  const uid=btn.dataset.uid;
+  if(uid)_reqAdminPass(()=>removeAdmin(uid));
+});
+
+// Event delegation สำหรับปุ่มปลดแบน — ป้องกัน XSS จาก inline onclick
+document.addEventListener('click',e=>{
+  const btn=e.target.closest('.js-unban');
+  if(!btn)return;
+  const uid=btn.dataset.uid;
+  if(uid)_reqAdminPass(()=>adminUnban(uid));
+});
+
+// Event delegation สำหรับ copy UID ในรายการแบน
+document.addEventListener('click',e=>{
+  const el=e.target.closest('.js-copy-uid');
+  if(!el)return;
+  const uid=el.dataset.uid;
+  if(uid)copyText(uid);
+});
+
+// Event delegation สำหรับปุ่มใน renderMembers() — ป้องกัน XSS จาก inline onclick
+document.addEventListener('click',e=>{
+  const copyBtn=e.target.closest('.member-copy-uid');
+  if(copyBtn){const uid=copyBtn.dataset.uid;if(uid)copyText(uid);return;}
+
+  const banBtn=e.target.closest('.member-ban-btn');
+  if(banBtn){
+    const {uid,nick,pid}=banBtn.dataset;
+    if(uid)adminBan(uid,nick,pid);
+    setTimeout(loadMembers,1000);
+    return;
+  }
+
+  const unbanBtn=e.target.closest('.member-unban-btn');
+  if(unbanBtn){
+    const uid=unbanBtn.dataset.uid;
+    if(uid)_reqAdminPass(()=>{adminUnban(uid);_membersLoaded=false;setTimeout(loadMembers,800);});
+    return;
+  }
+
+  const logoutBtn=e.target.closest('.member-forcelogout-btn');
+  if(logoutBtn){const uid=logoutBtn.dataset.uid;if(uid)adminForceLogout(uid);return;}
+});
+
+function listenAdmins(){
+  _liveRefs.admins=db.ref('admins');
+  _liveRefs.admins.on('value',snap=>{
+    const v=snap.val()||{};
+    const uids=Object.keys(v).filter(uid=>v[uid]===true);
+    const el=$('adminsList');
+    if(!uids.length){el.innerHTML='<div class="empty">ไม่มี admin (ต้องเพิ่มผ่าน Firebase Console ครั้งแรก)</div>';return;}
+    // ดึงข้อมูล userSessions ของทุก UID พร้อมกัน แล้วค่อย render
+    Promise.all(uids.map(uid=>db.ref('userSessions/'+uid).once('value'))).then(snaps=>{
+      el.innerHTML=uids.map((uid,i)=>{
+        const session=snaps[i].val()||{};
+        const isSelf=uid===currentAdmin?.uid;
+        // priority: currentAdmin (ตัวเอง) > userSessions > KNOWN_ADMINS_META
+        const meta=KNOWN_ADMINS_META[uid]||{};
+        const displayName=isSelf?(currentAdmin?.displayName||session.displayName||meta.name||''):(session.displayName||meta.name||'');
+        const photoURL=isSelf?(currentAdmin?.photoURL||session.photo||meta.photo||''):(session.photo||meta.photo||'');
+        const avatarHtml=photoURL
+          ?`<img src="${esc(photoURL)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:1.5px solid rgba(124,156,255,0.35);flex-shrink:0" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><div style="display:none;width:32px;height:32px;border-radius:50%;background:var(--ac-dim);border:1.5px solid rgba(124,156,255,0.3);align-items:center;justify-content:center;font-size:15px;flex-shrink:0">👑</div>`
+          :`<div style="width:32px;height:32px;border-radius:50%;background:var(--ac-dim);border:1.5px solid rgba(124,156,255,0.3);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">👑</div>`;
+        return `<div class="row" style="justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);gap:10px">
+          ${avatarHtml}
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12.5px;font-weight:700;color:var(--t0);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${displayName?esc(displayName):'<span style="color:var(--t3)">(ไม่มีชื่อ)</span>'}${isSelf?' <span style="color:var(--t2);font-size:10px">(คุณ)</span>':''}</div>
+            <div class="mono" style="font-size:10px;color:${isSelf?'var(--ac)':'var(--t3)'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px">${esc(uid)}</div>
+          </div>
+          <button class="btn-sm btn danger js-remove-admin" data-uid="${esc(uid)}" ${isSelf?'disabled':''}>ลบ</button>
+        </div>`;
+      }).join('');
+    }).catch(()=>{
+      // fallback: render โดยไม่มีรูป/ชื่อ
+      el.innerHTML=uids.map(uid=>{
+        const isSelf=uid===currentAdmin?.uid;
+        const meta=KNOWN_ADMINS_META[uid]||{};
+        const displayName=isSelf?(currentAdmin?.displayName||meta.name||''):meta.name||'';
+        return `<div class="row" style="justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);gap:10px">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--ac-dim);border:1.5px solid rgba(124,156,255,0.3);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">👑</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12.5px;font-weight:700;color:var(--t0)">${displayName?esc(displayName):'<span style="color:var(--t3)">(ไม่มีชื่อ)</span>'}${isSelf?' <span style="color:var(--t2);font-size:10px">(คุณ)</span>':''}</div>
+            <div class="mono" style="font-size:10px;color:${isSelf?'var(--ac)':'var(--t3)'}">${esc(uid)}</div>
+          </div>
+          <button class="btn-sm btn danger js-remove-admin" data-uid="${esc(uid)}" ${isSelf?'disabled':''}>ลบ</button>
+        </div>`;
+      }).join('');
+    });
+  });
+}
+function addAdminByUid(){
+  const uid=$('newAdminUid').value.trim();
+  if(!uid){showToast('กรอก UID ก่อน');return;}
+  _reqAdminPass(()=>{
+    db.ref('admins/'+uid).set(true).then(()=>{showToast('เพิ่ม admin แล้ว ✅');$('newAdminUid').value='';}).catch(e=>showToast('ทำไม่ได้: '+e.message));
+  });
+}
+function removeAdmin(uid){
+  db.ref('admins/'+uid).remove().then(()=>showToast('ถอดสิทธิ์แล้ว')).catch(e=>showToast('ทำไม่ได้: '+e.message));
+}
+
+/* ══ BANNED LIST ══ */
+let _bannedCache=[];
+function listenBanned(){
+  if(_liveRefs.banned)_liveRefs.banned.off();
+  _liveRefs.banned=db.ref('banned');
+  _liveRefs.banned.on('value',snap=>{
+    const v=snap.val()||{};
+    _bannedCache=Object.entries(v).filter(([uid,d])=>d===true||(d&&d.banned));
+    renderBanned();
+  });
+}
+function renderBanned(){
+  const el=$('bannedList');
+  const q=($('bannedSearch')?.value||'').trim().toLowerCase();
+  const entries=q
+    ?_bannedCache.filter(([uid,data])=>{
+        const d=typeof data==='object'?data:{};
+        return uid.toLowerCase().includes(q)||(d.nick||'').toLowerCase().includes(q)||(d.pid||'').toLowerCase().includes(q);
+      })
+    :_bannedCache;
+  if(!_bannedCache.length){el.innerHTML='<div class="empty">ไม่มีบัญชีที่ถูกแบน</div>';return;}
+  if(!entries.length){el.innerHTML='<div class="empty">ไม่พบผลลัพธ์</div>';return;}
+  el.innerHTML=entries.map(([uid,data])=>{
+    const d=typeof data==='object'?data:{};
+    const nick=d.nick||'';
+    const pid=d.pid||'';
+    const tsStr=d.ts?new Date(d.ts).toLocaleString('th-TH',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}):'-';
+    return `<div class="banned-row">
+      <div class="banned-avatar">🚫</div>
+      <div class="banned-info">
+        <div class="banned-name">${nick?esc(nick):'<span style="color:var(--t3)">(ไม่มีชื่อ)</span>'}</div>
+        <div class="banned-uid js-copy-uid" data-uid="${esc(uid)}" title="${esc(uid)}" style="cursor:pointer">UID: ${esc(uid)}</div>
+        ${pid?`<div class="banned-pid">PID: ${esc(pid)}</div>`:''}
+        <div style="font-size:9.5px;color:var(--t3)">แบนเมื่อ: ${tsStr}</div>
+      </div>
+      <button class="btn-sm btn ok js-unban" data-uid="${esc(uid)}">ปลดแบน</button>
+    </div>`;
+  }).join('');
+}
+</script>
+</body>
+</html>

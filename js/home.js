@@ -130,7 +130,7 @@ function _adminStatsCompute(rooms){
   el.innerHTML=`
     <div style="background:var(--card2);border-radius:var(--r);padding:12px 14px;border:1px solid var(--line)">
       <div style="font-size:24px;font-weight:900;color:var(--ac)">${activeRooms}</div>
-      <div style="font-size:12px;color:var(--t2);margin-top:2px">ห้องที่เปิดอยู่</div>
+      <div style="font-size:12px;color:var(--t2);margin-top:2px">วงที่เปิดอยู่</div>
     </div>
     <div style="background:var(--card2);border-radius:var(--r);padding:12px 14px;border:1px solid var(--line)">
       <div style="font-size:24px;font-weight:900;color:var(--ok)">${totalPlayers}</div>
@@ -145,7 +145,7 @@ function renderAdminStats(){
     el.innerHTML=`
     <div style="background:var(--card2);border-radius:var(--r);padding:12px 14px;border:1px solid var(--line)">
       <div style="font-size:24px;font-weight:900;color:var(--ac)">—</div>
-      <div style="font-size:12px;color:var(--t2);margin-top:2px">ห้องที่เปิดอยู่</div>
+      <div style="font-size:12px;color:var(--t2);margin-top:2px">วงที่เปิดอยู่</div>
     </div>
     <div style="background:var(--card2);border-radius:var(--r);padding:12px 14px;border:1px solid var(--line)">
       <div style="font-size:24px;font-weight:900;color:var(--ok)">—</div>
@@ -215,9 +215,9 @@ function cleanupRooms(){
       const onlinePlayers=Object.values(players).filter(p=>p&&p.name&&p.online!==false);
       if(onlinePlayers.length===0)toDelete.push(k);
     });
-    if(!toDelete.length){showToast('ไม่มีห้องที่ต้องล้าง ✅');return;}
+    if(!toDelete.length){showToast('ไม่มีวงที่ต้องล้าง ✅');return;}
     Promise.all(toDelete.map(k=>db.ref('rooms/'+k).remove())).then(()=>{
-      showToast('ลบ '+toDelete.length+' ห้องแล้ว 🗑️');
+      showToast('ลบ '+toDelete.length+' วงแล้ว 🗑️');
       renderAdminStats();
     }).catch(err=>showToast('ลบไม่ได้: '+err.message));
   });
@@ -227,7 +227,7 @@ function cleanupRooms(){
 const CHEVRON_SVG='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 5 16 12 9 19"/></svg>';
 const REFRESH_SVG='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>';
 const HOME_GAMES_CONFIG=[
-  {id:'ww',    label:'🎲 ต้องสร้างห้อง', icon:'🐯', bg:'linear-gradient(135deg,#f87171,#b91c1c)', name:'คืนสมิง',      desc:'4–18 คน · แจกไพ่บทบาท',     action:"openJoinModal('ww')",    solo:false},
+  {id:'ww',    label:'🎲 ต้องสร้างวง', icon:'🐯', bg:'linear-gradient(135deg,#f87171,#b91c1c)', name:'คืนสมิง',      desc:'4–18 คน · แจกไพ่บทบาท',     action:"openJoinModal('ww')",    solo:false},
   {id:'spyfall',label:null,               icon:'🕵️', bg:'linear-gradient(135deg,#c084fc,#9333ea)', name:'สายลับกลางวง',   desc:'3+ คน · หาสายลับ',           action:"openJoinModal('spyfall')",solo:false},
   {id:'king',   label:null,               icon:'👑', bg:'linear-gradient(135deg,#fb923c,#c2410c)', name:"King's Game",    desc:'3+ คน · ราชาสั่ง',           action:"openJoinModal('king')",  solo:false},
   {id:'salem',  label:null,               icon:'🧙', bg:'linear-gradient(135deg,#a78bfa,#7c3aed)', name:'Salem 1692',      desc:'4–12 คน · ไพ่ชีวิต',        action:"openJoinModal('salem')", solo:false},

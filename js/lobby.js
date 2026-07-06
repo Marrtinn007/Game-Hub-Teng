@@ -10,7 +10,7 @@ const _JOIN_MODAL_META={
 let _joinModalGame=null;
 function openJoinModal(type){
   _joinModalGame=type;
-  const meta=_JOIN_MODAL_META[type]||{icon:'🔑',title:'เข้าร่วมห้อง',desc:'ใส่รหัสห้องที่เพื่อนส่งมา'};
+  const meta=_JOIN_MODAL_META[type]||{icon:'🔑',title:'เข้าร่วมวง',desc:'ใส่รหัสวงที่เพื่อนส่งมา'};
   const icon=$('modalJoinIcon'),title=$('modalJoinTitle'),desc=$('modalJoinDesc');
   if(icon)icon.textContent=meta.icon;
   if(title)title.textContent=meta.title;
@@ -46,7 +46,7 @@ function launchSolo(type){
 }
 function confirmCreateRoom(){
   const i=$('roomNameInput'),name=i?i.value.trim():'';
-  if(!name){showToast('ตั้งชื่อห้องด้วยนะ');return}
+  if(!name){showToast('ตั้งชื่อวงด้วยนะ');return}
   const ni=$('hostNickInput'),nick=ni?ni.value.trim():'';
   if(!nick){showToast('ใส่ชื่อของคุณด้วยนะ');return}
   if(nick.length>12){showToast('ชื่อยาวเกินไป');return}
@@ -69,19 +69,19 @@ function joinRoom(){
   const raw=i?i.value:'';
   const code=raw.replace(/[^A-Za-z0-9]/g,'').toUpperCase().slice(0,6);
   if(i)i.value=code;// อัปเดต input ให้ตรงกับค่าจริง
-  if(code.length<4){showToast('ใส่รหัสห้องด้วยนะ');return}
+  if(code.length<4){showToast('ใส่รหัสวงด้วยนะ');return}
   if(!firebaseReady){showToast('กำลังเชื่อมต่อ...');return}
-  showToast('กำลังค้นหาห้อง...',3000);
+  showToast('กำลังค้นหาวง...',3000);
   // เช็คที่ rooms/${code} โดยตรง (ไม่ใช่ /players) เพื่อรองรับห้องที่ Host เพิ่งสร้างและยังไม่มี player
   db.ref('rooms/'+code).once('value').then(snap=>{
     if(!snap.exists()){
-      showToast('❌ ไม่พบห้อง "'+code+'"');
+      showToast('❌ ไม่พบวง "'+code+'"');
       return;
     }
     S.pendingRoomCode=code;S.isHost=false;
     closeModal('modal-join');
     logEvent('join_room',{code,nick:S.nickname||''});
-    const lb=$('nickRoomLabel');if(lb)lb.textContent='ห้อง: '+code;
+    const lb=$('nickRoomLabel');if(lb)lb.textContent='วง: '+code;
     const bb=$('nickBackBtn');if(bb)bb.setAttribute('onclick','openJoinModal(_joinModalGame||"ww")');
     const ni=$('nickInput');if(ni){ni.value='';setTimeout(()=>ni.focus(),300);}
     showScreen('screen-nick');
@@ -112,14 +112,14 @@ function enterLobby(){
     // ใช้ offline mode — ไม่มี Firebase แต่เล่นคนเดียวได้
     showScreen('screen-lobby');
     const ce=$('lobbyCode'),se=$('shareCode'),rn=$('lobbyRoomName');
-    if(ce)ce.textContent='ห้อง · LOCAL';
+    if(ce)ce.textContent='วง · LOCAL';
     if(se)se.textContent='LOCAL';
-    if(rn)rn.textContent=S.roomName||'Game Hub Teng';
+    if(rn)rn.textContent=S.roomName||'WongPlay';
     renderLobbyUI();
     return;
   }
   const ce=$('lobbyCode'),se=$('shareCode');
-  if(ce)ce.textContent=`ห้อง · ${S.roomCode}`;if(se)se.textContent=S.roomCode;
+  if(ce)ce.textContent=`วง · ${S.roomCode}`;if(se)se.textContent=S.roomCode;
   if(roomRef){roomRef.off();roomRef=null}if(gameRef){gameRef.off();gameRef=null}
   if(wwRef){wwRef.off();wwRef=null}
   // ลบ node เก่าของตัวเองที่ค้างอยู่ (online:false หรือถูกเตะ) ก่อน join ใหม่
@@ -223,7 +223,7 @@ function enterLobby(){
         roomRef=gameRef=wwRef=null;
         Object.assign(S,{roomCode:null,roomName:null,nickname:null,players:[],selectedGame:null,myPlayerId:null,isHost:false});
         if(currentUser?.uid)db.ref('userSessions/'+currentUser.uid+'/activeRoom').remove().catch(()=>{});
-        showToast('คุณถูกเตะออกจากห้อง',3500);
+        showToast('คุณถูกเตะออกจากวง',3500);
         showScreen('screen-home');
       });
     }
@@ -239,7 +239,7 @@ function enterLobby(){
       [roomRef,gameRef,wwRef].forEach(r=>r?.off());
       roomRef=gameRef=wwRef=null;
       Object.assign(S,{roomCode:null,roomName:null,nickname:null,players:[],selectedGame:null,myPlayerId:null,isHost:false});
-      showToast('ห้องถูกปิดแล้ว',3000);
+      showToast('วงถูกปิดแล้ว',3000);
       showScreen('screen-home');
       return;
     }
@@ -253,7 +253,7 @@ function enterLobby(){
     const me=S.players.find(p=>p.id===S.myPlayerId);
     if(me&&me.isHost!==S.isHost){
       S.isHost=!!me.isHost;
-      if(S.isHost)showToast('คุณเป็นหัวห้องแล้ว 👑',3000);
+      if(S.isHost)showToast('คุณเป็นเจ้าของวงแล้ว 👑',3000);
     }
     // ── Auto-promote: ถ้าไม่มี Host เลยในห้อง ให้คนที่ joinedAt เก่าสุดรับตำแหน่ง ──
     // delay 2.5s ก่อน promote — ให้เครื่องใหม่ที่ rejoin มีเวลาเข้ามาแทนที่ก่อน
@@ -274,7 +274,7 @@ function enterLobby(){
           if(oldest.id===S.myPlayerId){
             S.isHost=true;
             db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}/isHost`).set(true)
-              .then(()=>showToast('คุณเป็นหัวห้องแล้ว 👑',3000))
+              .then(()=>showToast('คุณเป็นเจ้าของวงแล้ว 👑',3000))
               .catch(()=>{});
           }
         }).catch(()=>{});
@@ -480,7 +480,7 @@ function leaveRoom(){
 const _transferMap=new Map();
 function openTransferHost(){
   const others=S.players.filter(p=>!p.isHost&&p.name);
-  if(!others.length){showToast('ไม่มีผู้เล่นอื่นในห้อง');return;}
+  if(!others.length){showToast('ไม่มีผู้เล่นอื่นในวง');return;}
   _transferMap.clear();
   const list=$('transferPlayerList');
   if(list){
@@ -501,7 +501,7 @@ function confirmTransferHost(key){
   if(!firebaseReady||!S.roomCode){showToast('เชื่อมต่อไม่ได้');return;}
   // verify สิทธิ์จาก Firebase ก่อนโอน
   db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}/isHost`).once('value').then(snap=>{
-    if(snap.val()!==true){showToast('คุณไม่ใช่หัวห้องแล้ว');return;}
+    if(snap.val()!==true){showToast('คุณไม่ใช่เจ้าของวงแล้ว');return;}
     const updates={};
     updates[`${target.id}/isHost`]=true;
     updates[`${S.myPlayerId}/isHost`]=false;
@@ -509,7 +509,7 @@ function confirmTransferHost(key){
       S.isHost=false;
       $('transferHostOverlay')?.classList.remove('show');
       $('leaveConfirmOverlay')?.classList.remove('show');
-      showToast('โอนหัวห้องให้ '+target.name+' แล้ว ✅');
+      showToast('โอนเจ้าของวงให้ '+target.name+' แล้ว ✅');
       renderPlayers();renderLobbyUI();
     }).catch(err=>showToast('โอนไม่ได้: '+err.message));
   }).catch(()=>showToast('เชื่อมต่อไม่ได้ ลองใหม่'));
