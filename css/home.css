@@ -2,9 +2,9 @@
 /* ══ HOME ══ */
 #screen-home{padding-bottom:3rem;position:relative}
 .home-topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px var(--pad) 0}
-.home-topbar-brand{display:flex;align-items:center;gap:11px;font-size:18px;font-weight:700;color:var(--t2);letter-spacing:0.01em}
-.home-topbar-brand b{color:var(--t0);font-weight:800}
-.brand-logo-icon{width:56px;height:56px;flex-shrink:0;background-image:url('../img/img2.png');background-size:contain;background-position:center;background-repeat:no-repeat}
+.home-topbar-brand{display:flex;align-items:center;gap:12px;font-size:20px;font-weight:800;color:var(--t0);letter-spacing:-0.02em}
+.home-topbar-brand b{color:var(--ac);font-weight:900}
+.brand-logo-icon{width:56px;height:56px;flex-shrink:0;background-image:url('../img/img2.png');background-size:contain;background-position:center;background-repeat:no-repeat;filter:drop-shadow(0 3px 10px rgba(0,0,0,0.3))}
 .brand-logo-icon-lg{width:64px;height:64px;background-image:url('../img/img2.png');background-size:contain;background-position:center;background-repeat:no-repeat}
 .brand-logo-lockup{width:96px;height:96px;margin:0 auto 1rem;background-image:url('../img/img2.png');background-size:contain;background-position:center;background-repeat:no-repeat}
 .login-title{font-size:26px;font-weight:900;color:var(--t0);margin-bottom:6px}
