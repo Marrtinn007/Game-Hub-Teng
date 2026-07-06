@@ -4,9 +4,9 @@
 .home-topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px var(--pad) 0}
 .home-topbar-brand{display:flex;align-items:center;gap:11px;font-size:18px;font-weight:700;color:var(--t2);letter-spacing:0.01em}
 .home-topbar-brand b{color:var(--t0);font-weight:800}
-.brand-logo-icon{width:56px;height:56px;flex-shrink:0;background-image:url('../img/img2.png?v=2');background-size:contain;background-position:center;background-repeat:no-repeat}
-.brand-logo-icon-lg{width:64px;height:64px;background-image:url('../img/img2.png?v=2');background-size:contain;background-position:center;background-repeat:no-repeat}
-.brand-logo-lockup{width:96px;height:96px;margin:0 auto 1rem;background-image:url('../img/img2.png?v=2');background-size:contain;background-position:center;background-repeat:no-repeat}
+.brand-logo-icon{width:56px;height:56px;flex-shrink:0;background-image:url('../img/logo2.png?v=1');background-size:contain;background-position:center;background-repeat:no-repeat}
+.brand-logo-icon-lg{width:64px;height:64px;background-image:url('../img/logo2.png?v=1');background-size:contain;background-position:center;background-repeat:no-repeat}
+.brand-logo-lockup{width:96px;height:96px;margin:0 auto 1rem;background-image:url('../img/logo2.png?v=1');background-size:contain;background-position:center;background-repeat:no-repeat}
 .login-title{font-size:26px;font-weight:900;color:var(--t0);margin-bottom:6px}
 .home-hero{padding:14px var(--pad) 1.5rem}
 .home-hero-card{
