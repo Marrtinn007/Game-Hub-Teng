@@ -77,6 +77,16 @@ function copyMyPid(){
   if(!myPid)return;
   navigator.clipboard?.writeText(myPid).then(()=>showToast('คัดลอก Player ID แล้ว')).catch(()=>{});
 }
+const DONATE_PROMPTPAY_ID='086-448-5001';
+function openDonateModal(){
+  const el=document.getElementById('donatePpId');
+  if(el)el.textContent=DONATE_PROMPTPAY_ID;
+  openModal('modal-donate');
+}
+function copyDonatePid(){
+  const num=DONATE_PROMPTPAY_ID.replace(/[^0-9]/g,'');
+  navigator.clipboard?.writeText(num).then(()=>showToast('คัดลอกเบอร์พร้อมเพย์แล้ว 🍵')).catch(()=>{});
+}
 /* ══ LOG EVENTS (เขียนไป /logs สำหรับ admin) ══ */
 function logEvent(action,detail){
   if(!db)return;
