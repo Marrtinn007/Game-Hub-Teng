@@ -1,20 +1,23 @@
 /* ══ WW ROLE INFO ════════════════════════ */
+const WW_TEAM_HEX={good:'#4eca8b',evil:'#f06e7a',solo:'#f0c060'};
+function wwTeamHex(team){return WW_TEAM_HEX[team]||'#7c9cff';}
+function hexAlpha(hex,a){const n=parseInt(hex.slice(1),16);return`rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;}
 function showRoleInfo(r,event){
   event&&event.stopPropagation();
   const role=WW[r];if(!role)return;
-  const teamColors={good:'var(--ok)',evil:'var(--danger)',solo:'var(--warn)'}[role.team]||'var(--ac)';
+  const teamHex=wwTeamHex(role.team);
   const teamLabel={good:'🏡 ฝ่ายชาวบ้าน',evil:'🐯 ฝ่ายสมิง',solo:'⚖️ ฝ่ายอิสระ'}[role.team]||'🏡 ฝ่ายชาวบ้าน';
   const pts=role.pts||0;const ptsStr=pts>0?`+${pts}`:String(pts);
-  const ptsColor=pts>0?'var(--ok)':pts<0?'var(--danger)':'var(--t2)';
+  const ptsHex=pts>0?'#4eca8b':pts<0?'#f06e7a':null;
   const box=$('roleInfoContent');if(!box)return;
   box.innerHTML=`
     <div style="text-align:center;margin-bottom:1.25rem">
-      <div style="font-size:60px;margin-bottom:8px;line-height:1">${role.e}</div>
+      <div style="display:inline-flex;align-items:center;justify-content:center;width:96px;height:96px;border-radius:50%;background:${hexAlpha(teamHex,0.14)};border:2px solid ${hexAlpha(teamHex,0.4)};font-size:52px;line-height:1;margin-bottom:8px">${role.e}</div>
       <div style="font-size:24px;font-weight:900;color:var(--t0)">${role.name}</div>
       <div style="font-size:14px;color:var(--t2);margin-top:3px">${role.en}</div>
       <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px">
-        <span style="display:inline-block;padding:5px 16px;border-radius:var(--r-pill);font-size:13px;font-weight:800;background:${teamColors}20;color:${teamColors};border:1px solid ${teamColors}40">${teamLabel}</span>
-        <span style="display:inline-block;padding:5px 16px;border-radius:var(--r-pill);font-size:13px;font-weight:900;background:${ptsColor}18;color:${ptsColor};border:1px solid ${ptsColor}35">แต้ม ${ptsStr}</span>
+        <span style="display:inline-block;padding:5px 16px;border-radius:var(--r-pill);font-size:13px;font-weight:800;background:${hexAlpha(teamHex,0.18)};color:${teamHex};border:1px solid ${hexAlpha(teamHex,0.4)}">${teamLabel}</span>
+        <span style="display:inline-block;padding:5px 16px;border-radius:var(--r-pill);font-size:13px;font-weight:900;background:${ptsHex?hexAlpha(ptsHex,0.18):'var(--card2)'};color:${ptsHex||'var(--t2)'};border:1px solid ${ptsHex?hexAlpha(ptsHex,0.4):'var(--line)'}">แต้ม ${ptsStr}</span>
       </div>
     </div>
     <div style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--r-s);padding:1rem 1.25rem;margin-bottom:0.875rem;backdrop-filter:var(--blur-sm)">
@@ -73,11 +76,12 @@ function renderWWSetup(){
     </div>
     ${WW_TEAMS.map(t=>{
       const open=!!S.wwExpandedTeams[t.id];
+      const tc=wwTeamHex(t.id);
       return`<div class="ww-team-group">
-        <button class="ww-team-header${open?' open':''}" onclick="toggleWWTeam('${t.id}')">
+        <button class="ww-team-header${open?' open':''}" style="border-color:${open?tc:hexAlpha(tc,0.35)};color:${tc};${open?`background:${hexAlpha(tc,0.14)}`:''}" onclick="toggleWWTeam('${t.id}')">
           <span class="ww-team-header-label">${t.label}</span>
-          <span class="ww-team-tab-count" id="wwTabCount-${t.id}">${teamCount(t.roles)}</span>
-          <span class="ww-team-chevron"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+          <span class="ww-team-tab-count" id="wwTabCount-${t.id}" style="color:${tc};background:${hexAlpha(tc,0.18)}">${teamCount(t.roles)}</span>
+          <span class="ww-team-chevron" style="color:${tc}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
         ${open?`<div class="ww-roles-list">${t.roles.map(r=>renderRoleChip(r)).join('')}</div>`:''}
       </div>`;
@@ -94,14 +98,15 @@ function renderRoleChip(r){
   const count=S.wwRoleCounts[r]||0;
   const teamLabel={good:'ฝ่ายชาวบ้าน',evil:'ฝ่ายสมิง',solo:'ฝ่ายอิสระ'}[role.team]||'ฝ่ายชาวบ้าน';
   const pts=role.pts||0;const ptsStr=pts>0?`+${pts}`:String(pts);
-  const ptsColor=pts>0?'var(--ok)':pts<0?'var(--danger)':'var(--t2)';
-  return`<div class="ww-role-chip ${count>0?' has':''}">
-    <div class="ww-role-chip-icon" onclick="showRoleInfo('${r}',event)">${role.e}</div>
+  const ptsHex=pts>0?'#4eca8b':pts<0?'#f06e7a':null;
+  const tc=wwTeamHex(role.team);
+  return`<div class="ww-role-chip${count>0?' has':''}" style="border-left:3px solid ${tc};${count>0?`background:${hexAlpha(tc,0.14)};border-color:${tc}`:''}">
+    <div class="ww-role-chip-icon" style="background:${hexAlpha(tc,0.14)}" onclick="showRoleInfo('${r}',event)">${role.e}</div>
     <div class="ww-role-chip-info" onclick="showRoleInfo('${r}',event)">
       <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
         <span class="ww-role-chip-name">${role.name}</span>
         <span style="font-size:12px;color:var(--t2);font-weight:400">${role.en}</span>
-        <span style="font-size:11px;font-weight:900;color:${ptsColor};background:${ptsColor}18;padding:1px 8px;border-radius:var(--r-pill)">${ptsStr}</span>
+        <span style="font-size:11px;font-weight:900;color:${ptsHex||'var(--t2)'};background:${ptsHex?hexAlpha(ptsHex,0.18):'var(--card2)'};padding:1px 8px;border-radius:var(--r-pill)">${ptsStr}</span>
       </div>
       <div class="ww-role-chip-sub">${teamLabel} · ${role.short}</div>
     </div>

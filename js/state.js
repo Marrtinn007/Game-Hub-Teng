@@ -29,6 +29,16 @@ const S={
   spyLocation:null,spyRole:null,spyIsSpy:false,spyFlipped:false,spyNumSpies:1,spyTimer:null,spyTimeLeft:0,spyDealt:false,
 };
 
+/* ══ SESSION ROOM (จำวงไว้ในแท็บนี้ เพื่อกดรีเฟรชแล้วกลับมาห้องเดิม) ══ */
+function saveSessionRoom(){
+  try{
+    if(S.roomCode)sessionStorage.setItem('wp_session_room',JSON.stringify({code:S.roomCode,nick:S.nickname,isHost:!!S.isHost}));
+  }catch(e){}
+}
+function clearSessionRoom(){
+  try{sessionStorage.removeItem('wp_session_room');}catch(e){}
+}
+
 /* ══ UTILS ═══════════════════════════════ */
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -77,15 +87,8 @@ function copyMyPid(){
   if(!myPid)return;
   navigator.clipboard?.writeText(myPid).then(()=>showToast('คัดลอก Player ID แล้ว')).catch(()=>{});
 }
-const DONATE_PROMPTPAY_ID='086-448-5001';
 function openDonateModal(){
-  const el=document.getElementById('donatePpId');
-  if(el)el.textContent=DONATE_PROMPTPAY_ID;
   openModal('modal-donate');
-}
-function copyDonatePid(){
-  const num=DONATE_PROMPTPAY_ID.replace(/[^0-9]/g,'');
-  navigator.clipboard?.writeText(num).then(()=>showToast('คัดลอกเบอร์พร้อมเพย์แล้ว 🍵')).catch(()=>{});
 }
 /* ══ LOG EVENTS (เขียนไป /logs สำหรับ admin) ══ */
 function logEvent(action,detail){

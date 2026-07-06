@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!-- ════════════════════════════════════════════════════════════════
-     WONGPLAY  —  v14.33
+     WONGPLAY  —  v14.35
      ────────────────────────────────────────────────────────────
      AI HANDOFF NOTE (สำหรับ AI ที่รับงานต่อ):
-     - เวอร์ชันปัจจุบัน: v14.33
+     - เวอร์ชันปัจจุบัน: v14.35
      - เพิ่มเวอร์ชัน +0.1 ทุกครั้งที่แก้ไข (v11 → v11.1 → v11.2 ...)
      - อัปเดต id="versionLabel" (อยู่ในเมนูโปรไฟล์) ด้วยทุกครั้ง
      ════════════════════════════════════════════════════════════════ -->
@@ -129,17 +129,12 @@
 <div class="modal-overlay" id="modal-donate" onclick="closeModalOutside(event,'modal-donate')">
   <div class="modal-sheet"><div class="modal-handle"></div>
     <div class="modal-title">🍵 เลี้ยงชาเขียวคนทำแอป</div>
-    <div style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:14px">ขอบคุณที่เล่น WongPlay นะ ถ้าชอบแอปนี้ เลี้ยงชาเขียวเป็นกำลังใจให้คนทำได้ที่นี่เลย 🙏</div>
-    <div style="background:#fff;border-radius:var(--r-l);padding:16px;display:flex;justify-content:center;margin-bottom:14px">
-      <img src="img/promptpay-qr.png" alt="PromptPay QR" style="width:100%;max-width:220px;display:block" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/>
+    <div style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:14px">ขอบคุณที่เล่น WongPlay นะ🙏</div>
+    <div style="background:#fff;border-radius:var(--r-l);padding:16px;display:flex;justify-content:center;margin-bottom:16px">
+      <img src="img/qr_pp.png" alt="PromptPay QR" style="width:100%;max-width:220px;display:block" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/>
       <div style="display:none;font-size:13px;color:#888;text-align:center;padding:40px 10px">ยังไม่ได้ใส่รูป QR</div>
     </div>
-    <div style="text-align:center;margin-bottom:16px">
-      <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--t3);text-transform:uppercase;margin-bottom:6px">เบอร์พร้อมเพย์</div>
-      <div id="donatePpId" onclick="copyDonatePid()" style="display:inline-block;font-size:20px;font-weight:800;color:var(--ac);letter-spacing:0.04em;cursor:pointer;padding:6px 14px;border-radius:var(--r-pill);background:var(--card2)" title="แตะเพื่อคัดลอก">086-448-5001</div>
-    </div>
     <div style="display:flex;gap:10px">
-      <button class="btn btn-sf" style="flex:1;height:52px;font-size:15px" onclick="copyDonatePid()">คัดลอกเบอร์พร้อมเพย์</button>
       <button class="btn btn-ac" style="flex:1;height:52px;font-size:15px" onclick="closeModal('modal-donate')">ปิด</button>
     </div>
   </div>
@@ -244,7 +239,7 @@
               <div id="profileDropPid" onclick="copyMyPid()" style="font-size:11px;color:var(--ac);font-weight:700;letter-spacing:0.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;margin-top:3px" title="แตะเพื่อคัดลอก Player ID"></div>
             </div>
           </div>
-          <span id="versionLabel" style="flex-shrink:0;font-size:10px;font-weight:700;color:var(--t3);background:var(--card2);padding:4px 9px;border-radius:var(--r-pill);white-space:nowrap;border:1px solid var(--line)">v14.33</span>
+          <span id="versionLabel" style="flex-shrink:0;font-size:10px;font-weight:700;color:var(--t3);background:var(--card2);padding:4px 9px;border-radius:var(--r-pill);white-space:nowrap;border:1px solid var(--line)">v14.35</span>
         </div>
         <!-- Theme section -->
         <div style="padding:2px 4px 4px">

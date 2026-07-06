@@ -138,6 +138,7 @@ function enterLobby(){
       }).catch(()=>{});
     }
     setupLobbyListeners(playerRef);
+    saveSessionRoom();
   };
   // ถ้ามี uid ให้ลบ node เก่า + เพิ่ม node ใหม่แบบ atomic ในคำสั่งเดียว
   // ป้องกัน race condition ที่ทำให้มี isHost:true 2 node พร้อมกัน
@@ -222,6 +223,7 @@ function enterLobby(){
         [roomRef,gameRef,wwRef].forEach(r=>r?.off());
         roomRef=gameRef=wwRef=null;
         Object.assign(S,{roomCode:null,roomName:null,nickname:null,players:[],selectedGame:null,myPlayerId:null,isHost:false});
+        clearSessionRoom();
         if(currentUser?.uid)db.ref('userSessions/'+currentUser.uid+'/activeRoom').remove().catch(()=>{});
         showToast('คุณถูกเตะออกจากวง',3500);
         showScreen('screen-home');
@@ -239,6 +241,7 @@ function enterLobby(){
       [roomRef,gameRef,wwRef].forEach(r=>r?.off());
       roomRef=gameRef=wwRef=null;
       Object.assign(S,{roomCode:null,roomName:null,nickname:null,players:[],selectedGame:null,myPlayerId:null,isHost:false});
+      clearSessionRoom();
       showToast('วงถูกปิดแล้ว',3000);
       showScreen('screen-home');
       return;
@@ -287,7 +290,7 @@ function enterLobby(){
       _lobbyShown=true;
       showScreen('screen-lobby');
     }
-    renderPlayers();renderLobbyUI();
+    renderPlayers();renderLobbyUI();saveSessionRoom();
   });
   gameRef=db.ref(`rooms/${S.roomCode}/game`);
   gameRef.on('value',snap=>{
@@ -466,6 +469,7 @@ function leaveRoom(){
     roomRef=gameRef=wwRef=null;
     if(currentUser?.uid)db.ref('userSessions/'+currentUser.uid+'/activeRoom').remove().catch(()=>{});
     Object.assign(S,{roomCode:null,roomName:null,nickname:null,players:[],selectedGame:null,myPlayerId:null,isHost:false});
+    clearSessionRoom();
     showScreen('screen-home');
   };
   if(firebaseReady&&S.myPlayerId&&S.roomCode){

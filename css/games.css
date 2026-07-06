@@ -20,7 +20,7 @@
 @keyframes wwGroupOpen{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 .ww-role-chip{padding:12px 14px;border-radius:var(--r-s);display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-top:1px solid rgba(255,255,255,0.05);box-shadow:0 2px 0 rgba(0,0,0,0.25);transition:all 0.15s var(--spring)}
 .ww-role-chip.has{border-color:var(--ac);background:var(--ac-dim)}
-.ww-role-chip-icon{font-size:22px;flex-shrink:0;cursor:pointer}
+.ww-role-chip-icon{font-size:20px;flex-shrink:0;cursor:pointer;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center}
 .ww-role-chip-info{flex:1;min-width:0;cursor:pointer}
 .ww-role-chip-name{font-size:16px;font-weight:700;color:var(--t0)}
 .ww-role-chip-sub{font-size:11px;color:var(--t2);margin-top:3px;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;font-weight:400}
