@@ -215,27 +215,13 @@ body::before{
 .kick-btn:active{transform:scale(0.88)!important}
 
 /* ── iPad / Large screens (768px+) ── */
+/* (กฎ layout หน้าโฮมย้ายไปรวมที่ css/home.css ที่เดียว — ห้ามใส่กฎ .home-* ที่นี่ เพราะไฟล์นี้โหลดทีหลังจะทับ) */
 @media(min-width:768px){
-  #screen-home{
-    min-height:100dvh;
-    justify-content:flex-start;
-    align-items:center;
-    padding-top:2.5rem;
-  }
-  .home-topbar,.home-hero,.home-section{
-    width:100%;max-width:520px;
-    margin-left:auto;margin-right:auto;
-  }
-  .home-topbar{padding:0 0 1rem}
-  .home-hero{padding:0 0 1.25rem}
-  .home-section{padding-left:0;padding-right:0}
   .modal-overlay{padding:2rem}
 }
 
 /* ── Desktop (1100px+) ── */
 @media(min-width:1100px){
-  .home-topbar,.home-hero,.home-section{max-width:580px}
-
   #wheelCanvas{
     width:min(640px,min(56vw,80vh)) !important;
     max-width:640px;

@@ -227,12 +227,12 @@ function cleanupRooms(){
 const CHEVRON_SVG='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 5 16 12 9 19"/></svg>';
 const REFRESH_SVG='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>';
 const HOME_GAMES_CONFIG=[
-  {id:'ww',    label:'🎲 ต้องสร้างวง', icon:'🐯', bg:'linear-gradient(135deg,#f87171,#b91c1c)', name:'คืนสมิง',      desc:'4–18 คน · แจกไพ่บทบาท',     action:"openJoinModal('ww')",    solo:false},
-  {id:'spyfall',label:null,               icon:'🕵️', bg:'linear-gradient(135deg,#c084fc,#9333ea)', name:'สายลับกลางวง',   desc:'3+ คน · หาสายลับ',           action:"openJoinModal('spyfall')",solo:false},
-  {id:'king',   label:null,               icon:'👑', bg:'linear-gradient(135deg,#fb923c,#c2410c)', name:"King's Game",    desc:'3+ คน · ราชาสั่ง',           action:"openJoinModal('king')",  solo:false},
-  {id:'salem',  label:null,               icon:'🧙', bg:'linear-gradient(135deg,#a78bfa,#7c3aed)', name:'Salem 1692',      desc:'4–12 คน · ไพ่ชีวิต',        action:"openJoinModal('salem')", solo:false},
-  {id:'wheel',  label:'⚡ เริ่มได้เลย',   icon:'🎡', bg:'linear-gradient(135deg,#4ade80,#16a34a)',name:'วงล้อ',           desc:'ตัดสินใจแทนคุณได้เลย',      action:"launchSolo('wheel')",    solo:true},
-  {id:'cards',  label:null,               icon:'🃏', bg:'linear-gradient(135deg,#fda4af,#e11d48)',name:'ไพ่เฮฮา',        desc:'ชาเลนจ์สนุกๆ ในวงเพื่อน',  action:"launchSolo('cards')",    solo:true},
+  {id:'ww',     icon:'🐯', bg:'linear-gradient(135deg,#f87171,#b91c1c)', name:'คืนสมิง',      desc:'4–18 คน · แจกไพ่บทบาท',     action:"openJoinModal('ww')",    solo:false},
+  {id:'spyfall',icon:'🕵️', bg:'linear-gradient(135deg,#c084fc,#9333ea)', name:'สายลับกลางวง',   desc:'3+ คน · หาสายลับ',           action:"openJoinModal('spyfall')",solo:false},
+  {id:'king',   icon:'👑', bg:'linear-gradient(135deg,#fb923c,#c2410c)', name:"King's Game",    desc:'3+ คน · ราชาสั่ง',           action:"openJoinModal('king')",  solo:false},
+  {id:'salem',  icon:'🧙', bg:'linear-gradient(135deg,#a78bfa,#7c3aed)', name:'Salem 1692',      desc:'4–12 คน · ไพ่ชีวิต',        action:"openJoinModal('salem')", solo:false},
+  {id:'wheel',  icon:'🎡', bg:'linear-gradient(135deg,#4ade80,#16a34a)',name:'วงล้อ',           desc:'ตัดสินใจแทนคุณได้เลย',      action:"launchSolo('wheel')",    solo:true},
+  {id:'cards',  icon:'🃏', bg:'linear-gradient(135deg,#fda4af,#e11d48)',name:'ไพ่เฮฮา',        desc:'ชาเลนจ์สนุกๆ ในวงเพื่อน',  action:"launchSolo('cards')",    solo:true},
 ];
 function renderHomeGames(){
   const multiList=$('homeMultiList'),soloList=$('homeSoloList');
@@ -244,19 +244,19 @@ function renderHomeGames(){
   if(multiSection)multiSection.style.display=multiRoom.length?'':'none';
   if(soloSection)soloSection.style.display=soloGames.length?'':'none';
   const rowHtml=g=>`
-    <div class="home-game-row">
-      <div class="home-row-icon" style="background:${g.bg}">${g.icon}</div>
-      <div class="home-row-info">
-        <div class="home-row-name">${g.name}</div>
-        <div class="home-row-desc">${g.desc}</div>
-      </div>
-      <button class="home-row-cta${g.solo?' solo':''}" onclick="${g.action}">${g.solo?'เล่นเลย':'สร้าง/เข้าร่วม'}${CHEVRON_SVG}</button>
+    <div class="home-row${g.solo?' solo':''}" style="--tile-bg:${g.bg}">
+      <span class="home-row-icon">${g.icon}</span>
+      <span class="home-row-info">
+        <span class="home-row-name">${g.name}</span>
+        <span class="home-row-desc">${g.desc}</span>
+      </span>
+      <button type="button" class="home-row-cta" onclick="${g.action}">${g.solo?'เล่นเลย':'สร้าง/เข้าร่วม'}${CHEVRON_SVG}</button>
     </div>`;
   multiList.innerHTML=multiRoom.map(rowHtml).join('');
   soloList.innerHTML=soloGames.map(rowHtml).join('');
   if(!visible.length&&multiSection){
     multiSection.style.display='';
-    multiList.innerHTML='<div style="text-align:center;padding:3rem 1rem;color:var(--t3);font-size:14px">ยังไม่มีเกมที่เปิดให้เล่น</div>';
+    multiList.innerHTML='<div class="home-empty">ยังไม่มีเกมที่เปิดให้เล่น</div>';
   }
 }
 

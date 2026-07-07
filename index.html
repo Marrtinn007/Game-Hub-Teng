@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!-- ════════════════════════════════════════════════════════════════
-     WONGPLAY  —  v14.35
+     WONGPLAY  —  v14.46
      ────────────────────────────────────────────────────────────
      AI HANDOFF NOTE (สำหรับ AI ที่รับงานต่อ):
-     - เวอร์ชันปัจจุบัน: v14.35
+     - เวอร์ชันปัจจุบัน: v14.46
      - เพิ่มเวอร์ชัน +0.1 ทุกครั้งที่แก้ไข (v11 → v11.1 → v11.2 ...)
      - อัปเดต id="versionLabel" (อยู่ในเมนูโปรไฟล์) ด้วยทุกครั้ง
      ════════════════════════════════════════════════════════════════ -->
@@ -227,61 +227,53 @@
 
 <!-- ══ HOME ══ -->
 <div class="screen" id="screen-home">
-  <!-- profile btn มุมขวาบน (แทนปุ่มธีมเดิม) -->
-  <div class="home-topbar">
-    <div class="home-topbar-brand"><span class="brand-logo-icon" role="img" aria-label="WongPlay"></span> Wong<b>Play</b></div>
+  <div class="home-nav">
+    <span class="brand-logo-icon" role="img" aria-label="WongPlay"></span>
     <div style="position:relative;z-index:50" id="profileMenuWrap">
       <img id="homeUserAvatar" src="" style="width:40px;height:40px;border-radius:50%;display:none;border:2px solid var(--ac);cursor:pointer" alt="" onclick="toggleProfileMenu()" title="บัญชีของฉัน"/>
       <!-- Dropdown -->
-      <div id="profileDropdown" style="display:none;position:absolute;top:calc(100% + 10px);right:0;background:var(--card);border:1px solid var(--line);border-radius:var(--r-l);padding:10px;min-width:250px;box-shadow:var(--sh2);z-index:200">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:6px 8px 12px;border-bottom:1px solid var(--line);margin-bottom:8px">
-          <div style="display:flex;align-items:center;gap:12px;min-width:0">
-            <img id="profileDropAvatar" src="" style="width:46px;height:46px;border-radius:50%;flex-shrink:0;border:2px solid var(--line)" alt=""/>
-            <div style="min-width:0">
-              <div id="profileDropName" style="font-size:15px;font-weight:800;color:var(--t0);overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
-              <div id="profileDropEmail" style="font-size:12px;color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px"></div>
-              <div id="profileDropPid" onclick="copyMyPid()" style="font-size:11px;color:var(--ac);font-weight:700;letter-spacing:0.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;margin-top:3px" title="แตะเพื่อคัดลอก Player ID"></div>
-            </div>
+      <div id="profileDropdown" class="profile-dd" style="display:none">
+        <div class="pdd-head">
+          <img id="profileDropAvatar" class="pdd-avatar" src="" alt=""/>
+          <div class="pdd-who">
+            <div id="profileDropName" class="pdd-name"></div>
+            <div id="profileDropEmail" class="pdd-email"></div>
+            <div id="profileDropPid" class="pdd-pid" onclick="copyMyPid()" title="แตะเพื่อคัดลอก Player ID"></div>
           </div>
-          <span id="versionLabel" style="flex-shrink:0;font-size:10px;font-weight:700;color:var(--t3);background:var(--card2);padding:4px 9px;border-radius:var(--r-pill);white-space:nowrap;border:1px solid var(--line)">v14.35</span>
         </div>
         <!-- Theme section -->
-        <div style="padding:2px 4px 4px">
-          <div style="display:flex;align-items:baseline;justify-content:space-between;padding:2px 4px 8px">
-            <span style="font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--t3);text-transform:uppercase">ธีม</span>
-            <span id="themeActiveLabel" style="font-size:12px;font-weight:700;color:var(--ac)"></span>
+        <div class="pdd-theme">
+          <div class="pdd-theme-head">
+            <span class="pdd-lbl">ธีม</span>
+            <span id="themeActiveLabel" class="pdd-theme-active"></span>
           </div>
-          <div style="display:flex;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--line)">
-            <button id="themeDotBtn-dark" onclick="setTheme('dark')" style="flex:1;height:40px;border-radius:10px;border:1.5px solid var(--line);background:#1c1f26;cursor:pointer;font-size:16px;transition:border-color 0.15s,box-shadow 0.15s" title="Dark">🌙</button>
-            <button id="themeDotBtn-cream" onclick="setTheme('cream')" style="flex:1;height:40px;border-radius:10px;border:1.5px solid var(--line);background:#fffdf8;cursor:pointer;font-size:16px;transition:border-color 0.15s,box-shadow 0.15s" title="Cream">🍵</button>
-            <button id="themeDotBtn-ocean" onclick="setTheme('ocean')" style="flex:1;height:40px;border-radius:10px;border:1.5px solid var(--line);background:#0d1d30;cursor:pointer;font-size:16px;transition:border-color 0.15s,box-shadow 0.15s" title="Ocean">🌊</button>
+          <div class="pdd-swatches">
+            <button id="themeDotBtn-dark" class="pdd-swatch sw-dark" onclick="setTheme('dark')" title="Dark">🌙</button>
+            <button id="themeDotBtn-cream" class="pdd-swatch sw-cream" onclick="setTheme('cream')" title="Cream">🍵</button>
+            <button id="themeDotBtn-ocean" class="pdd-swatch sw-ocean" onclick="setTheme('ocean')" title="Ocean">🌊</button>
           </div>
         </div>
-        <button style="width:100%;text-align:left;padding:11px 10px;background:none;border:none;color:var(--t0);font-family:'Kanit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;border-radius:10px;margin-top:4px" onclick="toggleProfileMenu();openDonateModal()">🍵 เลี้ยงชาเขียว</button>
-        <button id="adminMenuBtn" style="display:none;width:100%;text-align:left;padding:11px 10px;background:none;border:none;color:var(--ac);font-family:'Kanit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;border-radius:10px;margin-top:4px" onclick="toggleProfileMenu();openAdminPanel()">🛡️ Admin Panel</button>
-        <button style="width:100%;text-align:left;padding:11px 10px;background:none;border:none;color:var(--danger);font-family:'Kanit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;border-radius:10px;margin-top:4px" onclick="toggleProfileMenu();signOut()">↩ ออกจากระบบ</button>
+        <div class="pdd-menu">
+          <button class="pdd-item" onclick="toggleProfileMenu();openDonateModal()"><span class="pdd-item-ic">🍵</span>เลี้ยงชาเขียว</button>
+          <button id="adminMenuBtn" class="pdd-item admin" style="display:none" onclick="toggleProfileMenu();openAdminPanel()"><span class="pdd-item-ic">🛡️</span>Admin Panel</button>
+          <button class="pdd-item danger" onclick="toggleProfileMenu();$('signoutConfirmOverlay').classList.add('show')"><span class="pdd-item-ic">↩</span>ออกจากระบบ</button>
+        </div>
+        <div class="pdd-foot"><span id="versionLabel" class="pdd-version">v14.46</span></div>
       </div>
     </div>
   </div>
-  <div class="home-hero">
-    <div class="home-hero-card">
-      <div class="home-hero-badge" id="homeHeroBadge">👋</div>
-      <div>
-        <div class="home-title" id="homeUserName">สวัสดี</div>
-        <div class="home-sub">เลือกเกมด้านล่าง แล้วเริ่มเล่นได้เลย</div>
-      </div>
+  <div class="home-greet-wrap">
+    <div class="home-greet-card">
+      <div class="home-greet"><span id="homeUserName" class="home-greet-name">สวัสดี</span><span id="homeHeroBadge" class="home-greet-emoji">👋</span></div>
+      <div class="home-sub">เลือกเกมที่ใช่ แล้วเริ่มเล่นได้เลย</div>
     </div>
   </div>
   <div class="home-section" id="homeMultiSection">
-    <div class="home-section-head">
-      <span class="home-section-title">🎲 เล่นกับเพื่อน</span>
-    </div>
+    <div class="home-section-head"><span class="home-section-title">🎲 เล่นกับเพื่อน</span><span class="home-section-line"></span></div>
     <div class="home-game-list" id="homeMultiList"></div>
   </div>
   <div class="home-section" id="homeSoloSection">
-    <div class="home-section-head">
-      <span class="home-section-title">⚡ เล่นได้ทันที</span>
-    </div>
+    <div class="home-section-head"><span class="home-section-title">⚡ เล่นได้ทันที</span><span class="home-section-line"></span></div>
     <div class="home-game-list" id="homeSoloList"></div>
   </div>
   <!-- Admin Panel Sheet -->
@@ -535,6 +527,19 @@
     <div class="confirm-btns">
       <button class="btn btn-sf btn-next" onclick="cancelKick()">ยกเลิก</button>
       <button class="btn btn-danger btn-next" onclick="doKick()">เตะออก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sign out confirm -->
+<div class="confirm-overlay" id="signoutConfirmOverlay">
+  <div class="confirm-box elevated">
+    <span class="confirm-icon">🚪</span>
+    <div class="confirm-title">ออกจากระบบ?</div>
+    <div class="confirm-sub">ต้องการออกจากระบบตอนนี้ใช่ไหม<br>กลับมาเข้าสู่ระบบใหม่ได้ตลอดเวลา</div>
+    <div class="confirm-btns">
+      <button class="btn btn-sf btn-next" onclick="$('signoutConfirmOverlay').classList.remove('show')">ยกเลิก</button>
+      <button class="btn btn-danger btn-next" onclick="$('signoutConfirmOverlay').classList.remove('show');signOut()">ออกจากระบบ</button>
     </div>
   </div>
 </div>
