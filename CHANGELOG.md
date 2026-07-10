@@ -2,6 +2,14 @@
 
 รูปแบบอิงจาก [Keep a Changelog](https://keepachangelog.com/) แบบคร่าวๆ เรียงจากใหม่ไปเก่า จัดกลุ่มตาม commit ที่ bump เวอร์ชัน (`id="versionLabel"` ใน `index.html`) ส่วนที่ไม่มี commit bump เวอร์ชันชัดเจนจะรวมไว้ในกลุ่มเวอร์ชันถัดไปที่ตามมา
 
+## v15.1
+
+- เพิ่ม `.validate` rules ใน `firebase-rules.json` ให้ subtree เกม (`game`/`ww`/`wwTimer`/`spy`/`king`/`salem`) กัน host ที่ถูกแฮ็กหรือมีบั๊กเขียนข้อมูลมั่วเข้า RTDB
+- เพิ่ม `logError()` และแทนที่ `.catch(()=>{})` เงียบๆ ทั่วแอปด้วยการ log เข้า `/logs`
+- เพิ่ม accessibility: toast มี `aria-live`, modal/overlay ทุกตัวมี `role="dialog"`, กด Escape ปิดได้, focus จัดการอัตโนมัติ
+- เพิ่ม `prefers-reduced-motion` guard ทั้งแอป และเพิ่มแอนิเมชันใหม่จำนวนมาก — ปุ่ม accent เรืองแสงเบาๆ, ไอคอนหน้า home ลอยขึ้นลง, avatar/รหัสวงเรืองแสง, การ์ดเกมที่เลือกเรืองแสง, ไอคอนบทบาทสั่นตอน hover, การ์ดจบเกมมีวงแหวนแตกกระจายฉลอง
+- เพิ่ม README.md และ CHANGELOG.md
+
 ## v15.0
 
 - ปรับ layout หน้า home ใหม่เป็นแบบ sectioned list กดปุ่มเพื่อเล่นแทนการ์ดแบบ tile grid (มีการทดลอง tile-grid ก่อนหน้านี้แล้ว revert กลับ)
