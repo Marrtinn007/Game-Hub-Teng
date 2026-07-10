@@ -143,7 +143,7 @@ function enterLobby(){
         activeNick:S.nickname,
         activeIsHost:S.isHost||false,
         activePlayerId:playerKey
-      }).catch(()=>{});
+      }).catch(e=>logError('join_update_session',e));
     }
     setupLobbyListeners(playerRef);
     saveSessionRoom();
@@ -161,12 +161,13 @@ function enterLobby(){
       // ใช้ set() แทน update() เพื่อให้สร้าง node ได้แม้ไม่มี parent (host สร้างห้องใหม่)
       db.ref(`rooms/${S.roomCode}/players/${playerKey}`).set(playerData)
         .then(()=>doJoin(playerKey))
-        .catch(()=>doJoin(playerKey));
-    }).catch(()=>{
+        .catch(e=>{logError('join_set_player',e);doJoin(playerKey)});
+    }).catch(e=>{
+      logError('join_read_old_player',e);
       const playerData={name:S.nickname,isHost:S.isHost,joinedAt:Date.now(),online:true,photo:currentUser?.photoURL||'',uid:myUid,pid:myPid||''};
       db.ref(`rooms/${S.roomCode}/players/${playerKey}`).set(playerData)
         .then(()=>doJoin(playerKey))
-        .catch(()=>doJoin(playerKey));
+        .catch(e2=>{logError('join_set_player',e2);doJoin(playerKey)});
     });
   } else {
     // ไม่มี Google Auth — ไม่ควรเกิดขึ้น แต่ fallback ไว้ก่อน
@@ -232,7 +233,7 @@ function enterLobby(){
         roomRef=gameRef=wwRef=null;
         Object.assign(S,{roomCode:null,roomName:null,nickname:null,players:[],selectedGame:null,myPlayerId:null,isHost:false});
         clearSessionRoom();
-        if(currentUser?.uid)db.ref('userSessions/'+currentUser.uid+'/activeRoom').remove().catch(()=>{});
+        if(currentUser?.uid)db.ref('userSessions/'+currentUser.uid+'/activeRoom').remove().catch(e=>logError('kick_clear_session',e));
         showToast('คุณถูกเตะออกจากวง',3500);
         showScreen('screen-home');
       });
@@ -286,9 +287,9 @@ function enterLobby(){
             S.isHost=true;
             db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}/isHost`).set(true)
               .then(()=>showToast('คุณเป็นเจ้าของวงแล้ว 👑',3000))
-              .catch(()=>{});
+              .catch(e=>logError('auto_promote_set',e));
           }
-        }).catch(()=>{});
+        }).catch(e=>logError('auto_promote_read',e));
       },2500);
     } else {
       clearTimeout(window._promoteTimer);
@@ -512,20 +513,20 @@ function leaveRoom(){
       wipe['salem']=null;
       wipe['kicked']=null;
       wipe['roomName']=null;
-      db.ref(`rooms/${rc}`).update(wipe).catch(e=>console.error('dissolve:',e.message));
+      db.ref(`rooms/${rc}`).update(wipe).catch(e=>logError('dissolve_room',e));
     } else if(firebaseReady&&S.myPlayerId&&S.roomCode){
       const _rc=S.roomCode,_pid=S.myPlayerId;
       db.ref(`rooms/${_rc}/players/${_pid}`).remove().then(()=>{
         // ถ้าหลังออกแล้วไม่มีใคร online เลย ให้ลบห้องทิ้ง
         db.ref(`rooms/${_rc}/players`).once('value').then(ps=>{
           const remaining=ps.exists()?Object.values(ps.val()).filter(p=>p&&p.online!==false):[];
-          if(remaining.length===0)db.ref(`rooms/${_rc}`).remove().catch(()=>{});
-        }).catch(()=>{});
-      }).catch(()=>{});
+          if(remaining.length===0)db.ref(`rooms/${_rc}`).remove().catch(e=>logError('empty_room_cleanup',e));
+        }).catch(e=>logError('leave_room_check_remaining',e));
+      }).catch(e=>logError('leave_room_remove_player',e));
     }
     [roomRef,gameRef,wwRef].forEach(r=>r?.off());
     roomRef=gameRef=wwRef=null;
-    if(currentUser?.uid)db.ref('userSessions/'+currentUser.uid+'/activeRoom').remove().catch(()=>{});
+    if(currentUser?.uid)db.ref('userSessions/'+currentUser.uid+'/activeRoom').remove().catch(e=>logError('leave_clear_session',e));
     Object.assign(S,{roomCode:null,roomName:null,nickname:null,players:[],selectedGame:null,myPlayerId:null,isHost:false});
     clearSessionRoom();
     showScreen('screen-home');

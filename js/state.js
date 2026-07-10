@@ -80,11 +80,11 @@ function ensurePlayerId(uid){
   return ref.once('value').then(snap=>{
     if(snap.exists()&&snap.val()){myPid=snap.val();return myPid;}
     const pid=genPlayerId();
-    return ref.set(pid).then(()=>{myPid=pid;return pid;}).catch(()=>{myPid=pid;return pid;});
+    return ref.set(pid).then(()=>{myPid=pid;return pid;}).catch(e=>{logError('ensure_player_id_set',e);myPid=pid;return pid;});
   }).then(pid=>{
     renderProfilePid();
     return pid;
-  }).catch(()=>null);
+  }).catch(e=>{logError('ensure_player_id',e);return null;});
 }
 function renderProfilePid(){
   const el=$('profileDropPid');
@@ -92,7 +92,7 @@ function renderProfilePid(){
 }
 function copyMyPid(){
   if(!myPid)return;
-  navigator.clipboard?.writeText(myPid).then(()=>showToast('คัดลอก Player ID แล้ว')).catch(()=>{});
+  navigator.clipboard?.writeText(myPid).then(()=>showToast('คัดลอก Player ID แล้ว')).catch(e=>logError('copy_player_id',e));
 }
 function openDonateModal(){
   openModal('modal-donate');
@@ -112,6 +112,10 @@ function logEvent(action,detail){
     }).catch(()=>{});
   }catch(e){}
 }
+function logError(context,err){
+  console.error('['+context+']',err);
+  logEvent('error:'+context,String(err&&err.message||err||'').slice(0,300));
+}
 function totalRoles(){return Object.values(S.wwRoleCounts).reduce((a,b)=>a+b,0)}
 function totalPts(){return Object.entries(S.wwRoleCounts).reduce((sum,[r,cnt])=>sum+(WW[r]?.pts||0)*cnt,0)}
 function ptsDisplay(){
@@ -128,6 +132,52 @@ function closeAnnounceBanner(){const b=$('announceBanner');if(b)b.style.display=
 function openModal(id){$(id)?.classList.add('open')}
 function closeModal(id){$(id)?.classList.remove('open')}
 function closeModalOutside(e,id){if(e.target.id===id)closeModal(id)}
+
+/* ══ OVERLAY ACCESSIBILITY (Escape-to-close + focus management) ══
+   ไม่ต้องแก้ onclick เดิมทุกจุด — ใช้ MutationObserver จับตอนเปิด/ปิด overlay
+   แล้วจัดการ focus ให้อัตโนมัติ ส่วน Escape จะปิด overlay บนสุดที่เปิดอยู่ */
+const OVERLAY_A11Y=[
+  {id:'pauseOverlay',openClass:'show',onEscape:()=>resumeGame()},
+  {id:'confirmOverlay',openClass:'show',onEscape:()=>cancelEnd()},
+  {id:'gameoverOverlay',openClass:'show',onEscape:()=>closeGameover()},
+  {id:'statusMenuOverlay',openClass:'open',onEscape:()=>closeStatusMenu()},
+  {id:'toughguyOverlay',openClass:'show',onEscape:()=>$('toughguyOverlay')?.classList.remove('show')},
+  {id:'menuOverlay',openClass:'show',onEscape:()=>closeMenu()},
+  {id:'modal-join',openClass:'open',onEscape:()=>closeModal('modal-join')},
+  {id:'modal-role-info',openClass:'open',onEscape:()=>closeModal('modal-role-info')},
+  {id:'modal-donate',openClass:'open',onEscape:()=>closeModal('modal-donate')},
+  {id:'modal-deal-preview',openClass:'open',onEscape:()=>closeModal('modal-deal-preview')},
+  {id:'cardDetailModal',openClass:'open',onEscape:()=>closeModal('cardDetailModal')},
+  {id:'leaveConfirmOverlay',openClass:'show',onEscape:()=>$('leaveConfirmOverlay')?.classList.remove('show')},
+  {id:'transferHostOverlay',openClass:'show',onEscape:()=>$('transferHostOverlay')?.classList.remove('show')},
+  {id:'kickConfirmOverlay',openClass:'show',onEscape:()=>cancelKick()},
+  {id:'signoutConfirmOverlay',openClass:'show',onEscape:()=>$('signoutConfirmOverlay')?.classList.remove('show')},
+  {id:'sessionKickedOverlay',openClass:'show',onEscape:null}, // ต้องกดตกลงเท่านั้น ห้าม Escape ปิดเฉยๆ
+];
+function _initOverlayA11y(){
+  OVERLAY_A11Y.forEach(({id,openClass})=>{
+    const el=$(id);if(!el)return;
+    let lastFocus=null,wasOpen=el.classList.contains(openClass);
+    new MutationObserver(()=>{
+      const open=el.classList.contains(openClass);
+      if(open&&!wasOpen){
+        lastFocus=document.activeElement;
+        const focusable=el.querySelector('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])');
+        (focusable||el).focus?.({preventScroll:true});
+      } else if(!open&&wasOpen){
+        lastFocus?.focus?.({preventScroll:true});
+      }
+      wasOpen=open;
+    }).observe(el,{attributes:true,attributeFilter:['class']});
+  });
+  document.addEventListener('keydown',e=>{
+    if(e.key!=='Escape')return;
+    const top=OVERLAY_A11Y.find(({id,openClass})=>$(id)?.classList.contains(openClass));
+    if(top?.onEscape)top.onEscape();
+  });
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',_initOverlayA11y);
+else _initOverlayA11y();
 
 /* ══ GAMEOVER ════════════════════════════ */
 function showGameover(icon,title,sub){

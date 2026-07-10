@@ -123,7 +123,7 @@ function _adminStatsCompute(rooms){
   });
   // ยุบห้องว่างอัตโนมัติ
   if(emptyRooms.length){
-    emptyRooms.forEach(k=>db.ref('rooms/'+k).remove().catch(()=>{}));
+    emptyRooms.forEach(k=>db.ref('rooms/'+k).remove().catch(e=>logError('admin_cleanup_empty_room',e)));
   }
   const el=$('adminStats');
   if(!el)return;
