@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <!-- ════════════════════════════════════════════════════════════════
-     WONGPLAY  —  v15.0
+     WONGPLAY  —  v15.1
      ────────────────────────────────────────────────────────────
      AI HANDOFF NOTE (สำหรับ AI ที่รับงานต่อ):
-     - เวอร์ชันปัจจุบัน: v15.0
+     - เวอร์ชันปัจจุบัน: v15.1
      - เพิ่มเวอร์ชัน +0.1 ทุกครั้งที่แก้ไข (v11 → v11.1 → v11.2 ...)
      - อัปเดต id="versionLabel" (อยู่ในเมนูโปรไฟล์) ด้วยทุกครั้ง
      ════════════════════════════════════════════════════════════════ -->
@@ -31,20 +31,20 @@
 <link rel="stylesheet" href="css/games.css"/>
 </head>
 <body>
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 <div class="fb-retry-banner" id="fbRetryBanner">
   <span id="fbRetryMsg">เชื่อมต่อไม่สำเร็จ</span>
   <button class="btn btn-ac" id="fbRetryBtn">ลองอีกครั้ง</button>
 </div>
 
 <!-- Pause -->
-<div class="pause-overlay" id="pauseOverlay">
+<div class="pause-overlay" id="pauseOverlay" role="dialog" aria-modal="true" aria-label="หยุดชั่วคราว" tabindex="-1">
   <div class="pause-icon">⏸</div><div class="pause-title">หยุดชั่วคราว</div><div class="pause-sub">เกมถูกพักไว้</div>
   <button class="btn btn-ac" style="width:190px;height:52px;font-size:16px;border-radius:var(--r-s);margin-top:0.5rem" onclick="resumeGame()">▶ เล่นต่อ</button>
 </div>
 
 <!-- Confirm end -->
-<div class="confirm-overlay" id="confirmOverlay">
+<div class="confirm-overlay" id="confirmOverlay" role="dialog" aria-modal="true" aria-label="ยุติเกม?" tabindex="-1">
   <div class="confirm-box  elevated">
     <span class="confirm-icon">⚠️</span><div class="confirm-title">ยุติเกม?</div>
     <div class="confirm-sub">เกมจะจบและกลับไปที่ล็อบบี้</div>
@@ -56,7 +56,7 @@
 </div>
 
 <!-- Game Over -->
-<div class="gameover-overlay" id="gameoverOverlay">
+<div class="gameover-overlay" id="gameoverOverlay" role="dialog" aria-modal="true" aria-label="เกมจบแล้ว" tabindex="-1">
   <div class="gameover-box  elevated">
     <span class="gameover-icon" id="gameoverIcon">🎉</span>
     <div class="gameover-title" id="gameoverTitle">เกมจบแล้ว!</div>
@@ -66,7 +66,7 @@
 </div>
 
 <!-- Status menu sheet -->
-<div class="modal-overlay" id="statusMenuOverlay" onclick="closeModalOutside(event,'statusMenuOverlay')">
+<div class="modal-overlay" id="statusMenuOverlay" onclick="closeModalOutside(event,'statusMenuOverlay')" role="dialog" aria-modal="true" aria-label="เมนูสถานะผู้เล่น" tabindex="-1">
   <div class="modal-sheet"><div class="modal-handle"></div>
     <div id="statusMenuContent" style="display:flex;flex-wrap:wrap;gap:10px;padding-bottom:0.5rem"></div>
     <button class="btn btn-sf" style="width:100%;height:48px;margin-top:14px;font-size:15px" onclick="closeStatusMenu()">ปิด</button>
@@ -74,7 +74,7 @@
 </div>
 
 <!-- Tough Guy alert -->
-<div class="pause-overlay" id="toughguyOverlay" style="z-index:600">
+<div class="pause-overlay" id="toughguyOverlay" style="z-index:600" role="dialog" aria-modal="true" aria-label="หนุ่มถึกถึงเวลาแล้ว" tabindex="-1">
   <div style="font-size:56px;margin-bottom:0.5rem">💪</div>
   <div style="font-size:22px;font-weight:900;color:var(--t0);margin-bottom:0.5rem">หนุ่มถึกถึงเวลาแล้ว!</div>
   <div style="font-size:15px;color:var(--t2);margin-bottom:1.75rem;text-align:center;line-height:1.6"><span id="toughguyName" style="color:var(--t0);font-weight:800"></span> โดนกัดคืนก่อน<br>ตอนนี้ถึงเวลาตายแล้ว</div>
@@ -83,7 +83,7 @@
 </div>
 
 <!-- Menu -->
-<div class="menu-overlay" id="menuOverlay" onclick="closeMenu()">
+<div class="menu-overlay" id="menuOverlay" onclick="closeMenu()" role="dialog" aria-modal="true" aria-label="เมนู" tabindex="-1">
   <div class="menu-popup" onclick="event.stopPropagation()">
     <div class="menu-item" style="flex-direction:column;align-items:flex-start;gap:8px;cursor:default">
       <span style="font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--t3);text-transform:uppercase">ธีม</span>
@@ -98,7 +98,7 @@
 </div>
 
 <!-- Modals -->
-<div class="modal-overlay" id="modal-join" onclick="closeModalOutside(event,'modal-join')">
+<div class="modal-overlay" id="modal-join" onclick="closeModalOutside(event,'modal-join')" role="dialog" aria-modal="true" aria-labelledby="modalJoinTitle" tabindex="-1">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:1.25rem">
@@ -124,13 +124,13 @@
     </div>
   </div>
 </div>
-<div class="modal-overlay" id="modal-role-info" onclick="closeModalOutside(event,'modal-role-info')">
+<div class="modal-overlay" id="modal-role-info" onclick="closeModalOutside(event,'modal-role-info')" role="dialog" aria-modal="true" aria-label="ข้อมูลบทบาท" tabindex="-1">
   <div class="modal-sheet"><div class="modal-handle"></div>
     <div id="roleInfoContent"></div>
     <button class="btn btn-sf btn-full" style="margin-top:1rem" onclick="closeModal('modal-role-info')">ปิด</button>
   </div>
 </div>
-<div class="modal-overlay" id="modal-donate" onclick="closeModalOutside(event,'modal-donate')">
+<div class="modal-overlay" id="modal-donate" onclick="closeModalOutside(event,'modal-donate')" role="dialog" aria-modal="true" aria-label="เลี้ยงชาเขียวคนทำแอป" tabindex="-1">
   <div class="modal-sheet"><div class="modal-handle"></div>
     <div class="modal-title">🍵 เลี้ยงชาเขียวคนทำแอป</div>
     <div style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:14px">ขอบคุณที่เล่น WongPlay นะ🙏</div>
@@ -143,7 +143,7 @@
     </div>
   </div>
 </div>
-<div class="modal-overlay" id="modal-deal-preview" onclick="closeModalOutside(event,'modal-deal-preview')">
+<div class="modal-overlay" id="modal-deal-preview" onclick="closeModalOutside(event,'modal-deal-preview')" role="dialog" aria-modal="true" aria-label="สรุปบทบาทที่เลือก" tabindex="-1">
   <div class="modal-sheet"><div class="modal-handle"></div>
     <div class="modal-title">📋 สรุปบทบาทที่เลือก</div>
     <div id="dealPreviewContent"></div>
@@ -155,7 +155,7 @@
 </div>
 
 <!-- ══ MAINTENANCE MODE OVERLAY ══ -->
-<div id="maintenanceOverlay" style="display:none;position:fixed;inset:0;z-index:9999;pointer-events:all;touch-action:none;user-select:none;overflow:hidden;background:linear-gradient(135deg,#0a0a10 0%,#0f0c1a 40%,#0a0f18 100%)">
+<div id="maintenanceOverlay" role="alert" aria-live="assertive" style="display:none;position:fixed;inset:0;z-index:9999;pointer-events:all;touch-action:none;user-select:none;overflow:hidden;background:linear-gradient(135deg,#0a0a10 0%,#0f0c1a 40%,#0a0f18 100%)">
   <!-- Orb BG -->
   <div style="position:absolute;inset:0;pointer-events:none;overflow:hidden">
     <div style="position:absolute;width:60vw;height:60vw;border-radius:50%;background:radial-gradient(circle,rgba(255,140,0,0.18),transparent 70%);top:-10%;left:-10%;filter:blur(40px);animation:orbDrift 8s ease-in-out infinite alternate"></div>
@@ -258,7 +258,7 @@
           <button id="adminMenuBtn" class="pdd-item admin" style="display:none" onclick="toggleProfileMenu();openAdminPanel()"><span class="pdd-item-ic">🛡️</span>Admin Panel</button>
           <button class="pdd-item danger" onclick="toggleProfileMenu();$('signoutConfirmOverlay').classList.add('show')"><span class="pdd-item-ic">↩</span>ออกจากระบบ</button>
         </div>
-        <div class="pdd-foot"><span id="versionLabel" class="pdd-version">v15.0</span></div>
+        <div class="pdd-foot"><span id="versionLabel" class="pdd-version">v15.1</span></div>
       </div>
     </div>
   </div>
@@ -428,7 +428,7 @@
 </div>
 
 <!-- Salem card detail modal -->
-<div id="cardDetailModal" class="modal-overlay" onclick="closeModalOutside(event,'cardDetailModal')">
+<div id="cardDetailModal" class="modal-overlay" onclick="closeModalOutside(event,'cardDetailModal')" role="dialog" aria-modal="true" aria-label="รายละเอียดไพ่" tabindex="-1">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div id="cardDetailContent"></div>
@@ -494,7 +494,7 @@
 
 
 <!-- Leave room confirm (Host) -->
-<div class="confirm-overlay" id="leaveConfirmOverlay">
+<div class="confirm-overlay" id="leaveConfirmOverlay" role="dialog" aria-modal="true" aria-label="ออกจากวง?" tabindex="-1">
   <div class="confirm-box elevated">
     <span class="confirm-icon">🏠</span>
     <div class="confirm-title">ออกจากวง?</div>
@@ -508,7 +508,7 @@
 </div>
 
 <!-- Transfer host -->
-<div class="confirm-overlay" id="transferHostOverlay">
+<div class="confirm-overlay" id="transferHostOverlay" role="dialog" aria-modal="true" aria-label="โอนเจ้าของวง" tabindex="-1">
   <div class="confirm-box elevated">
     <span class="confirm-icon">👑</span>
     <div class="confirm-title">โอนเจ้าของวง</div>
@@ -519,7 +519,7 @@
 </div>
 
 <!-- Kick confirm -->
-<div class="confirm-overlay" id="kickConfirmOverlay">
+<div class="confirm-overlay" id="kickConfirmOverlay" role="dialog" aria-modal="true" aria-label="เตะผู้เล่น?" tabindex="-1">
   <div class="confirm-box elevated">
     <span class="confirm-icon">👢</span>
     <div class="confirm-title" id="kickConfirmName">เตะผู้เล่น?</div>
@@ -532,7 +532,7 @@
 </div>
 
 <!-- Sign out confirm -->
-<div class="confirm-overlay" id="signoutConfirmOverlay">
+<div class="confirm-overlay" id="signoutConfirmOverlay" role="dialog" aria-modal="true" aria-label="ออกจากระบบ?" tabindex="-1">
   <div class="confirm-box elevated">
     <span class="confirm-icon">🚪</span>
     <div class="confirm-title">ออกจากระบบ?</div>
@@ -545,7 +545,7 @@
 </div>
 
 <!-- Session kicked popup -->
-<div class="confirm-overlay" id="sessionKickedOverlay">
+<div class="confirm-overlay" id="sessionKickedOverlay" role="alertdialog" aria-modal="true" aria-label="มีการเข้าสู่ระบบจากอุปกรณ์อื่น" tabindex="-1">
   <div class="confirm-box elevated" style="animation:popIn 0.35s var(--spring) both">
     <span style="font-size:48px;display:block;margin-bottom:1rem">📱</span>
     <div class="confirm-title">มีการเข้าสู่ระบบ<br>จากอุปกรณ์อื่น</div>
@@ -555,7 +555,7 @@
 </div>
 
 <!-- Connecting overlay (rejoin) -->
-<div id="connectingOverlay" style="display:none;position:fixed;inset:0;z-index:9000;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;gap:1rem">
+<div id="connectingOverlay" role="status" aria-live="polite" aria-busy="true" style="display:none;position:fixed;inset:0;z-index:9000;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;gap:1rem">
   <div class="brand-logo-icon-lg" role="img" aria-label="WongPlay" style="animation:splashFade 1s ease-in-out infinite"></div>
   <div style="font-size:18px;font-weight:700;color:var(--t0)">กำลังเชื่อมต่อ...</div>
   <div style="font-size:14px;color:var(--t2)" id="connectingRoomName"></div>

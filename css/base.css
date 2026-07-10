@@ -39,6 +39,15 @@ body{
   --sh-btn-press: 0 1px 1px rgba(0,0,0,0.12);
 }
 
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:0.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:0.01ms!important;
+    scroll-behavior:auto!important;
+  }
+}
+
 
 /* ══ THEMES ══════════════════════════════════════════════════ */
 [data-theme="dark"]{
@@ -74,15 +83,23 @@ body{
   background:var(--ac);
   color:#fff;font-weight:700;
   box-shadow:var(--sh-btn);
+  animation:btnAcGlow 2.6s ease-in-out infinite;
 }
 .btn-ac:hover{filter:brightness(1.08)}
+.btn-ac:active{animation-play-state:paused}
+@keyframes btnAcGlow{
+  0%,100%{box-shadow:var(--sh-btn),0 0 0 0 var(--ac-dim)}
+  50%{box-shadow:var(--sh-btn),0 0 14px 2px var(--ac-dim)}
+}
 .btn-start{
   margin:1.25rem var(--pad) 0;width:calc(100% - 2*var(--pad));
   font-size:17px;font-weight:700;height:58px;border-radius:var(--r-l);
   background:var(--ac);
   color:#fff;
   box-shadow:var(--sh-btn);
+  animation:startBreathe 2.8s ease-in-out infinite;
 }
+@keyframes startBreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.015)}}
 .btn-start.btn-pulse{animation:btnPulseGlow 0.65s var(--smooth) 2}
 @keyframes btnPulseGlow{
   0%{box-shadow:var(--sh-btn),0 0 0 0 rgba(124,156,255,0.55);transform:scale(1)}
@@ -199,7 +216,7 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
 /* ── Screens ── */
 .screen{display:none;min-height:100dvh;flex-direction:column;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;background:transparent}
 .screen.active{display:flex;animation:pgIn 0.28s var(--smooth) both}
-.screen.leaving{display:flex;position:fixed;inset:0;z-index:5;pointer-events:none;animation:pgOut 0.22s var(--smooth) both}
+.screen.leaving{display:flex;position:fixed;inset:0;z-index:5;pointer-events:none;animation:pgOut 0.28s var(--smooth) both}
 @keyframes pgIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pgOut{from{opacity:1;transform:translateY(0) scale(1)}to{opacity:0;transform:translateY(-8px) scale(0.98)}}
 
@@ -244,8 +261,8 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
 .inp-center{text-align:center;letter-spacing:0.06em}
 
 /* ── Toast ── */
-.toast{position:fixed;bottom:max(28px,env(safe-area-inset-bottom,28px));left:50%;transform:translateX(-50%) translateY(80px);background:var(--card2);border:1px solid rgba(255,255,255,0.1);border-top:1px solid rgba(255,255,255,0.08);box-shadow:0 4px 0 rgba(0,0,0,0.3),0 8px 24px rgba(0,0,0,0.5);border-radius:var(--r-pill);padding:12px 26px;font-size:15px;font-weight:600;color:var(--t0);z-index:9999;transition:transform 0.3s var(--spring);white-space:nowrap;pointer-events:none;max-width:calc(100vw - 2rem);text-align:center;box-shadow:none}
-.toast.show{transform:translateX(-50%) translateY(0)}
+.toast{position:fixed;bottom:max(28px,env(safe-area-inset-bottom,28px));left:50%;transform:translateX(-50%) translateY(80px);opacity:0;background:var(--card2);border:1px solid rgba(255,255,255,0.1);border-top:1px solid rgba(255,255,255,0.08);box-shadow:0 4px 0 rgba(0,0,0,0.3),0 8px 24px rgba(0,0,0,0.5);border-radius:var(--r-pill);padding:12px 26px;font-size:15px;font-weight:600;color:var(--t0);z-index:9999;transition:transform 0.3s var(--spring),opacity 0.25s ease;white-space:nowrap;pointer-events:none;max-width:calc(100vw - 2rem);text-align:center;box-shadow:none}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 
 .fb-retry-banner{position:fixed;bottom:max(28px,env(safe-area-inset-bottom,28px));left:50%;transform:translateX(-50%) translateY(80px) scale(0.96);opacity:0;display:flex;align-items:center;gap:12px;background:var(--card2);border:1px solid rgba(255,255,255,0.1);box-shadow:0 8px 24px rgba(0,0,0,0.5);border-radius:var(--r-pill);padding:10px 14px 10px 22px;font-size:14px;font-weight:600;color:var(--t0);z-index:9999;transition:transform 0.3s var(--spring),opacity 0.2s;pointer-events:none;max-width:calc(100vw - 2rem)}
 .fb-retry-banner.show{transform:translateX(-50%) translateY(0) scale(1);opacity:1;pointer-events:auto}
@@ -281,14 +298,20 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
 .confirm-overlay.show{display:flex;animation:fadeIn 0.2s both}
 .confirm-box{width:100%;max-width:320px;padding:2.5rem 2rem;text-align:center;animation:popIn 0.3s var(--spring) both;background:var(--card);border-radius:var(--r-xl);box-shadow:var(--sh2);border:1px solid rgba(255,255,255,0.08)}
 @keyframes popIn{0%{transform:scale(0.84);opacity:0}70%{transform:scale(1.03)}100%{transform:scale(1);opacity:1}}
-.confirm-icon{font-size:38px;display:block;margin-bottom:1rem}
+.confirm-icon{font-size:38px;display:block;margin-bottom:1rem;animation:confirmIconPop 0.5s var(--spring) both 0.05s}
+@keyframes confirmIconPop{0%{transform:scale(0.5) rotate(-15deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
 .confirm-title{font-size:19px;font-weight:900;color:var(--t0);margin-bottom:0.5rem}
 .confirm-sub{font-size:14px;color:var(--t2);margin-bottom:1.75rem;line-height:1.6}
 .confirm-btns{display:flex;gap:10px}
 .gameover-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:350;display:none;align-items:center;justify-content:center;padding:2rem}
 .gameover-overlay.show{display:flex;animation:fadeIn 0.25s both}
-.gameover-box{width:100%;max-width:340px;padding:2.75rem 2rem;text-align:center;animation:popIn 0.35s var(--spring) both;background:var(--card);border-radius:var(--r-xl);box-shadow:var(--sh2);border:1px solid rgba(255,255,255,0.08)}
-.gameover-icon{font-size:56px;display:block;margin-bottom:1rem}
+.gameover-box{position:relative;width:100%;max-width:340px;padding:2.75rem 2rem;text-align:center;animation:popIn 0.35s var(--spring) both;background:var(--card);border-radius:var(--r-xl);box-shadow:var(--sh2);border:1px solid rgba(255,255,255,0.08)}
+.gameover-box::before,.gameover-box::after{content:"";position:absolute;inset:-20px;border-radius:inherit;border:2px solid var(--ac);opacity:0;pointer-events:none;animation:gameoverRing 1.6s ease-out infinite}
+.gameover-box::after{animation-delay:0.55s;border-color:var(--warn)}
+@keyframes gameoverRing{0%{transform:scale(0.92);opacity:0.6}100%{transform:scale(1.18);opacity:0}}
+.gameover-icon{font-size:56px;display:block;margin-bottom:1rem;animation:gameoverIconPop 0.7s var(--spring) both,gameoverIconWiggle 1.8s ease-in-out 0.7s infinite}
+@keyframes gameoverIconPop{0%{transform:scale(0) rotate(-20deg);opacity:0}60%{transform:scale(1.2) rotate(8deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes gameoverIconWiggle{0%,100%{transform:rotate(0) scale(1)}50%{transform:rotate(-6deg) scale(1.06)}}
 .gameover-title{font-size:24px;font-weight:900;color:var(--t0);margin-bottom:0.5rem}
 .gameover-sub{font-size:14px;color:var(--t1);margin-bottom:1.75rem;line-height:1.6}
 
@@ -314,4 +337,4 @@ body:has(.game-screen.active) #themeSheet{display:none!important}
 #announceBanner{animation:annPop 0.4s cubic-bezier(0.34,1.56,0.64,1) both}
 
 /* ── Splash keyframe ── */
-@keyframes splashFade{0%,100%{opacity:0.4}50%{opacity:1}}
+@keyframes splashFade{0%,100%{opacity:0.4;transform:scale(0.94)}50%{opacity:1;transform:scale(1.04)}}

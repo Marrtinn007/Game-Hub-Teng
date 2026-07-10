@@ -141,7 +141,7 @@ function _loadAdminStatus(uid){
     const ab=$('adminMenuBtn');
     if(ab)ab.style.display=_isAdminCached?'':'none';
     if(typeof window._reapplyMaintenance==='function')window._reapplyMaintenance();
-  }).catch(()=>{_isAdminCached=false;});
+  }).catch(e=>{_isAdminCached=false;logError('load_admin_status',e);});
 }
 function isAdmin(){return _isAdminCached;}
 function initFirebase(){
@@ -271,7 +271,7 @@ function startSessionGuard(uid){
     if(initVal.forceLogout)S._lastForceLogoutSeen=initVal.forceLogout;
     // เขียนทับ sid — ใช้ update ไม่ใช่ set เพื่อรักษา activeRoom ไว้
     const _u=firebase.auth().currentUser;
-    ref.update({sid:S.sessionId,ts:Date.now(),displayName:_u?.displayName||null,email:_u?.email||null,photo:_u?.photoURL||null}).catch(()=>{});
+    ref.update({sid:S.sessionId,ts:Date.now(),displayName:_u?.displayName||null,email:_u?.email||null,photo:_u?.photoURL||null}).catch(e=>logError('session_guard_update',e));
     // เริ่ม listen หลังจาก seed แล้ว + หลัง update sid แล้ว
     // ข้าม snapshot แรก (เป็นผลของ update ข้างบน — ของตัวเอง)
     let _firstSnap=true;
@@ -285,10 +285,11 @@ function startSessionGuard(uid){
         forceLogoutByAdmin();
       }
     });
-  }).catch(()=>{
+  }).catch(e=>{
+    logError('session_guard_read',e);
     // fallback: ถ้าอ่าน once ไม่ได้ ก็ listen ตรงๆ เลย
     const _u=firebase.auth().currentUser;
-    ref.update({sid:S.sessionId,ts:Date.now(),displayName:_u?.displayName||null,email:_u?.email||null,photo:_u?.photoURL||null}).catch(()=>{});
+    ref.update({sid:S.sessionId,ts:Date.now(),displayName:_u?.displayName||null,email:_u?.email||null,photo:_u?.photoURL||null}).catch(e=>logError('session_guard_update',e));
     let _firstSnap=true;
     ref.on('value',snap=>{
       if(_firstSnap){_firstSnap=false;return;}
@@ -312,8 +313,8 @@ function forceKickedBySameAccount(){
   // ลบ node ตัวเองออกจากห้องทันที — เครื่องใหม่ไม่ต้อง rejoin เข้ามาแทนอีกต่อไป
   // ถ้าเป็น host → auto-promote timer ของเครื่องอื่นจะทำงานเองใน 2.5s
   if(firebaseReady&&S.roomCode&&S.myPlayerId){
-    db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}`).remove().catch(()=>{});
-    if(currentUser?.uid)db.ref('userSessions/'+currentUser.uid+'/activeRoom').remove().catch(()=>{});
+    db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}`).remove().catch(e=>logError('force_kick_remove_player',e));
+    if(currentUser?.uid)db.ref('userSessions/'+currentUser.uid+'/activeRoom').remove().catch(e=>logError('force_kick_clear_session',e));
   }
   // ปิด listeners ทั้งหมด
   [roomRef,gameRef,wwRef].forEach(r=>r?.off());
@@ -330,8 +331,8 @@ function confirmSessionKicked(){
 function forceLogoutByAdmin(){
   stopSessionGuard();
   if(firebaseReady&&S.roomCode&&S.myPlayerId){
-    db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}`).remove().catch(()=>{});
-    if(currentUser?.uid)db.ref('userSessions/'+currentUser.uid+'/activeRoom').remove().catch(()=>{});
+    db.ref(`rooms/${S.roomCode}/players/${S.myPlayerId}`).remove().catch(e=>logError('force_logout_remove_player',e));
+    if(currentUser?.uid)db.ref('userSessions/'+currentUser.uid+'/activeRoom').remove().catch(e=>logError('force_logout_clear_session',e));
   }
   [roomRef,gameRef,wwRef].forEach(r=>r?.off());
   roomRef=gameRef=wwRef=null;
@@ -345,7 +346,7 @@ function forceLogoutByAdmin(){
    เครื่องเก่าจะถูก signOut และลบออกจากห้องอัตโนมัติ              */
 function checkRejoinRoom(uid){
   // ล้าง activeRoom ที่ค้างอยู่ออก เผื่อเครื่องเก่า crash ไม่ได้ลบ
-  if(db&&uid)db.ref('userSessions/'+uid+'/activeRoom').remove().catch(()=>{});
+  if(db&&uid)db.ref('userSessions/'+uid+'/activeRoom').remove().catch(e=>logError('check_rejoin_clear_session',e));
 }
 /* ══ RESTORE SESSION ROOM: เฉพาะกดรีเฟรชแท็บเดิม ═══════════════
    ใช้ sessionStorage (หายเมื่อปิดแท็บจริงๆ แต่รอดตอนกด refresh)

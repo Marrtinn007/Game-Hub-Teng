@@ -29,7 +29,8 @@
   background:radial-gradient(140% 160% at 100% 0%,var(--ac-dim),transparent 60%),var(--card2);
   border:1px solid var(--line);
 }
-.pdd-avatar{width:52px;height:52px;border-radius:50%;flex-shrink:0;border:2px solid var(--ac);box-shadow:0 0 0 3px var(--ac-dim)}
+.pdd-avatar{width:52px;height:52px;border-radius:50%;flex-shrink:0;border:2px solid var(--ac);box-shadow:0 0 0 3px var(--ac-dim);animation:avatarGlow 2.4s ease-in-out infinite}
+@keyframes avatarGlow{0%,100%{box-shadow:0 0 0 3px var(--ac-dim)}50%{box-shadow:0 0 0 6px var(--ac-dim)}}
 .pdd-who{flex:1;min-width:0}
 .pdd-name{font-size:15px;font-weight:800;color:var(--t0);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pdd-email{font-size:11.5px;color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px}
@@ -135,7 +136,12 @@
   width:52px;height:52px;border-radius:16px;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;font-size:25px;
   background:var(--tile-bg);box-shadow:0 4px 10px -2px rgba(0,0,0,0.4),inset 0 1px 0 rgba(255,255,255,0.2);
+  animation:iconBob 3s ease-in-out infinite;
 }
+.home-row:nth-child(2n) .home-row-icon{animation-delay:0.3s}
+.home-row:nth-child(3n) .home-row-icon{animation-delay:0.6s}
+.home-row:nth-child(4n) .home-row-icon{animation-delay:0.9s}
+@keyframes iconBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 .home-row-info{flex:1;min-width:0}
 .home-row-name{display:block;font-size:15.5px;font-weight:800;color:var(--t0)}
 .home-row-desc{display:block;font-size:12px;color:var(--t2);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -200,11 +206,13 @@
 .p-badge{font-size:11px;padding:4px 12px;border-radius:var(--r-pill);background:var(--ac-dim);color:var(--ac);font-weight:700}
 .share-box{margin:1.25rem var(--pad) 0;padding:1.25rem 1.5rem;background:var(--card);border-radius:var(--r);border:1px solid var(--line)}
 .share-lbl{font-size:11px;color:var(--t2);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;font-weight:700}
-.share-code{font-size:38px;font-weight:800;letter-spacing:0.12em;margin-bottom:12px;color:var(--ac);display:block}
+.share-code{font-size:38px;font-weight:800;letter-spacing:0.12em;margin-bottom:12px;color:var(--ac);display:block;animation:shareGlow 2.2s ease-in-out infinite}
+@keyframes shareGlow{0%,100%{text-shadow:0 0 0 transparent}50%{text-shadow:0 0 14px var(--ac-dim)}}
 .game-select-grid{margin:0 var(--pad);display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .game-select-card{padding:1rem;cursor:pointer;text-align:center;user-select:none;background:var(--card);border-radius:var(--r);border:1px solid var(--line);transition:all 0.15s var(--spring)}
 .game-select-card:active{transform:scale(0.97)!important}
-.game-select-card.selected{border-color:var(--ac);background:rgba(124,156,255,0.1)}
+.game-select-card.selected{border-color:var(--ac);background:rgba(124,156,255,0.1);animation:selectedGlow 2s ease-in-out infinite}
+@keyframes selectedGlow{0%,100%{box-shadow:0 0 0 0 rgba(124,156,255,0)}50%{box-shadow:0 0 16px 2px var(--ac-dim)}}
 .game-select-card.selected .gs-name{color:var(--ac)}
 .gs-icon{font-size:28px;margin-bottom:6px}
 .gs-name{font-size:14px;font-weight:700;color:var(--t0)}

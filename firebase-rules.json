@@ -27,12 +27,50 @@
         "roomName": {
           ".write": "auth != null && root.child('rooms').child($roomCode).child('players').child(auth.uid).child('isHost').val() === true"
         },
-        "game":    { ".write": "auth != null && root.child('rooms').child($roomCode).child('players').child(auth.uid).child('isHost').val() === true" },
-        "ww":      { ".write": "auth != null && root.child('rooms').child($roomCode).child('players').child(auth.uid).child('isHost').val() === true" },
-        "wwTimer": { ".write": "auth != null && root.child('rooms').child($roomCode).child('players').child(auth.uid).child('isHost').val() === true" },
-        "spy":     { ".write": "auth != null && root.child('rooms').child($roomCode).child('players').child(auth.uid).child('isHost').val() === true" },
-        "king":    { ".write": "auth != null && root.child('rooms').child($roomCode).child('players').child(auth.uid).child('isHost').val() === true" },
-        "salem":   { ".write": "auth != null && root.child('rooms').child($roomCode).child('players').child(auth.uid).child('isHost').val() === true" }
+        "game": {
+          ".write": "auth != null && root.child('rooms').child($roomCode).child('players').child(auth.uid).child('isHost').val() === true",
+          ".validate": "!newData.exists() || (newData.hasChildren(['type', 'started']) && newData.child('type').isString() && newData.child('type').val().length <= 20 && newData.child('started').isBoolean() && (!newData.hasChild('startedAt') || newData.child('startedAt').isNumber()))"
+        },
+        "ww": {
+          ".write": "auth != null && root.child('rooms').child($roomCode).child('players').child(auth.uid).child('isHost').val() === true",
+          "assigned":  { ".validate": "!newData.exists() || (newData.hasChildren() && newData.numChildren() <= 18)" },
+          "alive":     {
+            ".validate": "!newData.exists() || newData.numChildren() <= 18",
+            "$pid": { ".validate": "newData.isBoolean()" }
+          },
+          "dealt":     { ".validate": "!newData.exists() || newData.isBoolean()" },
+          "dealId":    { ".validate": "!newData.exists() || newData.isNumber()" },
+          "status":    {
+            ".validate": "!newData.exists() || newData.numChildren() <= 18"
+          },
+          "cupidPair": { ".validate": "!newData.exists() || newData.numChildren() <= 2" },
+          "wolfIds":   { ".validate": "!newData.exists() || newData.numChildren() <= 18" }
+        },
+        "wwTimer": {
+          ".write": "auth != null && root.child('rooms').child($roomCode).child('players').child(auth.uid).child('isHost').val() === true",
+          ".validate": "!newData.exists() || (newData.hasChildren(['secs', 'snapshot', 'running', 'updatedAt']) && newData.child('secs').isNumber() && newData.child('snapshot').isNumber() && newData.child('running').isBoolean() && newData.child('updatedAt').isNumber() && (!newData.hasChild('startedAt') || newData.child('startedAt').isNumber()))"
+        },
+        "spy": {
+          ".write": "auth != null && root.child('rooms').child($roomCode).child('players').child(auth.uid).child('isHost').val() === true",
+          ".validate": "!newData.exists() || (newData.hasChildren(['locIdx', 'locName', 'locEmoji', 'spyIds', 'assigned', 'timeSecs', 'startedAt', 'dealt', 'dealId']) && newData.child('locIdx').isNumber() && newData.child('locName').isString() && newData.child('locName').val().length <= 60 && newData.child('locEmoji').isString() && newData.child('locEmoji').val().length <= 8 && newData.child('timeSecs').isNumber() && newData.child('startedAt').isNumber() && newData.child('dealt').isBoolean() && newData.child('dealId').isNumber() && newData.child('spyIds').numChildren() <= 30 && newData.child('assigned').numChildren() <= 30)"
+        },
+        "king": {
+          ".write": "auth != null && root.child('rooms').child($roomCode).child('players').child(auth.uid).child('isHost').val() === true",
+          ".validate": "!newData.exists() || (newData.hasChildren(['assigned', 'dealId', 'dealt']) && newData.child('dealId').isNumber() && newData.child('dealt').isBoolean() && newData.child('assigned').numChildren() <= 30)"
+        },
+        "salem": {
+          ".write": "auth != null && root.child('rooms').child($roomCode).child('players').child(auth.uid).child('isHost').val() === true",
+          "lastAction": { ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 300)" },
+          "alertMsg": { ".validate": "!newData.exists() || (newData.hasChild('pid') && newData.hasChild('msg') && newData.child('msg').isString() && newData.child('msg').val().length <= 200)" },
+          "forceConfess": { ".validate": "!newData.exists() || newData.hasChild('pid')" },
+          "advanceTurnRequest": { ".validate": "!newData.exists() || newData.hasChild('by')" },
+          "nightCardEvent": { ".validate": "!newData.exists() || newData.hasChild('by')" },
+          "blackCatEvent": { ".validate": "!newData.exists() || newData.hasChild('holderId')" },
+          "conspiracyDone": { ".validate": "!newData.exists() || newData.hasChild('at')" },
+          "conspiracyPicks": {
+            "$pid": { ".validate": "!newData.exists() || (newData.hasChild('at') && newData.child('at').isNumber())" }
+          }
+        }
       }
     },
     "userSessions": {
