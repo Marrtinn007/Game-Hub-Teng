@@ -191,6 +191,22 @@
 /* ── Lobby ── */
 #screen-lobby{padding-bottom:2.5rem}
 .lobby-header{padding:1.25rem var(--pad) 0.875rem;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10;background:rgba(var(--bg-raw,17,19,24),0.94);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+
+/* ── Lobby entrance: องค์ประกอบต่างๆ ไล่เข้ามาทีละชิ้นทุกครั้งที่เข้าหน้าห้อง ── */
+@keyframes lobbyRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.screen.active .lobby-header{animation:lobbyRise 0.45s var(--smooth) both}
+.screen.active .share-box{animation:lobbyRise 0.45s var(--smooth) both 0.06s}
+.screen.active .lobby-sec{animation:lobbyRise 0.45s var(--smooth) both 0.12s}
+.screen.active .game-select-grid{animation:lobbyRise 0.45s var(--smooth) both 0.18s}
+.screen.active .host-only-hint{animation:lobbyRise 0.45s var(--smooth) both 0.26s}
+.screen.active .btn-start{
+  animation-name:lobbyRise,startBreathe;
+  animation-duration:0.45s,2.8s;
+  animation-timing-function:var(--smooth),ease-in-out;
+  animation-iteration-count:1,infinite;
+  animation-fill-mode:both,none;
+  animation-delay:0.22s,0s;
+}
 .lobby-title{flex:1}
 .lobby-room-code{font-size:11px;font-weight:700;letter-spacing:0.10em;color:var(--t2);text-transform:uppercase}
 .lobby-room-name{font-size:20px;font-weight:900;color:var(--t0);line-height:1.2}
